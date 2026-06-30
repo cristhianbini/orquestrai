@@ -1047,12 +1047,15 @@ button[onclick="send()"]:hover{
       '<button class="b356-tab" data-t="agt">AGENTES</button>';
     if(head && head.nextSibling) shell.insertBefore(bar, head.nextSibling); else shell.insertBefore(bar, body);
 
-    // Panes
-    var existing=body.innerHTML;
-    body.innerHTML=
-      '<div class="b356-pane on" data-p="prov">'+existing+'</div>'+
-      '<div class="b356-pane" data-p="mod"><div class="b356-empty"><b>Modelos</b>Selecione um provider na aba PROVEDORES para listar modelos.<br>Endpoint: <code>GET /api/providers/:id/models</code></div></div>'+
-      '<div class="b356-pane" data-p="agt"><div class="b356-empty"><b>Agentes</b>Em breve: criar/editar agentes sem sair do painel.<br>Endpoint: <code>POST /api/agents/create</code></div></div>';
+    // Panes -- CTXFIXPROV01: preserva os nos reais via appendChild (move, nao recria por string,
+    // que quebrava a referencia 'content'/'status' ja capturada pelo oq10Prov original)
+    var provPane=document.createElement('div'); provPane.className='b356-pane on'; provPane.dataset.p='prov';
+    while(body.firstChild) provPane.appendChild(body.firstChild);
+    var modPane=document.createElement('div'); modPane.className='b356-pane'; modPane.dataset.p='mod';
+    modPane.innerHTML='<div class="b356-empty"><b>Modelos</b>Selecione um provider na aba PROVEDORES para listar modelos.<br>Endpoint: <code>GET /api/providers/:id/models</code></div>';
+    var agtPane=document.createElement('div'); agtPane.className='b356-pane'; agtPane.dataset.p='agt';
+    agtPane.innerHTML='<div class="b356-empty"><b>Agentes</b>Em breve: criar/editar agentes sem sair do painel.<br>Endpoint: <code>POST /api/agents/create</code></div>';
+    body.appendChild(provPane); body.appendChild(modPane); body.appendChild(agtPane);
 
     bar.addEventListener('click',function(e){
       var b=e.target.closest('.b356-tab'); if(!b) return;
