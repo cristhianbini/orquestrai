@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-06-30 16:17:43 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-06-30 19:49:29 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -1341,7 +1341,20 @@ async function send(){
   pushChat('mas','iniciando agentes (Scout/Auditor/Detetive/Smith/Guardian/Memorialista/Rel/Metrico)...'); // CTXSPOT02
   oqTermWrite('\n# [MAS] iniciando para: '+t+'\n');
   try{
-    var rr = await fetch('/api/mas/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal:t})});
+    // CTXBRIDGE01: injeta historico do chat individual como contexto adicional pro MAS
+    var __masCtx = '';
+    try {
+      if(window.oq46mCID && typeof window.oq46mGetHistory==='function'){
+        var __hist = await window.oq46mGetHistory(window.oq46mCID);
+        if(__hist && __hist.length){
+          var __last = __hist.slice(-6);
+          __masCtx = '\n\n[CONTEXTO DO CHAT ANTES DO MAS]\n' +
+            __last.map(function(m){ return (m.role==='user'?'Usuário':'IA')+': '+String(m.content).slice(0,300); }).join('\n') +
+            '\n[FIM DO CONTEXTO]';
+        }
+      }
+    } catch(_){}
+    var rr = await fetch('/api/mas/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal: t + __masCtx})});
     var jj = await rr.json().catch(function(){return{}});
     if(!rr.ok){ pushChat('erro','MAS nao iniciou: '+(jj.error||rr.status)); input.focus(); return; } if(jj.mode==='chat' && jj.reply){ pushChat('ia',jj.reply); input.focus(); return; } if(!(jj.run_id||jj.id)){ pushChat('erro','MAS sem run_id: '+(jj.error||JSON.stringify(jj).slice(0,120))); input.focus(); return; } var __rid = jj.run_id||jj.id;
     if(window.__oqMasES){ try{window.__oqMasES.close();}catch(_){} } // CTXSSE02: fecha SSE anterior
