@@ -170,3 +170,21 @@ Criterio de convocacao: taxa de acerto por tipo de tarefa (agent_executions, Rel
 ## Backlog futuro (adicionado 2026-06-30)
 - [ ] GitHub RAG: ingerir repos publicos do GitHub (README/docs/codigo) na knowledge base local. Agente PESQUISADOR (reserva) faz git clone + parse + chunks no banco. Agentes consultam antes de responder. Conecta com Release 0.5 (RAG).
 - [ ] LM Eval Harness: integrar benchmarks padronizados (EleutherAI lm-evaluation-harness) pra ranquear modelos por posicao antes de designar ao time. Complementa agent_executions (Release 0.7).
+
+## Sprint Rodada 3 (proxima sessao)
+
+### FACIL
+1. [ ] CTXAGT02 - Botao "Usar neste agente" na aba MODELOS: seleciona posicao e persiste modelo no banco (substitui hardcode no AGS)
+2. [ ] CTXAGT03 - AGS carregado do banco (nao hardcoded): permite mudar modelo de qualquer posicao sem deploy
+3. [ ] CTXSPOT05 - Corrigir erros linha 2606 (B187 instrumento tentando setar innerHTML em elemento null) -- 70+ erros no console acumulando
+
+### MEDIO
+4. [ ] CTXREVISOR01 - Adicionar agente REVISOR como posicao #9 do pipeline MAS (modelo: claude-opus-4-8, convocado so ao final, avalia qualidade da solucao, nao apenas seguranca)
+5. [ ] CTXRAG01 - GitHub RAG basico: clonar repo via URL para /var/www/orquestrai/projects/{nome}, indexar README+docs na knowledge base, agentes consultam antes de responder
+6. [ ] CTXBUMP01 - Versionar o sistema apos cada sprint com bump-version.sh (hoje nao tem sido feito sistematicamente)
+
+### DIFICIL
+7. [ ] CTXVITE01 - Migrar login (index.html) para Vite+React+Tailwind como piloto do pipeline de build
+8. [ ] CTXVITE02 - Modularizar painel de agentes MAS como segundo componente React (score visual nasce aqui limpo)
+9. [ ] CTXLMEVAL01 - Integrar LM Eval Harness para benchmarking de modelos por posicao antes de designar ao time
+10. [ ] CTXRESERVA01 - Estrutura para reservas: suporte a mais de 11 posicoes no AGS, convocacao por tipo de tarefa (liga com agent_executions)
