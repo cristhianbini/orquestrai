@@ -144,3 +144,25 @@ status: vivo
         extrair o painel de agentes MAS como segundo componente React. Score visual
         (luz vermelho/verde, CTXSCORE01 UI) nasce aqui, limpo, sem mais patch em cima
         de patch.
+
+## Escalacao do Time de Agentes (decidido 2026-06-30)
+Inspiracao: time de futebol.
+- 11 titulares (posicoes fixas, sempre no pipeline)
+- 15 reservas (especializacoes, convocados por tipo de tarefa)
+- Total elenco: 26 agentes
+
+Time titular atual (8/11):
+  1 BATEDOR    (scout)        - varredura rapida inicial
+  2 AUDITOR    (auditor)      - analise detalhada e revisao
+  3 DETETIVE   (detetive)     - investigacao e correlacao
+  4 ARQUITETO  (smith)        - arquitetura e estruturacao
+  5 GUARDIAO   (guardian)     - protecao e validacao
+  6 MEMORIALISTA (memorialista) - registro de memorias e licoes
+  7 RELATOR    (rel)          - relatorios e sinteses
+  8 METRICO    (metrico)      - metricas e monitoramento
+  9 (vago) - sugestao: DESIGNER (UI/UX, visual consistency) -- Release 0.7
+ 10 (vago) - sugestao: TESTADOR (validacao automatizada, TDD)
+ 11 (vago) - sugestao: PUBLICADOR (deploy, release notes, changelog)
+
+Reservas (0/15): a definir conforme necessidades reais dos projetos.
+Criterio de convocacao: taxa de acerto por tipo de tarefa (agent_executions, Release 0.7).
