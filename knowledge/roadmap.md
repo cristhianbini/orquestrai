@@ -65,10 +65,10 @@ status: vivo
 
 ## Sprint atual (rodada 1 -- foco imediato, 2026-06-30)
 1. [x] CTXMAS01 - memoria entre runs do MAS (ultimas 3 runs concluidas injetadas no contexto)
-2. [ ] BLOCO no modo MAS - extrair codigo do agente 'smith' para o card BLOCO (igual chat individual ja faz); comentario no chat vira resumo curto por agente; codigo do BLOCO entregue ja vem comentado
-3. [ ] Teste de validacao - confirmar memoria do MAS funcionando (mesmo teste do chat individual: pergunta, depois "lembra?", via run com palavra-gatilho de auditoria)
-4. [ ] agent_executions - schema de outcome (sucesso/falha) ligado a /api/execute, base do Release 0.7
-5. [ ] UI do card de agente - badge "trabalhando agora" (liga no inicio, muda ao proximo agente) + indicador de score visual (luz vermelho/verde) abaixo do custo, alimentado por agent_executions
+2. [x] BLOCO no modo MAS - extrair codigo do agente 'smith' para o card BLOCO (igual chat individual ja faz); comentario no chat vira resumo curto por agente; codigo do BLOCO entregue ja vem comentado
+3. [x] Teste de validacao - CONFIRMADO em producao (memoria individual + memoria MAS + BLOCO extraido + resumo curto). Achado: chave Groq invalida para auditor/metrico (corrigida via UI Providers, fora do codigo) - confirmar memoria do MAS funcionando (mesmo teste do chat individual: pergunta, depois "lembra?", via run com palavra-gatilho de auditoria)
+4. [x] agent_executions (via tabela existente 'execucoes' + colunas de proveniencia, CTXPROV01) - schema de outcome (sucesso/falha) ligado a /api/execute, base do Release 0.7
+5. [x] UI do card de agente - badge ja existia (b124g5), intensificado (CTXPULSE01); score backend pronto (CTXSCORE01), UI visual adiada para Vite/React por decisao consciente - badge "trabalhando agora" (liga no inicio, muda ao proximo agente) + indicador de score visual (luz vermelho/verde) abaixo do custo, alimentado por agent_executions
 
 ## Backlog futuro - ordenado de mais facil para mais dificil
 
