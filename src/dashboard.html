@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-06-30 19:53:40 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-06-30 20:02:54 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -3718,7 +3718,7 @@ window.oqNovag = {
 (function(){
   var PROVS=['groq','openrouter','cerebras','gemini','anthropic','openai'];
   var state={active:'groq',models:{},query:''};
-  function tok(){return localStorage.getItem('token')||localStorage.getItem('authToken')||localStorage.getItem('jwt')||''}
+  function tok(){try{return localStorage.getItem('oq_token')||localStorage.getItem('token')||localStorage.getItem('authToken')||localStorage.getItem('orq_jwt')||localStorage.getItem('jwt')||''}catch(e){return ''}} // CTXMODELOS01-fix
   function init(){
     var pane=document.querySelector('#oq10ProvModal [data-p="mod"]'); // CTXMODELOS01
     if(!pane) return setTimeout(init,500);
