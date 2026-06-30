@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-06-30 15:36:24 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-06-30 15:47:03 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -1372,6 +1372,7 @@ function b124g5Apply(ag,state){
       cards[i].classList.remove('b124g5-working','b124g5-ready','b124g5-error');
       if(state==='working'||state==='ready'||state==='error') cards[i].classList.add('b124g5-'+state);
       cards[i].classList.toggle('running', state==='working'); // CTXSPOT01: religa o spotlight (B381) no estado real
+      cards[i].classList.remove('ag-waiting','ag-active','ag-done'); // CTXSPOT03: limpa classe legada que travava BATEDOR em amarelo
       var p=cards[i].querySelector('.b124g5-state');
       if(!p){ p=document.createElement('span'); p.className='b124g5-state'; cards[i].appendChild(p); }
       p.textContent=state.toUpperCase();
