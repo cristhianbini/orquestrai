@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-06-30 15:47:03 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-06-30 16:13:55 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -3442,9 +3442,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     }
     return es;
   };
-  // tenta marcar ao carregar (caso já existam cards)
-  setTimeout(markFirstWaiting, 800);
-  setTimeout(markFirstWaiting, 2000);
+  // CTXSPOT04: setTimeout(markFirstWaiting) removidos -- travavam BATEDOR em amarelo permanente na carga da pagina
 })();
 </script>
 <!-- B326-PULSE-END -->
