@@ -1370,6 +1370,7 @@ function b124g5Apply(ag,state){
     if(n.textContent.trim()===nm){
       cards[i].classList.remove('b124g5-working','b124g5-ready','b124g5-error');
       if(state==='working'||state==='ready'||state==='error') cards[i].classList.add('b124g5-'+state);
+      cards[i].classList.toggle('running', state==='working'); // CTXSPOT01: religa o spotlight (B381) no estado real
       var p=cards[i].querySelector('.b124g5-state');
       if(!p){ p=document.createElement('span'); p.className='b124g5-state'; cards[i].appendChild(p); }
       p.textContent=state.toUpperCase();
@@ -3426,7 +3427,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   window.EventSource=function(url,opts){
     var es=new origES(url,opts);
     if(/\/api\/mas\/(events|run)/.test(url)){
-      markFirstWaiting();
+      // CTXSPOT01: markFirstWaiting() removida -- nunca avancava, deixava o card preso em amarelo
       es.addEventListener('message',function(ev){
         try{
           var d=JSON.parse(ev.data);
@@ -4225,19 +4226,19 @@ window.oqNovag = {
 </html>
 <style id="B381_SPOTLIGHT">
 /* Card do agente ativo: holofote */
-.ag-card.running{
+.oq46y-card.running{ /* CTXSPOT01: era .ag-card (classe inexistente); var --ag-color era --ag-col */
   transform: scale(1.04);
   border-width: 2px !important;
-  border-color: var(--ag-color, #38bdf8) !important;
+  border-color: var(--ag-col, #38bdf8) !important;
   box-shadow:
-    0 0 0 2px var(--ag-color, #38bdf8),
-    0 0 24px 4px color-mix(in oklab, var(--ag-color, #38bdf8) 60%, transparent),
-    0 0 48px 8px color-mix(in oklab, var(--ag-color, #38bdf8) 30%, transparent) !important;
+    0 0 0 2px var(--ag-col, #38bdf8),
+    0 0 24px 4px color-mix(in oklab, var(--ag-col, #38bdf8) 60%, transparent),
+    0 0 48px 8px color-mix(in oklab, var(--ag-col, #38bdf8) 30%, transparent) !important;
   animation: b381pulse 1.2s ease-in-out infinite !important;
   z-index: 5; position: relative;
   transition: transform .25s ease, box-shadow .25s ease;
 }
-.ag-card.running::before{
+.oq46y-card.running::before{ /* CTXSPOT01 */
   content:"⚡ pensando";
   position:absolute; top:-10px; right:8px;
   font-size:10px; font-weight:700; letter-spacing:.05em;
