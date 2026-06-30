@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-06-30 20:19:06 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-06-30 20:22:25 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -1052,7 +1052,7 @@ button[onclick="send()"]:hover{
     // que quebrava a referencia 'content'/'status' ja capturada pelo oq10Prov original)
     var provPane=document.createElement('div'); provPane.className='b356-pane on'; provPane.dataset.p='prov';
     while(body.firstChild) provPane.appendChild(body.firstChild);
-    var modPane=document.createElement('div'); modPane.className='b356-pane b341d-pane'; modPane.dataset.p='mod'; modPane.setAttribute('data-pane','mod'); // CTXMODELOS03: CSS usa data-pane, JS usa data-p
+    var modPane=document.createElement('div'); modPane.className='b356-pane'; modPane.dataset.p='mod'; modPane.setAttribute('data-pane','mod'); // CTXMODELOS06: b341d-pane removida (causava display:none)
     modPane.innerHTML='<div class="b356-empty"><b>Modelos</b>Selecione um provider na aba PROVEDORES para listar modelos.<br>Endpoint: <code>GET /api/providers/:id/models</code></div>';
     var agtPane=document.createElement('div'); agtPane.className='b356-pane'; agtPane.dataset.p='agt';
     agtPane.innerHTML='<div class="b356-empty"><b>Agentes</b>Cadastre um novo agente customizado.<br><button class="oq10-btn ok" type="button" style="margin-top:10px" onclick="oqNovag.open()">+ Novo Agente</button></div>'; // CTXUX01
@@ -1067,6 +1067,7 @@ button[onclick="send()"]:hover{
       if(t==='mod'){ setTimeout(function(){ // CTXMODELOS05: impl inline (zero CSS externo)
         var pane=document.querySelector('#oq10ProvModal [data-p="mod"]');
         if(!pane) return;
+        pane.style.display='flex'; pane.style.flexDirection='column'; // CTXMODELOS06: garante visibilidade independente de CSS
         pane.innerHTML='<div id="oqM" style="padding:16px;height:100%;box-sizing:border-box;display:flex;flex-direction:column"><div id="oqMBar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"></div><input id="oqMQ" placeholder="filtrar modelos..." style="width:100%;padding:6px 10px;background:#111827;border:1px solid #374151;color:#e5e7eb;border-radius:6px;box-sizing:border-box;margin-bottom:8px;font:13px ui-monospace,monospace;outline:none"><div id="oqMSt" style="color:#9ca3af;font:12px ui-monospace,monospace;margin-bottom:8px">selecione um provider</div><div id="oqMGr" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;overflow-y:auto;flex:1"></div></div>';
         var bar=document.getElementById('oqMBar');
         var provs=['groq','openrouter','cerebras','gemini','anthropic','openai'];
