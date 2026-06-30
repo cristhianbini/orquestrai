@@ -1445,15 +1445,17 @@ function b124g5Apply(ag,state){
           if(idx+1<PIPE.length) masxSet(PIPE[idx+1],'working');
         }
       }
-      if(tx) pushChat('mas','['+ag+'] '+String(tx).slice(0,500));
-      var b = tryExtract(d.bash || d.code || '');
+      if(tx){ var __resumo = String(tx).split('\n').filter(function(l){return l.trim();})[0]||tx; pushChat('mas','['+ag+'] '+__resumo.slice(0,140)+(__resumo.length>140?'\u2026':'')); } // CTXBLOCOMAS01: resumo curto
+      var b = extractBloco(d.bash || d.code || tx || '') || tryExtract(d.bash || d.code || ''); // CTXBLOCOMAS01: parser robusto primeiro
       if(!b) b = b124g5Buf(ag,tx);
       if(b) lastBash = b;
       // promote no fim da run
       if(tp==='run.done' || tp==='run.error' || d.done || d.final){
         try{es.close()}catch(_){}
         if(lastBash){
-          var el=$('bloco'); if(el) el.textContent=lastBash;
+          var __header = '# Gerado pelo MAS (OrquestrAI) -- run '+__rid+' -- revise antes de executar\n'; // CTXBLOCOMAS01
+          var __corpo = /^\s*#/.test(lastBash) ? lastBash : (__header+lastBash);
+          var el=$('bloco'); if(el) el.textContent=__corpo;
           var ti=$('bloco-titulo'); if(ti) ti.textContent='BLOCO LAVE (MAS)';
           pushChat('ia','✅ bloco pronto no card BLOCO LAVE. Clique EXECUTAR.');
           oqTermWrite('# [MAS] bloco gerado: '+lastBash.split('\n').length+' linhas\n');
