@@ -129,7 +129,7 @@ status: vivo
        nao sabe que o frontend esta em modo MAS): passar flag {mas_mode: true} no body
        de /api/mas/run, e no backend so ativar quickChatReply se mas_mode=false.
 
-8. [ ] CTXMODELOS01 -- Aba MODELOS do modal Providers: ligar ao b342u que ja existe
+8. [x] CTXMODELOS01~06 -- Aba MODELOS do modal Providers: ligar ao b342u que ja existe
        (implementacao completa com filtro/FREE tags) mas nunca foi conectado a essa aba.
        Sem reescrever nada, so religar as pecas existentes.
 
