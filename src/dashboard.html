@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-06-30 20:02:54 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-06-30 20:05:53 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -1064,7 +1064,7 @@ button[onclick="send()"]:hover{
       var t=b.dataset.t;
       body.querySelectorAll('.b356-pane').forEach(function(p){p.classList.toggle('on', p.dataset.p===t);});
       try{ localStorage.setItem('oq_agt_tab', t); }catch(e){}
-      if(t==='mod'){ setTimeout(function(){ var m=document.querySelector('#oq10ProvModal'); if(m&&m.__b342uInit) m.__b342uInit(); },80); } // CTXMODELOS01
+      if(t==='mod'){ setTimeout(function(){ if(window.__b342uReinit) window.__b342uReinit(); },80); } // CTXMODELOS02
     });
     try{
       var saved=localStorage.getItem('oq_agt_tab');
@@ -3760,7 +3760,14 @@ window.oqNovag = {
     }).join('');
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
-  var _m=document.querySelector('#oq10ProvModal'); if(_m) _m.__b342uInit=init; // CTXMODELOS01
+  // CTXMODELOS02: expoe reinit global que forca reset (evita early-return do b342u-wrap)
+  window.__b342uReinit = function(){
+    var pane=document.querySelector('#oq10ProvModal [data-p="mod"]');
+    if(!pane) return;
+    pane.innerHTML=''; // limpa conteudo antigo (evita early-return)
+    Object.keys(state.models).forEach(function(k){delete state.models[k];}); // limpa cache de modelos
+    init();
+  };
 })();
 </script>
 
