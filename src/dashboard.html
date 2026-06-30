@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-06-30 19:49:29 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-06-30 19:51:32 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -1354,7 +1354,7 @@ async function send(){
         }
       }
     } catch(_){}
-    var rr = await fetch('/api/mas/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal: t + __masCtx})});
+    var rr = await fetch('/api/mas/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal: t + __masCtx, mas_mode: true})}); // CTXROUTE01
     var jj = await rr.json().catch(function(){return{}});
     if(!rr.ok){ pushChat('erro','MAS nao iniciou: '+(jj.error||rr.status)); input.focus(); return; } if(jj.mode==='chat' && jj.reply){ pushChat('ia',jj.reply); input.focus(); return; } if(!(jj.run_id||jj.id)){ pushChat('erro','MAS sem run_id: '+(jj.error||JSON.stringify(jj).slice(0,120))); input.focus(); return; } var __rid = jj.run_id||jj.id;
     if(window.__oqMasES){ try{window.__oqMasES.close();}catch(_){} } // CTXSSE02: fecha SSE anterior
