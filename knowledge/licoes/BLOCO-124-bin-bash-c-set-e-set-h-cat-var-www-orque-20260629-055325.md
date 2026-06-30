@@ -1,0 +1,17 @@
+---
+tipo: licao-automatica
+bloco: BLOCO-124
+title: "Auto: /bin/bash -c 'set +e; set +H; cat /var/www/orquestrai/knowledge/changelog.md'"
+sha256: b0dda64ce15680edae9522cc2f9f5bab2ea4672c6ff5889bc3b88ced547d65cd
+created: 2026-06-29T05:53:25.656Z
+---
+
+# BLOCO-124 - /bin/bash -c 'set +e; set +H; cat /var/www/orquestrai/knowledge/changelog.md'
+
+## O que ficou aprendido
+Bloco LAVE persistido automaticamente para consulta futura.
+
+## Script completo
+~~~bash
+/bin/bash -c 'set +e; set +H; cat /var/www/orquestrai/knowledge/changelog.md'
+~~~

@@ -1,0 +1,61 @@
+services:
+  web:
+    image: nginx:alpine
+    container_name: orquestrai-web
+    restart: unless-stopped
+    volumes:
+      - ./src:/usr/share/nginx/html:ro
+      - ./nginx-web/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - app-net
+
+  api:
+    environment:
+      - LAVE_BASE=/var/www/orquestrai
+    build: ./api
+    container_name: orquestrai-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - app-net
+
+    volumes:
+      - ./data:/var/www/orquestrai/data
+      - ./api:/app/api:ro
+      - ./api/knowledgeRoutes.cjs:/app/knowledgeRoutes.cjs:ro
+      - ./api/providers.cjs:/app/providers.cjs:ro
+      - ./api/server.js:/app/server.js:ro
+      - ./api/clusterRoutes.cjs:/app/clusterRoutes.cjs:ro
+      - ./api/blocosRoutes.cjs:/app/blocosRoutes.cjs:ro
+      - ./api/laveRoutes.cjs:/app/laveRoutes.cjs:ro
+      - ./api/blocoMemoryRoutes.cjs:/app/blocoMemoryRoutes.cjs:ro
+      - ./licoesRoutes.cjs:/app/licoesRoutes.cjs:ro
+      - ./api/projectsRoutes.cjs:/app/projectsRoutes.cjs:ro
+      - ./knowledge:/app/knowledge
+      - ./projects:/app/projects
+      - ./server.js:/app/server.js:ro
+      - ./mas:/app/mas:ro
+      - ./data:/app/data
+  proxy:
+    image: nginx:alpine
+    container_name: orquestrai-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/proxy.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/limits.conf:/etc/nginx/conf.d/00-limits.conf:ro
+      - ./nginx/logs:/var/log/nginx
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
+    depends_on:
+      - web
+      - api
+    networks:
+      - app-net
+
+networks:
+  app-net:
+    driver: bridge

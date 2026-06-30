@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<!-- B30_LOGOUT_GUARD -->
+<script>(function(){var qs=new URLSearchParams(window.location.search||'');if(qs.has('logout')){var keys=['oq_token','token','authToken','jwt','orq_jwt','orquestrai_token','OQ_TOKEN'];try{keys.forEach(function(k){localStorage.removeItem(k);sessionStorage.removeItem(k);});}catch(e){}try{history.replaceState(null,'','/index.html');}catch(e){}}})();</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OrquestraAI — Login</title>
+<meta name="description" content="Plataforma de orquestracao de IAs">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;background:#18181b;color:#fafafa;min-height:100vh;overflow-x:hidden}
+.font-geist{font-family:'Geist',sans-serif}
+::selection{background:#10b981;color:#000}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#27272a;border-radius:20px}
+.bg-grid{background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:60px 60px}
+.glow-orb{position:fixed;border-radius:50%;filter:blur(120px);opacity:.15;pointer-events:none;z-index:0}
+.glow-1{width:600px;height:600px;background:#10b981;top:-200px;right:-200px;animation:f1 15s ease-in-out infinite}
+.glow-2{width:400px;height:400px;background:#3b82f6;bottom:-100px;left:-100px;animation:f2 18s ease-in-out infinite}
+.glow-3{width:300px;height:300px;background:#8b5cf6;top:50%;left:50%;transform:translate(-50%,-50%);animation:f3 12s ease-in-out infinite}
+@keyframes f1{0%,100%{transform:translate(0,0)}50%{transform:translate(-80px,60px)}}
+@keyframes f2{0%,100%{transform:translate(0,0)}50%{transform:translate(60px,-80px)}}
+@keyframes f3{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.3)}}
+.glass{background:rgba(255,255,255,.04);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08)}
+.input-glow:focus{box-shadow:0 0 0 2px rgba(16,185,129,.3),0 0 20px rgba(16,185,129,.1)}
+.btn-glow{background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 0 20px rgba(16,185,129,.3)}
+.btn-glow:hover{box-shadow:0 0 30px rgba(16,185,129,.5);transform:translateY(-1px)}
+.btn-glow:active{transform:scale(.98)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.fd1{animation:fadeUp .6s ease forwards}.fd2{animation:fadeUp .6s ease .1s forwards;opacity:0}
+.fd3{animation:fadeUp .6s ease .2s forwards;opacity:0}.fd4{animation:fadeUp .6s ease .3s forwards;opacity:0}
+@keyframes pr{0%{transform:scale(.8);opacity:1}100%{transform:scale(2);opacity:0}}
+.logo-ring{position:absolute;inset:-4px;border-radius:18px;border:2px solid rgba(16,185,129,.4);animation:pr 2s ease-out infinite}
+.tag-glow{box-shadow:0 0 8px rgba(16,185,129,.3)}
+</style>
+</head>
+<body class="bg-grid">
+<div class="glow-orb glow-1"></div>
+<div class="glow-orb glow-2"></div>
+<div class="glow-orb glow-3"></div>
+<header class="relative z-10 w-full border-b border-white/5">
+<div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+<span class="iconify text-white" data-icon="lucide:brain-circuit" data-width="20"></span>
+</div>
+<span class="font-geist text-lg font-semibold tracking-tight">Orquestra<span class="text-emerald-400">AI</span></span>
+</div>
+<div class="flex items-center gap-2">
+<span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span></span>
+<span class="text-xs text-zinc-400">Online</span>
+</div>
+</div>
+</header>
+<main class="relative z-10 flex items-center justify-center px-6 py-16">
+<div class="w-full max-w-md">
+<div class="text-center mb-10 fd1">
+<div class="relative inline-block mb-6">
+<div class="logo-ring"></div>
+<div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-2xl shadow-emerald-500/30 relative z-10">
+<span class="iconify text-white" data-icon="lucide:brain-circuit" data-width="32"></span>
+</div>
+</div>
+<h1 class="font-geist text-3xl font-semibold tracking-tight mb-2">Bem-vindo de volta</h1>
+<p class="text-sm text-zinc-400">Acesse o painel de orquestracao de IAs</p>
+</div>
+<div class="glass rounded-2xl p-8 fd2">
+<form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5">
+<div>
+<label for="email" class="block text-xs font-medium text-zinc-400 mb-2 uppercase tracking-wider">Email</label>
+<div class="relative">
+<span class="iconify absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" data-icon="lucide:mail" data-width="16"></span>
+<input type="email" id="email" name="email" placeholder="seu@email.com" required autocomplete="email" class="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500/50 input-glow transition-all duration-200">
+</div>
+</div>
+<div>
+<label for="password" class="block text-xs font-medium text-zinc-400 mb-2 uppercase tracking-wider">Senha</label>
+<div class="relative">
+<span class="iconify absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" data-icon="lucide:lock" data-width="16"></span>
+<input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password" minlength="6" class="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-11 py-3 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500/50 input-glow transition-all duration-200">
+<button type="button" onclick="togglePassword()" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-400 transition-colors">
+<span class="iconify" id="eyeIcon" data-icon="lucide:eye" data-width="16"></span>
+</button>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<label class="flex items-center gap-2 cursor-pointer">
+<input type="checkbox" id="remember" class="w-4 h-4 rounded border-zinc-700 bg-white/5 text-emerald-500 focus:ring-emerald-500/30 cursor-pointer">
+<span class="text-xs text-zinc-400 group-hover:text-zinc-400 transition-colors">Lembrar de mim</span>
+</label>
+<a href="#" class="text-xs text-emerald-500/70 hover:text-emerald-400 transition-colors">Esqueceu a senha?</a>
+</div>
+<div id="errorMsg" class="hidden text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3"></div>
+<div id="successMsg" class="hidden text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3"></div>
+<button type="submit" id="submitBtn" class="w-full text-sm font-semibold py-3.5 rounded-xl btn-glow text-white transition-all duration-200 flex items-center justify-center gap-2">
+<span id="btnText">Entrar no painel</span>
+<span id="btnLoader" class="hidden"><svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg></span>
+</button>
+</form>
+</div>
+<div class="mt-8 text-center fd3">
+<p class="text-xs text-zinc-500">Nao tem uma conta? <a href="#" class="text-emerald-500/70 hover:text-emerald-400 font-medium transition-colors">Solicitar acesso</a></p>
+</div>
+<div class="mt-8 pt-6 border-t border-white/5 fd4">
+<div class="text-xs text-zinc-500 mb-3 flex items-center gap-2">
+<span class="iconify" data-icon="lucide:cpu" data-width="12"></span>Modelos disponiveis
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="text-xs font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1.5 flex items-center gap-1.5 tag-glow">
+<span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>GLM 5 Turbo
+</span>
+<span class="text-xs font-medium text-zinc-400 bg-white/5 border border-white/10 rounded-full px-3 py-1.5 flex items-center gap-1.5">
+<span class="h-1.5 w-1.5 rounded-full bg-zinc-600"></span>GPT-4o
+</span>
+<span class="text-xs font-medium text-zinc-400 bg-white/5 border border-white/10 rounded-full px-3 py-1.5 flex items-center gap-1.5">
+<span class="h-1.5 w-1.5 rounded-full bg-zinc-600"></span>Claude 4
+</span>
+<span class="text-xs font-medium text-zinc-400 bg-white/5 border border-white/10 rounded-full px-3 py-1.5 flex items-center gap-1.5">
+<span class="h-1.5 w-1.5 rounded-full bg-zinc-600"></span>Gemini 2.5
+</span>
+</div>
+</div>
+</div>
+</main>
+<footer class="relative z-10 border-t border-white/5 py-6 px-6">
+<div class="max-w-7xl mx-auto flex items-center justify-between">
+<p class="text-xs text-zinc-500">&copy; 2025 OrquestraAI</p>
+<p class="text-xs text-zinc-600">v1.0.0</p>
+</div>
+</footer>
+<div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2"></div>
+<script>
+function togglePassword(){
+var i=document.getElementById('password'),ic=document.getElementById('eyeIcon');
+if(i.type==='password'){i.type='text';ic.setAttribute('data-icon','lucide:eye-off')}
+else{i.type='password';ic.setAttribute('data-icon','lucide:eye')}
+}
+function showToast(m,t){
+var c=document.getElementById('toast-container'),d=document.createElement('div');
+d.className=(t==='error'?'bg-red-900':t==='success'?'bg-emerald-900':'bg-zinc-900')+' text-white text-xs px-4 py-2.5 rounded-lg shadow-lg';
+d.textContent=m;c.appendChild(d);
+setTimeout(function(){d.style.opacity='0';d.style.transition='opacity .3s';setTimeout(function(){d.remove()},300)},2500);
+}
+</script>
+<script src="/js/login.js"></script>
+</body>
+</html>

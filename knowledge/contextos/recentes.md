@@ -1,0 +1,101 @@
+- [2026-06-27T08:08:14.147Z] BLOCO-65 - set +e; set -H - sha256 a745e5f17e2b
+- [2026-06-27T08:21:31.019Z] BLOCO-66 - Olá! 👋 Me diga o que você quer auditar ou ajustar — eu preparo um BLOCO seguro pra você revisar antes de rodar. - sha256 a01508781db3
+- [2026-06-27T09:33:26.188Z] BLOCO-67 - set +e; set +H - sha256 3f4b54ddd7d6
+- [2026-06-27T09:34:40.632Z] BLOCO-68 - set +e; set +H - sha256 45f87e2123dc
+- [2026-06-27T09:38:27.240Z] BLOCO-69 - set +e; set +H - sha256 6ec65abeeda6
+- [2026-06-27T23:59:45.030Z] BLOCO-70 - !/usr/bin/env bash - sha256 e8b923e61328
+- [2026-06-29T04:54:26.146Z] BLOCO-71 - set +e; set +H - sha256 c734000b27d2
+- [2026-06-29T04:54:49.285Z] BLOCO-72 - set +e; set +H - sha256 29178ab3be68
+- [2026-06-29T04:55:20.787Z] BLOCO-73 - set +e; set +H - sha256 572a753bce0e
+- [2026-06-29T04:56:14.917Z] BLOCO-74 - set +e; set +H - sha256 908d2e8c257f
+- [2026-06-29T04:56:28.152Z] BLOCO-75 - set +e; set +H - sha256 f68bd9aa2320
+- [2026-06-29T04:56:47.460Z] BLOCO-76 - set +e; set +H - sha256 b3a0eae9a1fb
+- [2026-06-29T04:57:06.409Z] BLOCO-77 - set +e; set +H - sha256 812d79f0efb6
+- [2026-06-29T04:57:27.194Z] BLOCO-78 - set +e; set -H - sha256 be40c05032c1
+- [2026-06-29T04:57:50.952Z] BLOCO-79 - set +e; set -H - sha256 dd0119cc3c8a
+- [2026-06-29T04:58:06.922Z] BLOCO-80 - set +e; set +H - sha256 00725132edc2
+- [2026-06-29T04:58:44.019Z] BLOCO-81 - set +e; set +H - sha256 9ede176fdfef
+- [2026-06-29T04:59:09.288Z] BLOCO-82 - Release 0.4 - sha256 fffff5e542f9
+- [2026-06-29T04:59:53.523Z] BLOCO-83 - Release 0.4 - Agentes - sha256 5fb71f3243b7
+- [2026-06-29T05:00:13.404Z] BLOCO-84 - set +e; set +H - sha256 de86ee5c4d22
+- [2026-06-29T05:01:02.035Z] BLOCO-85 - Release 0.4 - Core - sha256 5fbc30a19bdf
+- [2026-06-29T05:01:18.214Z] BLOCO-86 - set +e; set +H - sha256 8a1d77f6e854
+- [2026-06-29T05:01:41.971Z] BLOCO-87 - set +e; set +H - sha256 8612ba7ed2ce
+- [2026-06-29T05:02:07.544Z] BLOCO-88 - set +e; set +H - sha256 0914b0a27989
+- [2026-06-29T05:04:48.138Z] BLOCO-89 - set +e; set +H - sha256 c9f43e9231a8
+- [2026-06-29T05:05:54.288Z] BLOCO-90 - set +e; set +H - sha256 868f37b26991
+- [2026-06-29T05:06:08.632Z] BLOCO-91 - set +e; set +H - sha256 8a9a7134cef2
+- [2026-06-29T05:06:21.935Z] BLOCO-92 - set +e; set -H - sha256 1b00e825d639
+- [2026-06-29T05:06:41.289Z] BLOCO-93 - set +e; set +H - sha256 cacf8a18582f
+- [2026-06-29T05:08:52.642Z] BLOCO-94 - set +e; set +H - sha256 56ac173d7e7a
+- [2026-06-29T05:21:39.761Z] BLOCO-95 - Backup do navbar - sha256 c3b6a748f011
+- [2026-06-29T05:23:09.555Z] BLOCO-96 - 1. Estrutura geral - sha256 7216a2f9a533
+- [2026-06-29T05:24:53.707Z] BLOCO-97 - grep -r "PT-BR" /var/www/orquestrai --include="*.tsx" --include="*.jsx" --include="*.ts" --include="*.js" - sha256 402ad1460419
+- [2026-06-29T05:26:27.624Z] BLOCO-98 - Backup preventivo do frontend - sha256 1c5a51561ab6
+- [2026-06-29T05:31:37.170Z] BLOCO-99 - set +e - sha256 16fb0007e8b4
+- [2026-06-29T05:34:55.636Z] BLOCO-100 - 1. AUDITORIA COMPLETA da base de conhecimento - sha256 87edd834e5aa
+- [2026-06-29T05:36:38.023Z] BLOCO-101 - 1. Estrutura de pastas principal - sha256 8a9ab0101cda
+- [2026-06-29T05:37:40.551Z] BLOCO-102 - set +e - sha256 ca39fa54fe7a
+- [2026-06-29T05:38:16.031Z] BLOCO-103 - set +e - sha256 7c0013dc067c
+- [2026-06-29T05:41:17.285Z] BLOCO-104 - Backup do CSS atual - sha256 2c0b98fe498a
+- [2026-06-29T05:43:04.997Z] BLOCO-105 - Backup do componente Dashboard - sha256 6d348145757f
+- [2026-06-29T05:44:16.275Z] BLOCO-106 - set +e - sha256 1d30fca4cfe2
+- [2026-06-29T05:45:43.886Z] BLOCO-107 - 1. Verificar último bloco executado relacionado a ícone - sha256 174c6bf73038
+- [2026-06-29T05:46:35.247Z] BLOCO-108 - Buscar em contextos recentes - sha256 97b77eeb05eb
+- [2026-06-29T05:48:45.702Z] BLOCO-109 - Verificar se existe registro da conversa sobre mudança de ícone - sha256 d08970f6f341
+- [2026-06-29T05:49:23.897Z] BLOCO-110 - set +e; set +H - sha256 c754f77eb8ef
+- [2026-06-29T05:50:19.501Z] BLOCO-111 - set +e; set +H - sha256 3909a10dc8c3
+- [2026-06-29T05:50:54.824Z] BLOCO-112 - set +e; set +H - sha256 a1e8f56fb853
+- [2026-06-29T05:51:15.921Z] BLOCO-113 - set +e; set +H - sha256 de58e019602e
+- [2026-06-29T05:51:29.639Z] BLOCO-114 - set +e; set +H - sha256 9cee373dfd18
+- [2026-06-29T05:51:42.442Z] BLOCO-115 - set +e; set +H - sha256 d020d6ed05a0
+- [2026-06-29T05:51:50.022Z] BLOCO-116 - set +e; set +H - sha256 b2c1b1607924
+- [2026-06-29T05:51:55.855Z] BLOCO-117 - set +e; set +H - sha256 6d0a3843cf46
+- [2026-06-29T05:52:13.077Z] BLOCO-118 - set +e; set +H - sha256 a0be0b83caac
+- [2026-06-29T05:52:31.388Z] BLOCO-119 - set +e; set +H - sha256 b1ba417f5c54
+- [2026-06-29T05:52:42.558Z] BLOCO-120 - ls -la /bin/sh - sha256 7f67c23654cc
+- [2026-06-29T05:52:50.642Z] BLOCO-121 - set +e; set +H - sha256 87fe59c894b3
+- [2026-06-29T05:53:01.190Z] BLOCO-122 - set +e; set +H - sha256 749641c05c75
+- [2026-06-29T05:53:15.012Z] BLOCO-123 - /bin/bash -c 'set +e; set +H; cd /var/www/orquestrai && pwd && echo -n "Shell: " && echo $0' - sha256 6355ad638e68
+- [2026-06-29T05:53:25.659Z] BLOCO-124 - /bin/bash -c 'set +e; set +H; cat /var/www/orquestrai/knowledge/changelog.md' - sha256 b0dda64ce156
+- [2026-06-29T05:53:39.689Z] BLOCO-125 - set +e; set +H - sha256 e791dd59611a
+- [2026-06-29T05:53:50.851Z] BLOCO-126 - set +e; set +H - sha256 b7bd59ce8e4b
+- [2026-06-29T05:53:57.303Z] BLOCO-127 - set +e; set +H - sha256 f3ba057c5e06
+- [2026-06-29T05:54:04.274Z] BLOCO-128 - set +e; set +H - sha256 2a995f0f7893
+- [2026-06-29T05:54:15.222Z] BLOCO-129 - set +e; set +H - sha256 b5ef96cbf138
+- [2026-06-29T05:54:28.243Z] BLOCO-130 - Release 0.4 - Core - sha256 3e3e690b9b19
+- [2026-06-29T05:54:36.527Z] BLOCO-131 - set +e; set -H - sha256 e515ad2ed42b
+- [2026-06-29T06:41:47.382Z] BLOCO-132 - set +e; set +H - sha256 e5dd106f8ef8
+- [2026-06-29T06:42:04.485Z] BLOCO-133 - set +e; set +H - sha256 b0ee80210625
+- [2026-06-29T06:42:30.772Z] BLOCO-134 - set +e; set +H - sha256 63f5a9bc42a4
+- [2026-06-29T06:42:41.766Z] BLOCO-135 - set +e; set +H - sha256 9f1f322f69e0
+- [2026-06-29T06:43:05.924Z] BLOCO-136 - set +e; set +H - sha256 4ba427f42a97
+- [2026-06-29T06:43:22.411Z] BLOCO-137 - set +e; set +H - sha256 47b55ec586ea
+- [2026-06-29T06:48:32.829Z] BLOCO-138 - set +e; set -H - sha256 f74b8ffbb46d
+- [2026-06-29T06:48:49.942Z] BLOCO-139 - set +e; set +H - sha256 b87d34f56df5
+- [2026-06-29T06:48:59.833Z] BLOCO-140 - set +e; set -H - sha256 5daa4d32f40a
+- [2026-06-29T06:49:14.468Z] BLOCO-141 - Release 0.4 - Core - sha256 d434abdbeae0
+- [2026-06-29T06:50:03.004Z] BLOCO-142 - Release 0.4 - Core - sha256 07af04f5159f
+- [2026-06-29T06:52:19.618Z] BLOCO-143 - set +e; set +H - sha256 98528fe37b67
+- [2026-06-29T06:53:07.535Z] BLOCO-144 - set +e; set +H - sha256 311d2d05316c
+- [2026-06-29T06:53:25.768Z] BLOCO-145 - set +e; set -H - sha256 3d43637f2189
+- [2026-06-29T06:53:36.610Z] BLOCO-146 - set +e; set +H - sha256 6ab290f0911c
+- [2026-06-29T06:53:48.396Z] BLOCO-147 - set +e; set -H - sha256 e4c75bb4645c
+- [2026-06-29T06:54:05.293Z] BLOCO-148 - set +e; set +H - sha256 482ceb10de5c
+- [2026-06-29T06:54:15.744Z] BLOCO-149 - set +e; set +H - sha256 59fb64437809
+- [2026-06-29T06:55:24.246Z] BLOCO-150 - set +e; set +H - sha256 ffbfed789b35
+- [2026-06-29T06:55:42.514Z] BLOCO-151 - set +e; set +H - sha256 3ea32f398b7e
+- [2026-06-29T06:55:54.248Z] BLOCO-152 - set +e; set +H - sha256 fe4e7d6d3f4e
+- [2026-06-29T06:56:03.456Z] BLOCO-153 - set +e; set +H - sha256 5b81e5de7bd1
+- [2026-06-29T06:56:13.594Z] BLOCO-154 - set +e; set +H - sha256 4a6a0aff116d
+- [2026-06-29T06:56:23.636Z] BLOCO-155 - set +e; set +H - sha256 68e06cce8fd5
+- [2026-06-29T06:56:37.659Z] BLOCO-156 - set +e; set +H - sha256 eaaef1f2d0dc
+- [2026-06-29T06:56:48.617Z] BLOCO-157 - set +e; set +H - sha256 2e7f154dc00a
+- [2026-06-29T06:56:59.948Z] BLOCO-158 - set +e; set -H - sha256 0e4f0142c0f4
+- [2026-06-29T06:57:09.310Z] BLOCO-159 - set +e; set +H - sha256 26446fe353bb
+- [2026-06-29T06:57:18.406Z] BLOCO-160 - set +e; set +H - sha256 801d77475bb8
+- [2026-06-29T06:57:33.270Z] BLOCO-161 - set +e; set -H - sha256 643d6e66066d
+- [2026-06-29T06:57:44.019Z] BLOCO-162 - set +e; set +H - sha256 bb7a27c51d8a
+- [2026-06-29T06:57:56.834Z] BLOCO-163 - set +e; set +H - sha256 2a6e8c9930e2
+- [2026-06-29T06:58:25.331Z] BLOCO-164 - set +e; set -H - sha256 288afadc6fcb
+- [2026-06-29T07:05:27.795Z] BLOCO-165 - set +e; set +H - sha256 c794555462c8

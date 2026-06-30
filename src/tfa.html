@@ -1,0 +1,50 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"/>
+<title>OrquestrAI — Ativar 2FA</title>
+<style>
+body{font:14px system-ui;background:#0b0f14;color:#e6edf3;margin:0;padding:24px;max-width:560px;margin:0 auto}
+h1{font-size:18px;margin:0 0 16px} .card{background:#121821;border:1px solid #1f2937;border-radius:8px;padding:16px;margin:12px 0}
+input,button{font:13px monospace;padding:8px 10px;background:#0b0f14;color:#e6edf3;border:1px solid #2a3441;border-radius:4px}
+button{cursor:pointer;background:#1f2937}button:hover{background:#374151}
+.mono{font-family:monospace;word-break:break-all;background:#0b0f14;padding:8px;border-radius:4px;border:1px solid #2a3441}
+.ok{color:#7ee787}.err{color:#ff7b72}
+img{display:block;margin:12px auto;background:#fff;padding:8px;border-radius:6px}
+</style></head><body>
+<h1>Ativar 2FA (TOTP)</h1>
+<div class="card">
+  <div>1) Cole o JWT (do localStorage após login):</div>
+  <input id="tok" style="width:100%;margin-top:6px" placeholder="eyJhbGciOi..."/>
+  <button onclick="setup()" style="margin-top:8px">Gerar QR / Secret</button>
+  <div id="setupOut"></div>
+</div>
+<div class="card">
+  <div>2) Escaneie no Google Authenticator / Authy / 1Password e digite o código:</div>
+  <input id="code" placeholder="000000" maxlength="6" style="width:120px"/>
+  <button onclick="verify()">Ativar</button>
+  <div id="verifyOut"></div>
+</div>
+<div class="card">
+  <button onclick="status()">Status atual</button>
+  <div id="statusOut"></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const tok=()=>$('tok').value.trim()||localStorage.getItem('oq_token')||'';
+async function api(path,body){
+  const r=await fetch('/api'+path,{method:body?'POST':'GET',headers:{'Authorization':'Bearer '+tok(),'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});
+  return {s:r.status,j:await r.json().catch(()=>({}))};
+}
+async function setup(){
+  const {s,j}=await api('/auth/2fa/setup',{});
+  if(s>=400){$('setupOut').innerHTML='<div class="err">'+(j.error||s)+'</div>';return}
+  const qr='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='+encodeURIComponent(j.otpauth);
+  $('setupOut').innerHTML='<img src="'+qr+'"/><div>Secret manual:</div><div class="mono">'+j.secret+'</div>';
+}
+async function verify(){
+  const {s,j}=await api('/auth/2fa/verify',{code:$('code').value});
+  $('verifyOut').innerHTML=s<400?'<div class="ok">2FA ATIVADO. Próximo login do admin pedirá código.</div>':'<div class="err">'+(j.error||s)+'</div>';
+}
+async function status(){
+  const {s,j}=await api('/auth/2fa/status');
+  $('statusOut').innerHTML='<div class="mono">'+JSON.stringify(j)+'</div>';
+}
+</script></body></html>

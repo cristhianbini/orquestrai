@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<title>MAS Cockpit · OrquestrAI</title>
+<style>
+:root{--bg:#0a0e14;--fg:#c9d1d9;--mut:#7d8590;--ac:#7CE7FF;--son:#A78BFA;--hai:#27c93f;--err:#ff6b6b;--card:#11161d;--bd:#1f2937}
+*{box-sizing:border-box;font-family:ui-monospace,Menlo,Consolas,monospace}
+body{margin:0;background:var(--bg);color:var(--fg);font-size:13px}
+header{padding:10px 14px;border-bottom:1px solid var(--bd);display:flex;gap:10px;align-items:center}
+header b{color:var(--ac)} header .tag{color:var(--mut);font-size:11px}
+main{display:grid;grid-template-columns:380px 1fr;gap:10px;padding:10px;height:calc(100vh - 50px)}
+.col{background:var(--card);border:1px solid var(--bd);border-radius:6px;display:flex;flex-direction:column;overflow:hidden}
+.col h3{margin:0;padding:8px 12px;border-bottom:1px solid var(--bd);font-size:12px;color:var(--ac);text-transform:uppercase;letter-spacing:.5px}
+.body{padding:10px 12px;overflow:auto;flex:1}
+textarea{width:100%;height:90px;background:#0d1117;color:var(--fg);border:1px solid var(--bd);border-radius:4px;padding:8px;font:inherit;resize:vertical}
+button{background:var(--ac);color:#000;border:0;padding:8px 14px;border-radius:4px;cursor:pointer;font-weight:600;margin-top:8px}
+button:disabled{opacity:.4;cursor:wait}
+.agent{border:1px solid var(--bd);border-radius:4px;padding:8px 10px;margin:6px 0;background:#0d1117}
+.agent .h{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.agent .h .nm{font-weight:700}
+.badge{font-size:10px;padding:2px 6px;border-radius:3px}
+.b-sonnet{background:#3a2d5a;color:var(--son)} .b-haiku{background:#1d3a26;color:var(--hai)}
+.b-done{background:#1d3a26;color:var(--hai)} .b-run{background:#3a2d1d;color:#f2c94c} .b-err{background:#3a1d1d;color:var(--err)}
+.meta{font-size:11px;color:var(--mut);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap}
+.out{margin-top:6px;padding:6px 8px;background:#000;border-left:2px solid var(--ac);white-space:pre-wrap;font-size:12px;max-height:240px;overflow:auto}
+.total{padding:8px 12px;border-top:1px solid var(--bd);color:var(--mut);font-size:12px}
+.err{color:var(--err)}
+</style></head>
+<body>
+<header><b>MAS Cockpit</b><span class="tag">multi-agente · SSE ao vivo</span><span class="tag" id="runid"></span></header>
+<main>
+  <section class="col">
+    <h3>Objetivo</h3>
+    <div class="body">
+      <textarea id="goal">Auditar drift HISTORICO entre prod/teste/release no XMonex e propor patch.</textarea>
+      <button id="run">▶ Executar MAS</button>
+      <div class="meta" id="status" style="margin-top:12px">aguardando…</div>
+    </div>
+  </section>
+  <section class="col">
+    <h3>Agentes (stream)</h3>
+    <div class="body" id="stream"></div>
+    <div class="total" id="total"></div>
+  </section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const stream=$('stream'),runEl=$('runid'),statusEl=$('status'),totalEl=$('total'),btn=$('run');
+const cards={};
+function card(agent,model){
+  if(cards[agent]) return cards[agent];
+  const el=document.createElement('div');el.className='agent';
+  const isSon=(model||'').includes('sonnet');
+  el.innerHTML='<div class="h"><span class="nm">'+agent.toUpperCase()+'</span><span><span class="badge '+(isSon?'b-sonnet':'b-haiku')+'">'+(model||'?')+'</span> <span class="badge b-run" data-st>running</span></span></div><div class="meta" data-meta>iniciando…</div><div class="out" data-out style="display:none"></div>';
+  stream.appendChild(el);cards[agent]=el;return el;
+}
+btn.onclick=async()=>{
+  btn.disabled=true;stream.innerHTML='';for(const k in cards) delete cards[k];
+  totalEl.textContent='';statusEl.textContent='disparando…';
+  try{
+    const r=await fetch('/api/mas/run',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({goal:$('goal').value})});
+    const j=await r.json();if(!j.run_id) throw new Error(JSON.stringify(j));
+    const id=j.run_id;runEl.textContent='run='+id;statusEl.textContent='conectando SSE…';
+    const es=new EventSource('/api/mas/events/'+id);
+    es.onmessage=(ev)=>{
+      let d;try{d=JSON.parse(ev.data)}catch(e){return}
+      statusEl.textContent=d.type;
+      if(d.type==='agent.start') card(d.agent,d.model);
+      if(d.type==='agent.done'){
+        const c=card(d.agent,d.model);
+        c.querySelector('[data-st]').textContent='done';c.querySelector('[data-st]').className='badge b-done';
+        c.querySelector('[data-meta]').textContent='tin='+d.tokens_in+' tout='+d.tokens_out+' '+d.latency_ms+'ms usd='+(d.cost_usd||0).toFixed(6);
+        const o=c.querySelector('[data-out]');o.style.display='block';o.textContent=d.text||'';
+      }
+      if(d.type==='run.done'){totalEl.innerHTML='✓ done · tin=<b>'+d.tokens_in+'</b> tout=<b>'+d.tokens_out+'</b> usd=<b>$'+(d.cost_usd||0).toFixed(6)+'</b>';es.close();btn.disabled=false;}
+      if(d.type==='run.error'){totalEl.innerHTML='<span class="err">✗ '+d.error+'</span>';es.close();btn.disabled=false;}
+    };
+    es.onerror=()=>{statusEl.textContent='SSE caiu';btn.disabled=false;};
+  }catch(e){statusEl.innerHTML='<span class="err">'+e.message+'</span>';btn.disabled=false;}
+};
+</script></body></html>

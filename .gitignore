@@ -1,0 +1,21 @@
+# segredos -- nunca versionar
+.env
+.env.*
+data/providers.json
+
+# dados de runtime (banco real, conversas, backups binarios) -- nao e codigo
+data/
+backups/
+_arquivados/
+
+# logs operacionais
+nginx/logs/
+*.log
+
+# dependencias -- regeneravel via npm install
+node_modules/
+
+# convencao antiga de backup numerado -- a partir de agora, isso e o git
+*.bak
+*.bak-*
+*.bak.*
