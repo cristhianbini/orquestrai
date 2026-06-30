@@ -20,14 +20,14 @@
   .blink{animation:blink 1s infinite;}@keyframes blink{50%{opacity:.3;}}
 
 /* B124g5_PULSE */
-.oq46y-card.b124g5-working{box-shadow:0 0 0 1px #7CE7FF, 0 0 14px #7CE7FF55;border-color:#7CE7FF !important;animation:b124g5pulse 1s ease-in-out infinite}
+.oq46y-card.b124g5-working{box-shadow:0 0 0 2px #7CE7FF, 0 0 24px #7CE7FFaa;border-color:#7CE7FF !important;animation:b124g5pulse .9s ease-in-out infinite;z-index:2}
 .oq46y-card.b124g5-ready{box-shadow:0 0 0 1px #27c93f88;border-color:#27c93f !important}
 .oq46y-card.b124g5-error{box-shadow:0 0 0 1px #ff5f56;border-color:#ff5f56 !important}
 .oq46y-card .b124g5-state{margin-left:auto;font-size:9px;letter-spacing:1px;padding:2px 6px;border-radius:3px;background:#0a0f14;border:1px solid #243240;color:#9fb}
 .oq46y-card.b124g5-working .b124g5-state{color:#7CE7FF;border-color:#7CE7FF;background:#001821}
 .oq46y-card.b124g5-ready   .b124g5-state{color:#27c93f;border-color:#27c93f;background:#031a08}
 .oq46y-card.b124g5-error   .b124g5-state{color:#ff5f56;border-color:#ff5f56;background:#1a0303}
-@keyframes b124g5pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.5)}}
+@keyframes b124g5pulse{0%,100%{filter:brightness(1) saturate(1);transform:scale(1)}50%{filter:brightness(1.65) saturate(1.3);transform:scale(1.035)}}
 
 </style>
 <!--OQ14_HEADER_POLISH_START-->
