@@ -1,3 +1,7 @@
+## [0.2.0] - 2026-06-30
+### Mudado
+- Rodada 2: memoria MAS, BLOCO MAS, filtros modelos, aba agentes, time titular, REVISOR, GitHub RAG, harness
+
 # Changelog OrquestraAI
 
 ## [0.1.3] - 2026-06-19
