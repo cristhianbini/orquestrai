@@ -58,3 +58,7 @@ status: vivo
 - [ ] Docs publicas
 - [ ] Hardening total
 - [ ] Modularizacao do frontend (dashboard.html -> modulos) -- DECISAO EM ABERTO: vanilla+build leve vs Next.js/Prisma do baseline v2.0
+
+## Decisoes de arquitetura (log)
+- 2026-06-30: Frontend evolui para Vite+React+Tailwind (sem framework pesado tipo Next.js, sem trocar banco/auth). Migracao por tela, comecando por index.html (login) como piloto. Motivo: trabalho real esta no backend (memoria MAS, ranking de agentes); frontend so precisa ficar mais leve/visual.
+- 2026-06-30: Captura de conhecimento para agentes NAO inclui comando de terminal bruto (ruido). Criterio: so BLOCO aplicado via /api/execute + outcome (sucesso/falha/exit code), nunca comando read-only isolado (ls/cat/grep). Liga em agent_executions (Release 0.7).
