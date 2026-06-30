@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-06-30 16:15:34 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-06-30 16:17:43 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -3787,11 +3787,15 @@ window.oqNovag = {
     q.addEventListener('input', filter);
     q.addEventListener('keydown', function(e){ if(e.key==='Escape'){ q.value=''; filter(); }});
   }
-  new MutationObserver(mount).observe(document.documentElement,{childList:true,subtree:true});
+  // CTXB361: removido MutationObserver (violacao L-B70: observe subtree no documentElement)
+  // substituido por click direto no botao que abre o modal (mesmo resultado, zero overhead)
   document.addEventListener('click', function(e){
     var b=e.target.closest('button,a'); if(!b) return;
     if(/AGENTES|PROVEDORES/i.test(b.textContent||'')) setTimeout(mount,50);
+    var m=e.target.closest('#oq10ProvModal'); if(m) setTimeout(mount,50);
   });
+  var _oqBtn=document.getElementById('oq10ProvBtn');
+  if(_oqBtn) _oqBtn.addEventListener('click', function(){ setTimeout(mount,80); });
   mount();
 })();
 </script>
