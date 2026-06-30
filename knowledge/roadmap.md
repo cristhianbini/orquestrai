@@ -160,9 +160,13 @@ Time titular atual (8/11):
   6 MEMORIALISTA (memorialista) - registro de memorias e licoes
   7 RELATOR    (rel)          - relatorios e sinteses
   8 METRICO    (metrico)      - metricas e monitoramento
-  9 (vago) - sugestao: DESIGNER (UI/UX, visual consistency) -- Release 0.7
+  9 REVISOR - revisao de qualidade final antes da entrega ao humano (slot titular, modelo top: claude-opus-4-8 ou superior). Diferente do GUARDIAO (seguranca): o REVISOR avalia qualidade da solucao, nao apenas seguranca. Convocado apenas ao final do pipeline pra reduzir custo. Nota: Claude Mythos Preview (mais avancado da Anthropic) nao disponivel publicamente -- ver anthropic.com/glasswing. FABLE: sem confirmacao oficial, aguardar lancamento antes de planejar.
  10 (vago) - sugestao: TESTADOR (validacao automatizada, TDD)
  11 (vago) - sugestao: PUBLICADOR (deploy, release notes, changelog)
 
 Reservas (0/15): a definir conforme necessidades reais dos projetos.
 Criterio de convocacao: taxa de acerto por tipo de tarefa (agent_executions, Release 0.7).
+
+## Backlog futuro (adicionado 2026-06-30)
+- [ ] GitHub RAG: ingerir repos publicos do GitHub (README/docs/codigo) na knowledge base local. Agente PESQUISADOR (reserva) faz git clone + parse + chunks no banco. Agentes consultam antes de responder. Conecta com Release 0.5 (RAG).
+- [ ] LM Eval Harness: integrar benchmarks padronizados (EleutherAI lm-evaluation-harness) pra ranquear modelos por posicao antes de designar ao time. Complementa agent_executions (Release 0.7).
