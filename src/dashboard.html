@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-06-30 20:15:39 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-06-30 20:19:06 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -1064,7 +1064,31 @@ button[onclick="send()"]:hover{
       var t=b.dataset.t;
       body.querySelectorAll('.b356-pane').forEach(function(p){p.classList.toggle('on', p.dataset.p===t);});
       try{ localStorage.setItem('oq_agt_tab', t); }catch(e){}
-      if(t==='mod'){ setTimeout(function(){ if(window.__b342uReinit) window.__b342uReinit(); },80); } // CTXMODELOS02
+      if(t==='mod'){ setTimeout(function(){ // CTXMODELOS05: impl inline (zero CSS externo)
+        var pane=document.querySelector('#oq10ProvModal [data-p="mod"]');
+        if(!pane) return;
+        pane.innerHTML='<div id="oqM" style="padding:16px;height:100%;box-sizing:border-box;display:flex;flex-direction:column"><div id="oqMBar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"></div><input id="oqMQ" placeholder="filtrar modelos..." style="width:100%;padding:6px 10px;background:#111827;border:1px solid #374151;color:#e5e7eb;border-radius:6px;box-sizing:border-box;margin-bottom:8px;font:13px ui-monospace,monospace;outline:none"><div id="oqMSt" style="color:#9ca3af;font:12px ui-monospace,monospace;margin-bottom:8px">selecione um provider</div><div id="oqMGr" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;overflow-y:auto;flex:1"></div></div>';
+        var bar=document.getElementById('oqMBar');
+        var provs=['groq','openrouter','cerebras','gemini','anthropic','openai'];
+        function pill(p,active){var b=document.createElement('button');b.textContent=p;b.dataset.p=p;b.style.cssText='padding:3px 10px;border-radius:20px;border:1px solid '+(active?'#7c3aed':'#374151')+';background:'+(active?'#312e81':'#1f2937')+';color:'+(active?'#c4b5fd':'#9ca3af')+';font:11px ui-monospace,monospace;cursor:pointer';b.onclick=function(){bar.querySelectorAll('button').forEach(function(x){x.style.background='#1f2937';x.style.color='#9ca3af';x.style.borderColor='#374151';});b.style.background='#312e81';b.style.color='#c4b5fd';b.style.borderColor='#7c3aed';loadM(p);};return b;}
+        function loadM(p){
+          var st=document.getElementById('oqMSt'),gr=document.getElementById('oqMGr');
+          st.textContent='carregando '+p+'...';gr.innerHTML='';
+          var tk=localStorage.getItem('oq_token')||localStorage.getItem('token')||'';
+          fetch('/api/providers/'+p+'/models',{headers:{Authorization:'Bearer '+tk}}).then(function(r){return r.json();}).then(function(d){
+            var list=d.models||[];
+            st.textContent=p+' - '+list.length+' modelos';
+            gr.innerHTML=list.map(function(m){
+              var tags=(m.free?'<span style="font-size:10px;padding:1px 4px;border-radius:3px;background:#064e3b;color:#6ee7b7;border:1px solid #10b981">FREE</span>':'')+
+                (m.ctx?'<span style="font-size:10px;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#93c5fd;border:1px solid #3b82f6;margin-left:2px">'+(m.ctx>=1000?Math.round(m.ctx/1000)+'k':m.ctx)+'</span>':'');
+              return '<div style="background:#111827;border:1px solid #1f2937;border-radius:6px;padding:8px 10px;cursor:default"><span style="display:block;color:#e5e7eb;font:11px ui-monospace,monospace;word-break:break-all;margin-bottom:3px">'+m.id+'</span>'+tags+'</div>';
+            }).join('');
+            document.getElementById('oqMQ').oninput=function(e){var q=e.target.value.toLowerCase();gr.querySelectorAll('div').forEach(function(c){c.style.display=c.textContent.toLowerCase().indexOf(q)>=0?'':'none';});};
+          }).catch(function(e){st.textContent='erro: '+(e.message||e);});
+        }
+        provs.forEach(function(p,i){bar.appendChild(pill(p,i===0));});
+        loadM('groq');
+      },80); } // CTXMODELOS05
     });
     try{
       var saved=localStorage.getItem('oq_agt_tab');
