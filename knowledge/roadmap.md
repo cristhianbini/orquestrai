@@ -90,3 +90,5 @@ status: vivo
 
 ### Distante / depende de investimento separado
 - [ ] VPS dedicada com GPU para rodar modelos localmente -- AVALIACAO HONESTA: viavel tecnicamente (vLLM/Ollama com modelo open-weight), mas e projeto de infraestrutura a parte, nao so configuracao: GPU VPS custa significativamente mais que a KVM2 atual, exige escolher/quantizar modelo e dimensionar VRAM. Visao de longo prazo, nao proximo passo.
+
+## Decisao 2026-06-30: card .oq46y-card ja tem 10+ patches sobrepostos (B330/B423/B434/B435/B443). Backend de score pronto (CTXSCORE01, /api/agents/score). Renderizacao visual (luz vermelho/verde) ADIADA de proposito ate a migracao Vite/React -- evitar patch #12 num elemento ja fragil.

@@ -85,6 +85,30 @@ module.exports = function(app, requireAuth){
     });
   })();
 
+  // CTXSCORE01: ranking de desempenho por posicao do MAS (sucesso/falha real, exit_code)
+  app.get('/api/agents/score', requireAuth, (req, res) => {
+    try {
+      const rows = db().prepare(`
+        SELECT agente,
+               COUNT(*) as total,
+               SUM(CASE WHEN exit_code=0 THEN 1 ELSE 0 END) as sucesso,
+               SUM(CASE WHEN exit_code IS NOT NULL AND exit_code<>0 THEN 1 ELSE 0 END) as falha
+        FROM execucoes
+        WHERE origem='mas' AND agente IS NOT NULL AND agente<>''
+        GROUP BY agente
+      `).all();
+      const scores = {};
+      rows.forEach(r => {
+        const julgadas = r.sucesso + r.falha;
+        scores[r.agente] = {
+          total: r.total, sucesso: r.sucesso, falha: r.falha,
+          taxa: julgadas > 0 ? Math.round((r.sucesso / julgadas) * 100) : null
+        };
+      });
+      res.json({ ok: true, scores });
+    } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
+  });
+
   // POST /api/blocos/preparar
   app.post('/api/blocos/preparar', requireAuth, (req, res) => {
     try {
