@@ -1,3 +1,4 @@
+// ATUALIZADO: 2026-06-30 16:16:55 -03:00 (auto, git pre-commit)
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -29,6 +30,10 @@ export function promoteFromRun(events=[]){
   if (!mem) return { skipped:'no-memorialista' };
   // B243: gate por formato — Guardian valida BLOCO de shell, nao a licao
   // Promovemos toda L-PROP-* bem-formada que ainda nao exista (idempotente)
+
+  // CTXGUARD01: verifica aprovacao real do Guardian antes de promover
+  if (!grd) return { skipped:'no-guardian-event' };
+  if (!guardianApproved(grd.output||'')) return { skipped:'guardian-nao-aprovou', guardian_output: (grd.output||'').slice(0,200) };
 
   const props = parseLProp(mem.output||'');
   if (!props.length) return { skipped:'no-L-PROP-in-memorialista' };
