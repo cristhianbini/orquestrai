@@ -1322,11 +1322,11 @@ async function send(){
       var reply = j.reply || j.text || j.message || '';
       pushChat('ia', reply || '(sem resposta)', model);
       if(__cid && typeof window.oq46mSaveMsg==='function'){ await window.oq46mSaveMsg(__cid,'user',t); await window.oq46mSaveMsg(__cid,'assistant',reply); } // CTXMEM01
-      var mb = String(reply).match(/\x60\x60\x60bash\s*([\s\S]*?)\x60\x60\x60/);
-      if(mb){
-        var el=$('bloco'); if(el) el.textContent=mb[1].trim();
+      var __bx = extractBloco(reply); // CTXPROV01
+      if(__bx){
+        var el=$('bloco'); if(el){ el.textContent=__bx; el.dataset.origem='individual'; el.dataset.modelo=model||''; el.removeAttribute('data-agente'); el.removeAttribute('data-mas-run-id'); }
         var ti=$('bloco-titulo'); if(ti) ti.textContent='BLOCO LAVE (chat)';
-        oqTermWrite('# [chat] bloco extraido: '+mb[1].trim().split('\n').length+' linhas\n');
+        oqTermWrite('# [chat] bloco extraido: '+__bx.split('\n').length+' linhas\n');
       }
     }catch(e){ pushChat('erro','falha chat: '+(e.message||e)); }
     input.focus();
@@ -1341,7 +1341,7 @@ async function send(){
     var jj = await rr.json().catch(function(){return{}});
     if(!rr.ok){ pushChat('erro','MAS nao iniciou: '+(jj.error||rr.status)); input.focus(); return; } if(jj.mode==='chat' && jj.reply){ pushChat('ia',jj.reply); input.focus(); return; } if(!(jj.run_id||jj.id)){ pushChat('erro','MAS sem run_id: '+(jj.error||JSON.stringify(jj).slice(0,120))); input.focus(); return; } var __rid = jj.run_id||jj.id;
     var es = new EventSource('/api/mas/events/'+encodeURIComponent(__rid));
-    var lastBash = '';
+    var lastBash = ''; var __lastBashAgent=''; var __lastBashModel=''; // CTXPROV01
     var B124G5_BUF = {};   /* buffer por agente p/ remontar blocos fragmentados */
     function tryExtract(src){
       var m = String(src||'').match(/\x60\x60\x60bash\s*([\s\S]*?)\x60\x60\x60/);
@@ -1446,16 +1446,16 @@ function b124g5Apply(ag,state){
         }
       }
       if(tx){ var __resumo = String(tx).split('\n').filter(function(l){return l.trim();})[0]||tx; pushChat('mas','['+ag+'] '+__resumo.slice(0,140)+(__resumo.length>140?'\u2026':'')); } // CTXBLOCOMAS01: resumo curto
-      var b = extractBloco(d.bash || d.code || tx || '') || tryExtract(d.bash || d.code || ''); // CTXBLOCOMAS01: parser robusto primeiro
+      var b = extractBloco(d.bash || d.code || tx || '') || tryExtract(d.bash || d.code || ''); // CTXBLOCOMAS01
       if(!b) b = b124g5Buf(ag,tx);
-      if(b) lastBash = b;
+      if(b){ lastBash = b; __lastBashAgent = ag||''; __lastBashModel = d.model||''; } // CTXPROV01
       // promote no fim da run
       if(tp==='run.done' || tp==='run.error' || d.done || d.final){
         try{es.close()}catch(_){}
         if(lastBash){
           var __header = '# Gerado pelo MAS (OrquestrAI) -- run '+__rid+' -- revise antes de executar\n'; // CTXBLOCOMAS01
           var __corpo = /^\s*#/.test(lastBash) ? lastBash : (__header+lastBash);
-          var el=$('bloco'); if(el) el.textContent=__corpo;
+          var el=$('bloco'); if(el){ el.textContent=__corpo; el.dataset.origem='mas'; el.dataset.agente=__lastBashAgent; el.dataset.masRunId=__rid; el.dataset.modelo=__lastBashModel; } // CTXPROV01
           var ti=$('bloco-titulo'); if(ti) ti.textContent='BLOCO LAVE (MAS)';
           pushChat('ia','✅ bloco pronto no card BLOCO LAVE. Clique EXECUTAR.');
           oqTermWrite('# [MAS] bloco gerado: '+lastBash.split('\n').length+' linhas\n');
@@ -1491,7 +1491,8 @@ async function execBloco(){
   w('\n\nroot@cbini:~# # [LAVE] preparando bloco...\n');
   var prep = {};
   try{
-    var rr = await fetch('/api/blocos/preparar', {method:'POST', headers:H, body:JSON.stringify({script:cmd, titulo:titulo, modo:'altera', ambiente:'teste'})}) /*OQ65_PREP_BODY*/;
+    var __mp=(blocoEl.dataset.modelo||'').split('/'); var __provider=__mp.length>1?__mp[0]:''; var __modelo=__mp.length>1?__mp.slice(1).join('/'):(blocoEl.dataset.modelo||'');
+    var rr = await fetch('/api/blocos/preparar', {method:'POST', headers:H, body:JSON.stringify({script:cmd, titulo:titulo, modo:'altera', ambiente:'teste', origem:(blocoEl.dataset.origem||'individual'), agente:(blocoEl.dataset.agente||null), mas_run_id:(blocoEl.dataset.masRunId||null), provider:__provider, modelo:__modelo})}) /*OQ65_PREP_BODY CTXPROV01*/;
     prep = await rr.json().catch(function(){ return {}; });
     if(!rr.ok){ w('ERR preparar HTTP '+rr.status+': '+(prep.error || prep.message || 'sem body')+'\n'); return; }
   }catch(e){ w('ERR preparar: '+(e.message || e)+'\n'); return; }

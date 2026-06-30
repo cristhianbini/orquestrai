@@ -77,11 +77,18 @@ function sseDrop(id, res){ const s = sseHub.get(id); if(s){ s.delete(res); if(!s
 
 module.exports = function(app, requireAuth){
   ensureSchema();
+  (function ensureSchemaCTXPROV01(){ // CTXPROV01: colunas de proveniencia, idempotente
+    var cols = ["origem TEXT DEFAULT 'individual'","agente TEXT","mas_run_id TEXT","provider TEXT","modelo TEXT"];
+    cols.forEach(function(def){
+      try{ db().prepare('ALTER TABLE execucoes ADD COLUMN '+def).run(); }
+      catch(e){ if(!/duplicate column/i.test(e.message||'')) throw e; }
+    });
+  })();
 
   // POST /api/blocos/preparar
   app.post('/api/blocos/preparar', requireAuth, (req, res) => {
     try {
-      const { n='?', titulo='', modo='altera', ambiente='teste', script='' } = req.body || {};
+      const { n='?', titulo='', modo='altera', ambiente='teste', script='', origem='individual', agente=null, mas_run_id=null, provider=null, modelo=null } = req.body || {}; // CTXPROV01
       if(!script || typeof script !== 'string') return res.status(400).json({ error: 'script vazio' });
       if(script.length > 100000) return res.status(413).json({ error: 'script > 100KB' });
       const sha = crypto.createHash('sha256').update(script).digest('hex');
@@ -90,9 +97,9 @@ module.exports = function(app, requireAuth){
       const id = 'x_' + crypto.randomBytes(8).toString('hex');
       const sub = (req.user && req.user.sub) || '?';
       const ip = req.headers['x-forwarded-for'] || req.ip || '?';
-      db().prepare(`INSERT INTO execucoes (id,bloco_n,titulo,modo,ambiente,script,script_sha256,avisos,status,usuario_jwt_sub,ip_origem,criado_em) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`).run(
-        id, String(n), titulo, modo, ambiente, script, sha, JSON.stringify(avisos), bloqueado ? 'bloqueado' : 'preparado', sub, ip, Date.now()
-      );
+      db().prepare(`INSERT INTO execucoes (id,bloco_n,titulo,modo,ambiente,script,script_sha256,avisos,status,usuario_jwt_sub,ip_origem,criado_em,origem,agente,mas_run_id,provider,modelo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
+        id, String(n), titulo, modo, ambiente, script, sha, JSON.stringify(avisos), bloqueado ? 'bloqueado' : 'preparado', sub, ip, Date.now(), origem, agente, mas_run_id, provider, modelo
+      ); // CTXPROV01
       const preview = script.split('\n').slice(0, 10);
       res.json({ id, sha256: sha, preview_linhas: preview, total_linhas: script.split('\n').length, avisos, destrutivo, bloqueado, status: bloqueado ? 'bloqueado' : 'preparado' });
     } catch(e){ res.status(500).json({ error: e.message }); }
