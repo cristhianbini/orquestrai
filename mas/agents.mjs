@@ -93,6 +93,25 @@ function loadKB(meta){
 export const bus=new EventEmitter(); bus.setMaxListeners(0);
 function db(){ const d=new Database(DB_PATH); d.pragma('journal_mode=WAL'); return d; }
 
+// CTXMAS01: memoria entre runs -- ultimas N runs concluidas, goal + resumo final
+function getRecentRunsContext(excludeRunId, limit=3){
+  try{
+    const d=db();
+    const rows=d.prepare(`
+      SELECT r.id, r.goal,
+             (SELECT output FROM mas_event WHERE run_id=r.id AND agent IN ('rel','metrico') ORDER BY ts DESC LIMIT 1) AS resumo
+      FROM mas_run r
+      WHERE r.status='done' AND r.id <> ?
+      ORDER BY r.started_at DESC
+      LIMIT ?
+    `).all(excludeRunId||'', limit);
+    d.close();
+    if(!rows.length) return '';
+    const lines = rows.reverse().map(r=>`- [${r.id}] objetivo: ${r.goal}\n  resumo: ${(r.resumo||'(sem resumo)').slice(0,300)}`);
+    return '\n\n--- MEMORIA: ultimas '+rows.length+' runs anteriores ---\n'+lines.join('\n')+'\n--- fim memoria ---\n';
+  }catch(e){ console.error('[CTXMAS01] erro ao buscar memoria:', e.message); return ''; }
+}
+
 function ensureSchema(){
   const d=db();
   d.exec("CREATE TABLE IF NOT EXISTS mas_run(id TEXT PRIMARY KEY,goal TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'running',started_at INTEGER NOT NULL,ended_at INTEGER,tokens_in INTEGER DEFAULT 0,tokens_out INTEGER DEFAULT 0,cost_usd REAL DEFAULT 0);");
@@ -213,7 +232,7 @@ export async function runMas(goal){
   d.close();
   bus.emit(runId,{type:'run.start',run_id:runId,goal,ts:Date.now()});
   (async()=>{
-    let ctx='OBJETIVO: '+goal; let tin=0,tout=0,tc=0;
+    let ctx='OBJETIVO: '+goal+getRecentRunsContext(runId,3); let tin=0,tout=0,tc=0; // CTXMAS01
     try{
       let __smithOut=''; let __vetoed=false;
       console.log('[B236] AGENTS len=', AGENTS.length, 'ids=', AGENTS.map(a=>a.id));
