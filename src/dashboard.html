@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-06-30 19:51:32 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-06-30 19:53:40 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -1064,6 +1064,7 @@ button[onclick="send()"]:hover{
       var t=b.dataset.t;
       body.querySelectorAll('.b356-pane').forEach(function(p){p.classList.toggle('on', p.dataset.p===t);});
       try{ localStorage.setItem('oq_agt_tab', t); }catch(e){}
+      if(t==='mod'){ setTimeout(function(){ var m=document.querySelector('#oq10ProvModal'); if(m&&m.__b342uInit) m.__b342uInit(); },80); } // CTXMODELOS01
     });
     try{
       var saved=localStorage.getItem('oq_agt_tab');
@@ -3719,7 +3720,7 @@ window.oqNovag = {
   var state={active:'groq',models:{},query:''};
   function tok(){return localStorage.getItem('token')||localStorage.getItem('authToken')||localStorage.getItem('jwt')||''}
   function init(){
-    var pane=document.querySelector('#oq10ProvModal [data-pane="mod"]');
+    var pane=document.querySelector('#oq10ProvModal [data-p="mod"]'); // CTXMODELOS01
     if(!pane) return setTimeout(init,500);
     if(pane.querySelector('.b342u-wrap')) return;
     pane.innerHTML='<div class="b342u-wrap">'+
@@ -3759,6 +3760,7 @@ window.oqNovag = {
     }).join('');
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+  var _m=document.querySelector('#oq10ProvModal'); if(_m) _m.__b342uInit=init; // CTXMODELOS01
 })();
 </script>
 
