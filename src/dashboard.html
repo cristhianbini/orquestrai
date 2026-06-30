@@ -1337,7 +1337,7 @@ async function send(){
   }
 
   // ---- MODO MAS ativo ----
-  pushChat('mas','iniciando agentes (Scout/Auditor/Smith/Guardian/Rel)...');
+  pushChat('mas','iniciando agentes (Scout/Auditor/Detetive/Smith/Guardian/Memorialista/Rel/Metrico)...'); // CTXSPOT02
   oqTermWrite('\n# [MAS] iniciando para: '+t+'\n');
   try{
     var rr = await fetch('/api/mas/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal:t})});
@@ -1440,7 +1440,7 @@ function b124g5Apply(ag,state){
       var tp = d.type || d.event || '';
       var tx = d.text || d.message || d.delta || d.output || '';
       // animação dos cards (servidor só emite agent.done -> usar pipeline)
-      var PIPE=['scout','auditor','smith','guardian','rel'];
+      var PIPE=['scout','auditor','detetive','smith','guardian','memorialista','rel','metrico']; // CTXSPOT02: eram so 5 de 8 agentes
       if(ag && PIPE.indexOf(ag)>=0){
         if(tp==='agent.error'){ masxSet(ag,'error', d.error||tx); }
         else {
