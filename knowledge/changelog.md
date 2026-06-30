@@ -1,3 +1,7 @@
+## [0.3.0] - 2026-06-30
+### Mudado
+- Rodada 2 completa: memoria MAS+individual, BLOCO MAS, aba Modelos com filtros, aba Agentes time titular, escalacao 26 agentes, REVISOR slot 9, seguranca nginx, git auto-push
+
 ## [0.2.0] - 2026-06-30
 ### Mudado
 - Rodada 2: memoria MAS, BLOCO MAS, filtros modelos, aba agentes, time titular, REVISOR, GitHub RAG, harness
