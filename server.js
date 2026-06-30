@@ -217,6 +217,16 @@ app.get('/api/me', (req, res) => {
   } catch { res.status(401).json({ error: 'Token invalido.' }); }
 });
 app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
+app.get('/api/version', (req, res) => { // CTXVER01
+  try {
+    const fs = require('fs');
+    const cl = fs.readFileSync('/app/knowledge/changelog.md', 'utf8');
+    const m = cl.match(/^## \[(\d+\.\d+\.\d+)\]/m);
+    res.json({ version: m ? m[1] : '0.0.0' });
+  } catch (e) {
+    res.json({ version: '0.0.0' });
+  }
+});
 app.post('/api/chat', authMiddleware, async (req,res)=>{
   try{
     const { message, model, history } = req.body || {};

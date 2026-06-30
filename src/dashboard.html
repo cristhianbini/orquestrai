@@ -1176,7 +1176,8 @@ button[onclick="send()"]:hover{
 <!-- TOP BAR -->
 <header class="h-10 border-b border-[var(--line)] flex items-center px-3 gap-3 text-xs">
   <span class="text-[var(--green)] glow font-bold">◆ OrquestrAI</span>
-  <span class="text-[var(--mute)]">v1.0 · cockpit</span>
+  <span class="text-[var(--mute)]" id="oqVersion">v1.0 · cockpit</span>
+  <script>(function(){fetch("/api/version").then(function(r){return r.json()}).then(function(d){var el=document.getElementById("oqVersion");if(el&&d&&d.version)el.textContent="v"+d.version+" \u00b7 cockpit"}).catch(function(){})})();</script> <!-- CTXVER01 -->
   <span class="ml-auto flex items-center gap-3">
     <span class="chip"><span class="text-[var(--green)]">●
     <span class="chip" id="user-chip">—</span>
