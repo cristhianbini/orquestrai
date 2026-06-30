@@ -95,3 +95,52 @@ status: vivo
 
 ### Distante / depende de investimento separado (cont.)
 - [ ] Isolamento por container (Docker) por projeto -- AVALIACAO: ideia solida, padrao conhecido de isolamento multi-tenant. Conecta direto com pendencia 27-multi-tenant ja existente, nao e item isolado. Caminho natural: hoje (VPS unica) -> container Docker dedicado por projeto (isolamento de processo/rede/volume, viavel ainda na VPS atual) -> futuro distante (cluster/datacenter proprio, multiplas VPS), so se a demanda real justificar esse investimento. Exige projeto de orquestracao de containers (provisionamento dinamico, limites de recurso, rede isolada) -- nao e so "rodar mais um docker-compose".
+
+## Sprint Rodada 2 -- facil→dificil, foco visual primeiro (definido 2026-06-30)
+
+### FACIL (resultado visivel imediato, baixo risco)
+
+1. [ ] CTXSPOT04 -- BATEDOR amarelo permanente: remover os 2 setTimeout(markFirstWaiting) que
+       rodam na carga da pagina (linhas 3422-3423 do dashboard.html). Causa raiz confirmada.
+
+2. [ ] CTXNGINX01 -- Warning http2 no nginx: trocar 'listen 443 ssl http2' por
+       'listen 443 ssl; http2 on;' (1 linha, sintaxe moderna). Zero impacto funcional.
+
+3. [ ] CTXSSE02 -- Conexoes SSE antigas acumulando: o frontend deve fechar o EventSource
+       anterior antes de abrir um novo (window.oqCurrentES?.close() antes de cada new EventSource).
+       Evita o log de timeouts de runs antigas.
+
+4. [ ] CTXGUARD01 -- guardianApproved() nunca chamada: em promote-lessons.mjs, adicionar
+       verificacao real antes de promover licao (hoje qualquer L-PROP bem-formada vira licao,
+       sem checar se Guardian aprovou de verdade).
+
+5. [ ] CTXB361 -- MutationObserver proibido (violacao L-B70): B361 usa
+       new MutationObserver(...).observe(document.documentElement, {subtree:true}).
+       Trocar por simples click handler no botao que abre o modal.
+
+### MEDIO (logica nova, mas isolada)
+
+6. [ ] CTXBRIDGE01 -- Ponte memoria chat individual → MAS: quando runMas() inicia,
+       buscar as ultimas N mensagens da conversa ativa (oq46mCID) e injetar como
+       contexto adicional. Assim o MAS sabe o nome do usuario, o que foi discutido antes
+       de ativar o modo MAS, etc.
+
+7. [ ] CTXROUTE01 -- "lembra meu nome?" em modo MAS vai pro quickChatReply (backend
+       nao sabe que o frontend esta em modo MAS): passar flag {mas_mode: true} no body
+       de /api/mas/run, e no backend so ativar quickChatReply se mas_mode=false.
+
+8. [ ] CTXMODELOS01 -- Aba MODELOS do modal Providers: ligar ao b342u que ja existe
+       (implementacao completa com filtro/FREE tags) mas nunca foi conectado a essa aba.
+       Sem reescrever nada, so religar as pecas existentes.
+
+### DIFICIL (reescrita ou refatoracao real)
+
+9. [ ] CTXVITE01 -- Inicio da migracao frontend: extrair o login (index.html) pra
+       componente React+Vite+Tailwind como projeto piloto. Pipeline: Vite build →
+       dist/ copiado pro nginx-web. Resto do dashboard.html fica intacto ate o piloto
+       provar o pipeline.
+
+10. [ ] CTXVITE02 -- Modularizar dashboard.html: apos CTXVITE01 validar o pipeline,
+        extrair o painel de agentes MAS como segundo componente React. Score visual
+        (luz vermelho/verde, CTXSCORE01 UI) nasce aqui, limpo, sem mais patch em cima
+        de patch.
