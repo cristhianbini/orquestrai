@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-06-30 20:22:25 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-06-30 20:30:52 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -1055,7 +1055,31 @@ button[onclick="send()"]:hover{
     var modPane=document.createElement('div'); modPane.className='b356-pane'; modPane.dataset.p='mod'; modPane.setAttribute('data-pane','mod'); // CTXMODELOS06: b341d-pane removida (causava display:none)
     modPane.innerHTML='<div class="b356-empty"><b>Modelos</b>Selecione um provider na aba PROVEDORES para listar modelos.<br>Endpoint: <code>GET /api/providers/:id/models</code></div>';
     var agtPane=document.createElement('div'); agtPane.className='b356-pane'; agtPane.dataset.p='agt';
-    agtPane.innerHTML='<div class="b356-empty"><b>Agentes</b>Cadastre um novo agente customizado.<br><button class="oq10-btn ok" type="button" style="margin-top:10px" onclick="oqNovag.open()">+ Novo Agente</button></div>'; // CTXUX01
+    function buildAgtPane(){
+      var ags=window.AGS||[]; var slots=11; var reservas=15;
+      var html='<div style="padding:12px 16px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;height:100%;box-sizing:border-box">';
+      html+='<div style="display:flex;justify-content:space-between;align-items:center">';
+      html+='<span style="color:#e5e7eb;font:12px ui-monospace,monospace;font-weight:bold">⚽ TITULAR ('+ags.length+'/'+slots+') | RESERVA 0/'+reservas+'</span>';
+      html+='<button onclick="oqNovag.open()" style="padding:4px 12px;border-radius:6px;border:1px solid #3b82f6;background:#1e3a5f;color:#93c5fd;font:11px ui-monospace,monospace;cursor:pointer">+ Novo Agente</button>';
+      html+='</div>';
+      html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:6px">';
+      ags.forEach(function(a,i){
+        html+='<div style="background:#0a1119;border:1px solid '+a.col+'44;border-radius:8px;padding:10px">';
+        html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">';
+        html+='<span style="width:20px;height:20px;border-radius:50%;background:'+a.col+';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:bold;color:#000;flex-shrink:0">'+(i+1)+'</span>';
+        html+='<span style="color:'+a.col+';font:12px ui-monospace,monospace;font-weight:bold">'+a.lbl+'</span>';
+        html+='</div>';
+        html+='<span style="display:block;color:#6b7280;font:10px ui-monospace,monospace;word-break:break-all">'+a.mdl+'</span>';
+        html+='</div>';
+      });
+      for(var v=ags.length;v<slots;v++){
+        html+='<div style="background:#0a1119;border:1px dashed #1f2937;border-radius:8px;padding:10px;display:flex;align-items:center;justify-content:center;min-height:60px">';
+        html+='<span style="color:#374151;font:11px ui-monospace,monospace">#'+(v+1)+' vago</span></div>';
+      }
+      html+='</div></div>';
+      return html;
+    }
+    agtPane.innerHTML=buildAgtPane(); // CTXAGENTES01
     body.appendChild(provPane); body.appendChild(modPane); body.appendChild(agtPane);
 
     bar.addEventListener('click',function(e){
@@ -1064,32 +1088,54 @@ button[onclick="send()"]:hover{
       var t=b.dataset.t;
       body.querySelectorAll('.b356-pane').forEach(function(p){p.classList.toggle('on', p.dataset.p===t);});
       try{ localStorage.setItem('oq_agt_tab', t); }catch(e){}
-      if(t==='mod'){ setTimeout(function(){ // CTXMODELOS05: impl inline (zero CSS externo)
+      if(t==='mod'){ setTimeout(function(){ // CTXFILTROS01
         var pane=document.querySelector('#oq10ProvModal [data-p="mod"]');
         if(!pane) return;
-        pane.style.display='flex'; pane.style.flexDirection='column'; // CTXMODELOS06: garante visibilidade independente de CSS
-        pane.innerHTML='<div id="oqM" style="padding:16px;height:100%;box-sizing:border-box;display:flex;flex-direction:column"><div id="oqMBar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"></div><input id="oqMQ" placeholder="filtrar modelos..." style="width:100%;padding:6px 10px;background:#111827;border:1px solid #374151;color:#e5e7eb;border-radius:6px;box-sizing:border-box;margin-bottom:8px;font:13px ui-monospace,monospace;outline:none"><div id="oqMSt" style="color:#9ca3af;font:12px ui-monospace,monospace;margin-bottom:8px">selecione um provider</div><div id="oqMGr" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;overflow-y:auto;flex:1"></div></div>';
+        pane.style.display='flex'; pane.style.flexDirection='column';
+        pane.innerHTML='<div id="oqM" style="padding:12px 16px;height:100%;box-sizing:border-box;display:flex;flex-direction:column;gap:8px">'+
+          '<div id="oqMBar" style="display:flex;gap:5px;flex-wrap:wrap"></div>'+
+          '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">'+
+            '<input id="oqMQ" placeholder="filtrar modelos..." style="flex:1;min-width:120px;padding:5px 10px;background:#111827;border:1px solid #374151;color:#e5e7eb;border-radius:6px;box-sizing:border-box;font:12px ui-monospace,monospace;outline:none">'+
+            '<button id="oqMFree" style="padding:3px 10px;border-radius:20px;border:1px solid #374151;background:#1f2937;color:#9ca3af;font:11px ui-monospace,monospace;cursor:pointer">FREE</button>'+
+            '<button id="oqMSort" style="padding:3px 10px;border-radius:20px;border:1px solid #3b82f6;background:#1e3a5f;color:#93c5fd;font:11px ui-monospace,monospace;cursor:pointer">ctx ↓</button>'+
+          '</div>'+
+          '<div id="oqMSt" style="color:#9ca3af;font:11px ui-monospace,monospace"></div>'+
+          '<div id="oqMGr" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px;overflow-y:auto;flex:1"></div>'+
+        '</div>';
         var bar=document.getElementById('oqMBar');
         var provs=['groq','openrouter','cerebras','gemini','anthropic','openai'];
-        function pill(p,active){var b=document.createElement('button');b.textContent=p;b.dataset.p=p;b.style.cssText='padding:3px 10px;border-radius:20px;border:1px solid '+(active?'#7c3aed':'#374151')+';background:'+(active?'#312e81':'#1f2937')+';color:'+(active?'#c4b5fd':'#9ca3af')+';font:11px ui-monospace,monospace;cursor:pointer';b.onclick=function(){bar.querySelectorAll('button').forEach(function(x){x.style.background='#1f2937';x.style.color='#9ca3af';x.style.borderColor='#374151';});b.style.background='#312e81';b.style.color='#c4b5fd';b.style.borderColor='#7c3aed';loadM(p);};return b;}
+        var st={p:'groq',all:[],freeOnly:false,sortCtx:true,q:''};
+        function pill(p,act){var b=document.createElement('button');b.textContent=p;b.dataset.p=p;b.style.cssText='padding:3px 10px;border-radius:20px;border:1px solid '+(act?'#7c3aed':'#374151')+';background:'+(act?'#312e81':'#1f2937')+';color:'+(act?'#c4b5fd':'#9ca3af')+';font:11px ui-monospace,monospace;cursor:pointer';b.onclick=function(){bar.querySelectorAll('button').forEach(function(x){x.style.background='#1f2937';x.style.color='#9ca3af';x.style.borderColor='#374151';});b.style.background='#312e81';b.style.color='#c4b5fd';b.style.borderColor='#7c3aed';st.p=p;loadM(p);};return b;}
+        function render(){
+          var list=st.all.slice();
+          if(st.freeOnly)list=list.filter(function(m){return m.free;});
+          if(st.q)list=list.filter(function(m){return m.id.toLowerCase().indexOf(st.q)>=0;});
+          if(st.sortCtx)list.sort(function(a,b){return(b.ctx||0)-(a.ctx||0);});
+          var el=document.getElementById('oqMSt'),gr=document.getElementById('oqMGr');
+          var tot=st.all.length,free=st.all.filter(function(m){return m.free;}).length;
+          if(el)el.textContent=st.p+' - '+list.length+'/'+tot+' | '+free+' gratuitos';
+          if(gr)gr.innerHTML=list.map(function(m){
+            var brd=m.free?'#064e3b':'#1f2937';
+            var tags=(m.free?'<span style="font-size:10px;padding:1px 4px;border-radius:3px;background:#064e3b;color:#6ee7b7;border:1px solid #10b981;margin-right:2px">FREE</span>':'')+
+              (m.ctx?'<span style="font-size:10px;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#93c5fd;border:1px solid #3b82f6">'+(m.ctx>=1000?Math.round(m.ctx/1000)+'k':m.ctx)+'</span>':'');
+            return '<div style="background:#111827;border:1px solid '+brd+';border-radius:6px;padding:8px;cursor:default">'+
+              '<span style="display:block;color:#e5e7eb;font:11px ui-monospace,monospace;word-break:break-all;margin-bottom:4px">'+m.id+'</span>'+tags+'</div>';
+          }).join('');
+        }
         function loadM(p){
-          var st=document.getElementById('oqMSt'),gr=document.getElementById('oqMGr');
-          st.textContent='carregando '+p+'...';gr.innerHTML='';
+          var s=document.getElementById('oqMSt'),g=document.getElementById('oqMGr');
+          if(s)s.textContent='carregando '+p+'...';if(g)g.innerHTML='';
           var tk=localStorage.getItem('oq_token')||localStorage.getItem('token')||'';
-          fetch('/api/providers/'+p+'/models',{headers:{Authorization:'Bearer '+tk}}).then(function(r){return r.json();}).then(function(d){
-            var list=d.models||[];
-            st.textContent=p+' - '+list.length+' modelos';
-            gr.innerHTML=list.map(function(m){
-              var tags=(m.free?'<span style="font-size:10px;padding:1px 4px;border-radius:3px;background:#064e3b;color:#6ee7b7;border:1px solid #10b981">FREE</span>':'')+
-                (m.ctx?'<span style="font-size:10px;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#93c5fd;border:1px solid #3b82f6;margin-left:2px">'+(m.ctx>=1000?Math.round(m.ctx/1000)+'k':m.ctx)+'</span>':'');
-              return '<div style="background:#111827;border:1px solid #1f2937;border-radius:6px;padding:8px 10px;cursor:default"><span style="display:block;color:#e5e7eb;font:11px ui-monospace,monospace;word-break:break-all;margin-bottom:3px">'+m.id+'</span>'+tags+'</div>';
-            }).join('');
-            document.getElementById('oqMQ').oninput=function(e){var q=e.target.value.toLowerCase();gr.querySelectorAll('div').forEach(function(c){c.style.display=c.textContent.toLowerCase().indexOf(q)>=0?'':'none';});};
-          }).catch(function(e){st.textContent='erro: '+(e.message||e);});
+          fetch('/api/providers/'+p+'/models',{headers:{Authorization:'Bearer '+tk}}).then(function(r){return r.json();}).then(function(d){st.all=d.models||[];render();}).catch(function(e){if(s)s.textContent='erro: '+(e.message||e);});
         }
         provs.forEach(function(p,i){bar.appendChild(pill(p,i===0));});
+        document.getElementById('oqMQ').oninput=function(e){st.q=e.target.value.toLowerCase();render();};
+        var bF=document.getElementById('oqMFree');
+        bF.onclick=function(){st.freeOnly=!st.freeOnly;bF.style.background=st.freeOnly?'#064e3b':'#1f2937';bF.style.color=st.freeOnly?'#6ee7b7':'#9ca3af';bF.style.borderColor=st.freeOnly?'#10b981':'#374151';render();};
+        var bS=document.getElementById('oqMSort');
+        bS.onclick=function(){st.sortCtx=!st.sortCtx;bS.style.background=st.sortCtx?'#1e3a5f':'#1f2937';bS.style.color=st.sortCtx?'#93c5fd':'#9ca3af';bS.textContent=st.sortCtx?'ctx ↓':'A-Z';render();};
         loadM('groq');
-      },80); } // CTXMODELOS05
+      },80); } // CTXFILTROS01
     });
     try{
       var saved=localStorage.getItem('oq_agt_tab');
