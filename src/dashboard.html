@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-06-30 16:13:55 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-06-30 16:15:34 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -1344,7 +1344,8 @@ async function send(){
     var rr = await fetch('/api/mas/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal:t})});
     var jj = await rr.json().catch(function(){return{}});
     if(!rr.ok){ pushChat('erro','MAS nao iniciou: '+(jj.error||rr.status)); input.focus(); return; } if(jj.mode==='chat' && jj.reply){ pushChat('ia',jj.reply); input.focus(); return; } if(!(jj.run_id||jj.id)){ pushChat('erro','MAS sem run_id: '+(jj.error||JSON.stringify(jj).slice(0,120))); input.focus(); return; } var __rid = jj.run_id||jj.id;
-    var es = new EventSource('/api/mas/events/'+encodeURIComponent(__rid));
+    if(window.__oqMasES){ try{window.__oqMasES.close();}catch(_){} } // CTXSSE02: fecha SSE anterior
+    var es = window.__oqMasES = new EventSource('/api/mas/events/'+encodeURIComponent(__rid));
     var lastBash = ''; var __lastBashAgent=''; var __lastBashModel=''; // CTXPROV01
     var B124G5_BUF = {};   /* buffer por agente p/ remontar blocos fragmentados */
     function tryExtract(src){
@@ -2542,7 +2543,8 @@ try{var k='orquestrai_xterminal_notes';var a=JSON.parse(localStorage.getItem(k)|
     fetch('/api/mas/last',{cache:'no-store'}).then(r=>r.json()).then(j=>{
       if(!j||!j.run_id){console.log('[B163] sem run');return;}
       console.log('[B163] attach',j.run_id);
-      var es=new EventSource('/api/mas/events/'+encodeURIComponent(j.run_id));
+      if(window.__oqMasES){ try{window.__oqMasES.close();}catch(_){} } // CTXSSE02
+      var es=window.__oqMasES=new EventSource('/api/mas/events/'+encodeURIComponent(j.run_id));
       var MAP={scout:'Explorador',auditor:'Auditor',detetive:'Detetive',smith:'Codificador',guardian:'Guardião',memorialista:'Memorialista',rel:'Relator',metrico:'Métrico'};
       es.onmessage=function(ev){
         try{
@@ -2739,7 +2741,8 @@ else{setTimeout(ensure,200);setTimeout(ensure,1500);}
     if(!runId || attached[runId]) return;
     attached[runId] = true;
     try{
-      var es = new EventSource('/api/mas/events/' + encodeURIComponent(runId));
+      if(window.__oqMasES){ try{window.__oqMasES.close();}catch(_){} } // CTXSSE02
+      var es = window.__oqMasES = new EventSource('/api/mas/events/' + encodeURIComponent(runId));
       es.onmessage = function(msg){
         try { paint(JSON.parse(msg.data)); } catch(_){}
       };
