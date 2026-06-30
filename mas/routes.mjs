@@ -1,3 +1,4 @@
+// ATUALIZADO: 2026-06-30 19:50:47 -03:00 (auto, git pre-commit)
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 import express from 'express';
@@ -48,7 +49,9 @@ const router=express.Router();
 router.post('/run', express.json(), async (req,res)=>{
     try {
       const userText = (req.body && (req.body.prompt || req.body.message || req.body.text || req.body.goal)) || '';
-      if (classifyIntent(userText) === 'chat') {
+      // CTXROUTE01: respeita mas_mode=true do frontend (usuario ativou MAS explicitamente)
+      const masModeExplicit = !!(req.body && req.body.mas_mode);
+      if (!masModeExplicit && classifyIntent(userText) === 'chat') {
         const reply = (await quickChatReply(userText)).reply;
         return res.json({ ok:true, mode:'chat', reply, agents:[], cost_usd:0, tokens:0 });
       }
