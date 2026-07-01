@@ -1,3 +1,7 @@
+## [0.7.1] - 2026-07-01
+### Mudado
+- Roadmap: CTXAGENTSCORE01 (score por agente, backend) + CTXVITE02 detalhado com pedido de animacao no indicador de score
+
 ## [0.7.0] - 2026-07-01
 ### Mudado
 - CTXHARNESS01 - Harness Score v1 (exec_success+guardian_pass+cost_score, sem join entre bancos). Achado: execucoes.mas_run_id nunca preenchido -- CTXPROVBRIDGE01 registrado para proxima rodada
