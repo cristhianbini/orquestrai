@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-01 07:36:35 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-01 11:39:12 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -2039,6 +2039,8 @@ function cardHTML(b){
     '<div style="margin-top:6px;display:flex;gap:6px">'+
       '<button class="oq71z-copy" type="button" style="font-size:10px;padding:3px 8px">COPIAR</button><button class="oq71z-exec" type="button" style="font-size:10px;padding:3px 8px;background:#0d3a1a;color:#7eff9c;font-weight:700" title="Enviar este bloco direto para o terminal abaixo">▶ EXECUTAR</button>'+
       '<button class="oq71z-del" type="button" style="font-size:10px;padding:3px 8px;background:#3a1818;color:#ff9090" title="Remover deste histórico">x</button>'+
+      '<button class="oq71z-approve" data-bn="'+b.n+'" type="button" style="font-size:11px;padding:3px 8px;background:#0d2e1a;color:#4ade80;border:1px solid #166534;border-radius:4px" title="Aprovado">👍</button>'+
+      '<button class="oq71z-reject" data-bn="'+b.n+'" type="button" style="font-size:11px;padding:3px 8px;background:#2d1515;color:#f87171;border:1px solid #7f1d1d;border-radius:4px" title="Rejeitado">👎</button>'+
     '</div>'+
   '</div>';
 }
@@ -2060,6 +2062,31 @@ function wireCard(el,b){
   };
   var btD=el.querySelector(".oq71z-del");
   if(btD) btD.onclick=function(){BLOCKS=BLOCKS.filter(function(x){return x.n!==b.n});persist();renderAll()};
+
+  /* CTXFEEDBACK01 — handlers de aprovação humana do BLOCO LAVE
+     Envia sinal w3 (human_approve) para o Harness Score via /api/bloco/feedback.
+     Armazena na execução mais recente do bloco_n no cluster.db. */
+  var btApp=el.querySelector('.oq71z-approve');
+  var btRej=el.querySelector('.oq71z-reject');
+  function __sendFeedback(val, btnAtivo, btnInativo) {
+    fetch('/api/bloco/feedback', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({bloco_n: b.n, feedback: val})
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      if(j.ok){
+        /* Feedback registrado: destaca botão ativo, esmaece o inativo */
+        btnAtivo.style.opacity='1'; btnAtivo.style.fontWeight='900';
+        btnAtivo.style.boxShadow='0 0 6px currentColor';
+        btnInativo.style.opacity='0.3';
+      }
+    })
+    .catch(function(){});
+  }
+  if(btApp) btApp.onclick=function(){ __sendFeedback(1, btApp, btRej); };
+  if(btRej) btRej.onclick=function(){ __sendFeedback(-1, btRej, btApp); };
 }
 
 function persist(){try{localStorage.setItem(__LS_KEY(),JSON.stringify(BLOCKS.slice(-CAP)))}catch(e){}}

@@ -1,3 +1,7 @@
+## [0.4.0] - 2026-07-01
+### Mudado
+- Fix botoes feedback (write faltante) + roadmap Rodada 4 (seguranca->frontend->conhecimento) + analise Mega-Brain/AIOX/Evolucao
+
 ## [0.3.2] - 2026-07-01
 ### Mudado
 - CTXSPOT05 remove B434 duplicados + null guard refresh

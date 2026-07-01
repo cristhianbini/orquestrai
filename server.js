@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-01 01:05:41 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-01 11:39:12 -03:00 (auto, git pre-commit)
 // OQ46Z-v1
 import { createRequire as _oqReq } from "module";
 const _oqRequire = _oqReq(import.meta.url);
@@ -300,6 +300,37 @@ const projectsRoutes = require('./projectsRoutes.cjs');
 app.use('/api/projects', projectsRoutes);
 
 // B339_AGENT_CARDS — expõe AGENT_CARDs como JSON
+/* CTXFEEDBACK01 — aprovação humana do BLOCO LAVE
+   Sinal w3 do Harness Score (human_approve).
+   Armazena 1=aprovado(👍) ou -1=rejeitado(👎) na execução mais recente
+   do bloco_n informado. Liga ao mas_run_id via campo já existente. */
+app.post('/api/bloco/feedback', express.json(), (req, res) => {
+  try {
+    const { bloco_n, feedback } = req.body;
+    const fv = Number(feedback);
+    if (!bloco_n || ![1, -1].includes(fv)) {
+      return res.status(400).json({ ok: false, error: 'bloco_n e feedback (1 ou -1) obrigatorios' });
+    }
+    const Database = require('better-sqlite3');
+    const db = new Database(
+      process.env.CLUSTER_DB || (process.env.LAVE_BASE || process.cwd()) + '/data/cluster.db'
+    );
+    /* Atualiza a execução mais recente com esse bloco_n.
+       Mantém histórico de todas as execuções — só a última recebe o sinal. */
+    const r = db.prepare(
+      `UPDATE execucoes SET human_feedback = ?
+       WHERE id = (
+         SELECT id FROM execucoes WHERE bloco_n = ?
+         ORDER BY criado_em DESC LIMIT 1
+       )`
+    ).run(fv, String(bloco_n));
+    db.close();
+    res.json({ ok: true, updated: r.changes, bloco_n, feedback: fv });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: String(e.message) });
+  }
+});
+
 app.get('/api/agents/cards', (req, res) => {
   const fs = require('fs'), path = require('path');
   const dir = '/app/knowledge/agents';
