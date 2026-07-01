@@ -74,7 +74,12 @@ export default function App() {
     const qs = new URLSearchParams(window.location.search || "");
     if (qs.has("logout")) {
       clearAuth();
-      window.history.replaceState(null, "", "/index.html");
+      // CTXVITE01-FIX3: precisa ser "/" (raiz), nao "/index.html" literal.
+      // O react-router-dom so conhece a rota "/" -- setar a URL para
+      // "/index.html" faz o roteador nao achar rota nenhuma (tela preta,
+      // "No routes matched"). Bug introduzido ao copiar a logica antiga
+      // (que era um arquivo real) sem adaptar pro roteamento client-side.
+      window.history.replaceState(null, "", "/");
     }
   }, []);
 
@@ -171,9 +176,13 @@ export default function App() {
   }
 
   function finishLogin(token, user) {
-    // CTXVITE01: grava na chave principal que o dashboard le primeiro
-    // (oqGetAuthToken() varre AUTH_KEYS em ordem, 'oq_token' e a 1a).
-    localStorage.setItem("oq_token", token);
+    // CTXVITE01-FIX2: grava em TODAS as chaves conhecidas. Achado real:
+    // dashboard.html:1393 tem um guard separado, mais antigo, que checa
+    // SO localStorage.getItem('token') (chave literal), diferente do
+    // oqGetAuthToken() que varre a lista toda. Gravando so oq_token,
+    // aquele guard especifico falhava e chutava de volta pro login mesmo
+    // com o login correto -- foi o que te trancou fora hoje.
+    AUTH_KEYS.forEach((k) => localStorage.setItem(k, token));
     if (user) localStorage.setItem("oq_user", JSON.stringify(user));
     setSteps((s) => ({ ...s, E: "done" }));
     // CTXVITE01: redirect real (/dashboard.html) so faz sentido quando esta

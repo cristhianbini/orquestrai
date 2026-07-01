@@ -1,3 +1,7 @@
+## [0.16.1] - 2026-07-01
+### Mudado
+- Fix critico CTXVITE01 - login travava no dashboard.html:1393 (chave de token) + tela preta no logout (rota /index.html ausente no router). Resolvido e testado.
+
 ## [0.16.0] - 2026-07-01
 ### Mudado
 - CTXRATELIM02 - rate limit diferenciado em mas/routes.mjs (run 5/min, leituras 30/min, SSE sem limite). Achado: 7 rotas sem authMiddleware -- CTXMASAUTH01 registrado

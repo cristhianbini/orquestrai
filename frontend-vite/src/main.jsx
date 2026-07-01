@@ -25,6 +25,12 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />} />
+        {/* CTXVITE01-FIX4: dashboard.html:1393 e outros guards legados fazem
+            window.location.replace('/index.html') -- navegacao de pagina
+            inteira, nao roteamento interno. O router precisa reconhecer
+            esse caminho tambem, senao cai em "No routes matched" (tela
+            preta). Mesma tela de login em ambos os enderecos. */}
+        <Route path="/index.html" element={<App />} />
         <Route path="/preview-agents" element={<PreviewAgents />} />
       </Routes>
     </BrowserRouter>
