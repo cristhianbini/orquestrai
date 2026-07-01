@@ -210,3 +210,23 @@ Criterio de convocacao: taxa de acerto por tipo de tarefa (agent_executions, Rel
 - [ ] Dashboard de metricas por agente: total de runs, taxa de sucesso, custo acumulado, tempo medio
 - [ ] Comparativo de modelos por posicao (qual modelo teve melhor taxa no slot AUDITOR, por exemplo)
 - [ ] Alerta automatico quando um agente falha mais de N vezes seguidas (liga com CTXSSE03 heartbeat)
+
+## Itens do Parecer Consultivo v2 (2026-07-01) -- filtrado e priorizados
+
+### Incorporados ao roadmap (novos, acionaveis, nao duplicados)
+- [ ] CTXLITESTREAM01 - Backup SQLite continuo via Litestream (S3/B2 ou local) -- 0.5pw, risco critico mitigado (§3.1 debt_5)
+- [ ] CTXDURATION01 - Coluna duration_ms em mas_event -- prerequisito para Harness Score real (§4.2)
+- [ ] CTXFEEDBACK01 - Botao 👍/👎 explicito no BLOCO LAVE -- sinal humano real para w3 do Harness Score (gap identificado na revisao)
+- [ ] CTXHARNESS01 - Harness Score v1 simplificado: exec_success + guardian_pass + human_approve + cost (sem OTel, usando dados ja coletados) (§4.1)
+- [ ] CTXPIPELINE01 - Pipeline MAS adaptativo: classificar tarefa (simples/medio/complexo) e rodar 3/6/8 agentes -- reducao 40-60% custo runs simples (§Q10)
+- [ ] CTXKBCURATOR01 - Revisao semanal da KB em batch (Memorialista + Guardian como pre-filtro, humano aprova em lote) -- evita KB envenenada (§3.1 debt_4)
+
+### Descartados por ora (prematuros ou overkill para fase atual)
+# OTel/Uptrace -- overkill para 1 VPS, cabe na Fase 3
+# Redis+BullMQ -- SQLite WAL aguenta 100x o volume atual
+# Kernel+Efemeros -- overkill ate 15+ agentes concorrentes ativos
+# SOPS/secrets vault -- .env privado aceitavel no estagio atual
+# K8s/Nomad -- Fase 5+, se chegar la
+
+### Principios do documento que ja seguimos (confirmados)
+# LAVE_sempre, KB_versionada, sem_vendor_lockin, dogfood_primeiro, incremental
