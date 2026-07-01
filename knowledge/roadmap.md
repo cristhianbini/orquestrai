@@ -258,7 +258,8 @@ Ordem: SEGURANCA -> FRONTEND -> CONHECIMENTO -> ESCALA. Fundamentos antes de exp
        Pre-requisito de dados para a animacao visual pedida em CTXVITE02 (item abaixo).
 
 ### Bloco 2 -- Frontend (antecipado por decisao 2026-07-01)
-5. [ ] CTXVITE01 - Login (index.html) para Vite+React+Tailwind, piloto do pipeline
+5. [x] CTXVITE01 - Login em Vite+React+Tailwind, DEPLOYADO e testado em producao (2026-07-01).
+       Checklist LAVE animado como assinatura visual. Codigo morto pendente de limpeza (baixo risco).
 6. [ ] CTXVITE02 - Painel de agentes MAS como componente React (score visual nasce aqui)
 
 ### Bloco 3 -- Conhecimento
@@ -333,3 +334,21 @@ nao root direto) como item separado, tambem exige decisao de arquitetura com cal
       (isentos pelo skip do limiter global B49L). CTXRATELIM01 cobriu so os
       endpoints de server.js que nao dependiam de reler arquivo separado com
       calma. Fechar junto com a decisao do CTXUNIFY01.
+
+## CTXCLEANURL01 (planejado 2026-07-01, atrelado ao CTXVITE02)
+- [ ] CTXCLEANURL01 - URL final sem sufixo de arquivo: orquestrai.cbini.com.br
+      (sem /dashboard.html). Nasce naturalmente quando CTXVITE02 unificar login+
+      dashboard numa SPA so, roteada por react-router-dom (ja incluido no scaffold
+      do CTXVITE01) -- o navegador nunca troca de "arquivo", so de estado da
+      aplicacao. Nao fazer via hack de nginx antes disso -- JWT fica em
+      localStorage (nao cookie), entao nginx nao tem como decidir sozinho se
+      mostra login ou dashboard no server-side; a decisao e sempre client-side.
+
+## CTXCLOUDFLARE01 (meta futura, registrada 2026-07-01)
+- [ ] CTXCLOUDFLARE01 - Integrar Cloudflare na tela de login para seguranca adicional
+      (provavel Turnstile -- widget anti-bot que substitui CAPTCHA tradicional, ou
+      proxy/WAF do Cloudflare na frente do dominio). Posicionamento pedido: discreto,
+      logo abaixo do botao "Entrar", pequeno indicador visual (nao intrusivo).
+      Depende de decisao: Cloudflare como proxy DNS completo (protege toda a VPS,
+      mascara IP real) vs so o widget Turnstile no formulario (mais simples, nao
+      muda infraestrutura). Avaliar as duas opcoes quando chegar a vez do item.

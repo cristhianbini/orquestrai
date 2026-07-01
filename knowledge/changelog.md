@@ -1,3 +1,7 @@
+## [0.13.0] - 2026-07-01
+### Mudado
+- CTXVITE01 concluido - login em Vite+React deployado em producao, fluxo completo testado (senha+2FA+redirect+logout)
+
 ## [0.12.0] - 2026-07-01
 ### Mudado
 - CTXRATELIM01 - rate limit dedicado (20/min) em providers/key, providers/test, agents/create, agents/position. Achados pendentes registrados: agents/create sem auth, mas/blocos ainda sem rate limit dedicado
