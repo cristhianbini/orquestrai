@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-01 01:20:06 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-01 01:26:46 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -1117,23 +1117,8 @@ button[onclick="send()"]:hover{
       });
       html+='</div></div>';
       return html;
-      var html='<div style="padding:12px 16px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;height:100%;box-sizing:border-box">';
-      html+='<div style="display:flex;justify-content:space-between;align-items:center">';
-      html+='<span style="color:#e5e7eb;font:12px ui-monospace,monospace;font-weight:bold">⚽ TITULAR ('+ags.length+'/'+slots+') | RESERVA 0/'+reservas+'</span>';
-      html+='<button onclick="window.__oqOpenNewAgent()" style="padding:4px 12px;border-radius:6px;border:1px solid #3b82f6;background:#1e3a5f;color:#93c5fd;font:11px ui-monospace,monospace;cursor:pointer">+ Novo Agente</button>';
-      html+='</div>';
-      html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:6px">';
-      ags.forEach(function(a,i){
-        html+='<div style="background:#0a1119;border:1px solid '+a.col+'44;border-radius:8px;padding:10px">';
-        html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">';
-        html+='<span style="width:20px;height:20px;border-radius:50%;background:'+a.col+';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:bold;color:#000;flex-shrink:0">'+(i+1)+'</span>';
-        html+='<span style="color:'+a.col+';font:12px ui-monospace,monospace;font-weight:bold">'+a.lbl+'</span>';
-        html+='</div>';
-        html+='<span style="display:block;color:#6b7280;font:10px ui-monospace,monospace;word-break:break-all">'+a.mdl+'</span>';
-        html+='</div>';
-      });
-      // slots vagos — versao antiga removida, buildAgtPane com reservas ja definida acima
-    agtPane.innerHTML=buildAgtPane(); // CTXAGENTES01 -- usa a versao com RESERVAS
+    } // fim buildAgtPane
+    agtPane.innerHTML=buildAgtPane(); // CTXAGENTES01
     body.appendChild(provPane); body.appendChild(modPane); body.appendChild(agtPane);
 
     bar.addEventListener('click',function(e){
