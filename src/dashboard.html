@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-01 01:12:54 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-01 01:20:06 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -1132,14 +1132,8 @@ button[onclick="send()"]:hover{
         html+='<span style="display:block;color:#6b7280;font:10px ui-monospace,monospace;word-break:break-all">'+a.mdl+'</span>';
         html+='</div>';
       });
-      for(var v=ags.length;v<slots;v++){
-        html+='<div style="background:#0a1119;border:1px dashed #1f2937;border-radius:8px;padding:10px;display:flex;align-items:center;justify-content:center;min-height:60px">';
-        html+='<span style="color:#374151;font:11px ui-monospace,monospace">#'+(v+1)+' vago</span></div>';
-      }
-      html+='</div></div>';
-      return html;
-    }
-    agtPane.innerHTML=buildAgtPane(); // CTXAGENTES01
+      // slots vagos — versao antiga removida, buildAgtPane com reservas ja definida acima
+    agtPane.innerHTML=buildAgtPane(); // CTXAGENTES01 -- usa a versao com RESERVAS
     body.appendChild(provPane); body.appendChild(modPane); body.appendChild(agtPane);
 
     bar.addEventListener('click',function(e){
