@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-06-30 20:49:19 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-01 00:52:56 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -1121,8 +1121,20 @@ button[onclick="send()"]:hover{
             var brd=m.free?'#064e3b':'#1f2937';
             var tags=(m.free?'<span style="font-size:10px;padding:1px 4px;border-radius:3px;background:#064e3b;color:#6ee7b7;border:1px solid #10b981;margin-right:2px">FREE</span>':'')+
               (m.ctx?'<span style="font-size:10px;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#93c5fd;border:1px solid #3b82f6">'+(m.ctx>=1000?Math.round(m.ctx/1000)+'k':m.ctx)+'</span>':'');
+            var _p=st.p;
             return '<div style="background:#111827;border:1px solid '+brd+';border-radius:6px;padding:8px;cursor:default">'+
-              '<span style="display:block;color:#e5e7eb;font:11px ui-monospace,monospace;word-break:break-all;margin-bottom:4px">'+m.id+'</span>'+tags+'</div>';
+              '<span style="display:block;color:#e5e7eb;font:11px ui-monospace,monospace;word-break:break-all;margin-bottom:4px">'+m.id+'</span>'+
+              '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">'+tags+
+              '<button data-p="'+encodeURIComponent(_p)+'" data-m="'+encodeURIComponent(m.id)+'" '+
+              'onclick="var b=this;var lbl=['BATEDOR','AUDITOR','DETETIVE','ARQUITETO','GUARDIAO','MEMORIALISTA','RELATOR','METRICO','REVISOR','#10','#11'];'+
+              'var pos=prompt('Posicao (1-11):\n'+lbl.map(function(l,i){return (i+1)+'. '+l;}).join('\n'));'+
+              'if(!pos||isNaN(pos)||+pos<1||+pos>11)return;var idx=+pos-1;'+
+              'if(!confirm(lbl[idx]+' -> '+decodeURIComponent(b.dataset.p)+'/'+decodeURIComponent(b.dataset.m)))return;'+
+              'var tk=localStorage.getItem('oq_token')||localStorage.getItem('token')||'';'+
+              'fetch('/api/agents/position',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tk},body:JSON.stringify({position:idx,provider:decodeURIComponent(b.dataset.p),model:decodeURIComponent(b.dataset.m),label:lbl[idx]})})'+
+              '.then(function(r){return r.json();}).then(function(d){alert(d.ok?'OK! Recarregue aba AGENTES':'Erro: '+(d.error||'?'));}).catch(function(){alert('Erro de conexao');});" '+
+              'style="margin-left:auto;padding:2px 7px;font:10px ui-monospace,monospace;border:1px solid #374151;background:#1f2937;color:#9ca3af;border-radius:4px;cursor:pointer" title="Atribuir a um agente do time">usar</button>'+
+              '</div></div>'; // CTXAGT02
           }).join('');
         }
         function loadM(p){
