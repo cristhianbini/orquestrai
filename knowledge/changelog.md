@@ -1,3 +1,7 @@
+## [0.3.2] - 2026-07-01
+### Mudado
+- CTXSPOT05 remove B434 duplicados + null guard refresh
+
 ## [0.3.1] - 2026-07-01
 ### Mudado
 - CTXDURATION01 duration_ms em mas_event + CTXLITESTREAM01 backup continuo Litestream

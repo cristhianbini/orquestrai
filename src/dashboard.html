@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-01 01:41:13 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-01 07:36:35 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -136,9 +136,15 @@ window.OQ46R={
   function refresh(){
     var sel=document.getElementById('orqModelSel'); var m=sel&&sel.value||''; var p=provOf(m);
     var bar=ensureBar(); if(!bar) return;
-    document.getElementById('oq46w-av').textContent=iconOf(p);
-    document.getElementById('oq46w-name').textContent=pretty(m)||'Sem modelo';
-    document.getElementById('oq46w-prov').textContent=p.toUpperCase();
+    /* CTXSPOT05: null guard — elementos do bar criados por ensureBar() podem
+       ser removidos por clean() ou outros patches concorrentes */
+    var elAv=document.getElementById('oq46w-av');
+    var elNm=document.getElementById('oq46w-name');
+    var elPv=document.getElementById('oq46w-prov');
+    if(!elAv || !elNm || !elPv) return;
+    elAv.textContent=iconOf(p);
+    elNm.textContent=pretty(m)||'Sem modelo';
+    elPv.textContent=p.toUpperCase();
   }
   window.OQ46W={refresh:refresh};
   function init(){ refresh(); var sel=document.getElementById('orqModelSel'); if(sel&&!sel.dataset.oq46w){ sel.dataset.oq46w='1'; sel.addEventListener('change',refresh); } setTimeout(refresh,800); setInterval(refresh,2500); }
@@ -4591,134 +4597,6 @@ window.oqNovag = {
   function paintTokens(){
     document.querySelectorAll('.oq46y-card[data-agent]').forEach(card=>{
       const tk=getTkText(card);
-      let line=card.querySelector('.b434-tk');
-      if(!line){
-        line=document.createElement('div');
-        line.className='b434-tk';
-        line.style.cssText='font:9px/1.3 ui-monospace,monospace;color:#7a8595;margin:0 0 2px;letter-spacing:.02em';
-        const funcaoLine=card.querySelector('.b423-funcao');
-        if(funcaoLine&&funcaoLine.parentNode) funcaoLine.parentNode.insertBefore(line, funcaoLine.nextSibling);
-        else card.insertBefore(line, card.firstChild);
-      }
-      const want='Tokens: <b style="color:#e6edf3">'+(tk||'—')+'</b>';
-      if(line.innerHTML!==want) line.innerHTML=want;
-    });
-  }
-  paintTokens();
-  setInterval(paintTokens, 3000);
-})();
-</script>
-
-
-<script id="B434_TOKENS_LIVE_FIX2">
-(function(){
-  if(window.__B434FIX2__) return; window.__B434FIX2__=true;
-  function paintTokens(){
-    document.querySelectorAll('.oq46y-card[data-agent]').forEach(card=>{
-      const tkEl=card.querySelector('.tk b');
-      const tk=tkEl ? tkEl.getAttribute('data-tk') : null;
-      const fn=tkEl ? tkEl.getAttribute('data-fn') : null;
-      const lat=tkEl ? tkEl.getAttribute('data-lat') : null;
-      // só mostra se tiver data-tk (e não data-fn/data-lat)
-      const showTk=tk && !fn && !lat;
-      let line=card.querySelector('.b434-tk');
-      if(showTk){
-        if(!line){
-          line=document.createElement('div');
-          line.className='b434-tk';
-          line.style.cssText='font:9px/1.3 ui-monospace,monospace;color:#7a8595;margin:0 0 2px;letter-spacing:.02em';
-          const funcaoLine=card.querySelector('.b423-funcao');
-          if(funcaoLine&&funcaoLine.parentNode) funcaoLine.parentNode.insertBefore(line, funcaoLine.nextSibling);
-          else card.insertBefore(line, card.firstChild);
-        }
-        const want='Tokens: <b style="color:#e6edf3">'+(tk||'—')+'</b>';
-        if(line.innerHTML!==want) line.innerHTML=want;
-      }else if(line){
-        line.remove();
-      }
-    });
-  }
-  paintTokens();
-  setInterval(paintTokens, 3000);
-})();
-</script>
-
-
-<script id="B434_TOKENS_LIVE_FIX2">
-(function(){
-  if(window.__B434FIX2__) return; window.__B434FIX2__=true;
-  function paintTokens(){
-    document.querySelectorAll('.oq46y-card[data-agent]').forEach(card=>{
-      const tkEl=card.querySelector('.tk b');
-      const tk=tkEl ? tkEl.getAttribute('data-tk') : null;
-      const fn=tkEl ? tkEl.getAttribute('data-fn') : null;
-      const lat=tkEl ? tkEl.getAttribute('data-lat') : null;
-      // só mostra se tiver data-tk (e não data-fn/data-lat)
-      const showTk=tk && !fn && !lat;
-      let line=card.querySelector('.b434-tk');
-      if(showTk){
-        if(!line){
-          line=document.createElement('div');
-          line.className='b434-tk';
-          line.style.cssText='font:9px/1.3 ui-monospace,monospace;color:#7a8595;margin:0 0 2px;letter-spacing:.02em';
-          const funcaoLine=card.querySelector('.b423-funcao');
-          if(funcaoLine&&funcaoLine.parentNode) funcaoLine.parentNode.insertBefore(line, funcaoLine.nextSibling);
-          else card.insertBefore(line, card.firstChild);
-        }
-        const want='Tokens: <b style="color:#e6edf3">'+(tk||'—')+'</b>';
-        if(line.innerHTML!==want) line.innerHTML=want;
-      }else if(line){
-        line.remove();
-      }
-    });
-  }
-  paintTokens();
-  setInterval(paintTokens, 3000);
-})();
-</script>
-
-
-<script id="B434_TOKENS_LIVE_FIX2">
-(function(){
-  if(window.__B434FIX2__) return; window.__B434FIX2__=true;
-  function paintTokens(){
-    document.querySelectorAll('.oq46y-card[data-agent]').forEach(card=>{
-      const tkEl=card.querySelector('.tk b');
-      const tk=tkEl ? tkEl.getAttribute('data-tk') : null;
-      const fn=tkEl ? tkEl.getAttribute('data-fn') : null;
-      const lat=tkEl ? tkEl.getAttribute('data-lat') : null;
-      // só mostra se tiver data-tk (e não data-fn/data-lat)
-      const showTk=tk && !fn && !lat;
-      let line=card.querySelector('.b434-tk');
-      if(showTk){
-        if(!line){
-          line=document.createElement('div');
-          line.className='b434-tk';
-          line.style.cssText='font:9px/1.3 ui-monospace,monospace;color:#7a8595;margin:0 0 2px;letter-spacing:.02em';
-          const funcaoLine=card.querySelector('.b423-funcao');
-          if(funcaoLine&&funcaoLine.parentNode) funcaoLine.parentNode.insertBefore(line, funcaoLine.nextSibling);
-          else card.insertBefore(line, card.firstChild);
-        }
-        const want='Tokens: <b style="color:#e6edf3">'+(tk||'—')+'</b>';
-        if(line.innerHTML!==want) line.innerHTML=want;
-      }else if(line){
-        line.remove();
-      }
-    });
-  }
-  paintTokens();
-  setInterval(paintTokens, 3000);
-})();
-</script>
-
-
-<script id="B434_TOKENS_LIVE_FIX3">
-(function(){
-  if(window.__B434FIX3__) return; window.__B434FIX3__=true;
-  function paintTokens(){
-    document.querySelectorAll('.oq46y-card[data-agent]').forEach(card=>{
-      const tkEl=card.querySelector('.tk b');
-      const tk=tkEl ? tkEl.getAttribute('data-tk') : null;
       let line=card.querySelector('.b434-tk');
       if(!line){
         line=document.createElement('div');
