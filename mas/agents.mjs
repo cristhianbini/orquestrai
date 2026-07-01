@@ -1,3 +1,4 @@
+// ATUALIZADO: 2026-07-01 07:13:28 -03:00 (auto, git pre-commit)
 
 // [B220-LOG]
 import { appendFileSync as _appB220 } from "node:fs";
@@ -281,13 +282,13 @@ function buildMemorialistaContext(runResults){
             }
           }
         }
-        } catch(eG){ console.error('[B387_GUARDIAN_ERR]', eG && eG.stack || eG); const dE=db(); dE.prepare('INSERT INTO mas_event(run_id,agent,phase,model,tokens_in,tokens_out,latency_ms,cost_usd,output,ts) VALUES(?,?,?,?,?,?,?,?,?,?)').run(runId,'guardian','error','regex',0,0,0,0,'[GUARDIAN_CRASH] '+String(eG&&eG.message||eG).slice(0,400),Date.now()); dE.close(); bus.emit(runId,{type:'agent.error',run_id:runId,agent:'guardian',error:String(eG&&eG.message||eG),ts:Date.now()}); }
-        const model=MODEL_BY_AGENT[ag.id]||HAIKU;
+        } catch(eG){ console.error('[B387_GUARDIAN_ERR]', eG && eG.stack || eG); const dE=db(); dE.prepare('INSERT INTO mas_event(run_id,agent,phase,model,tokens_in,tokens_out,latency_ms,cost_usd,output,ts,duration_ms) VALUES(?,?,?,?,?,?,?,?,?,?,?)').run(runId,'guardian','error','regex',0,0,0,0,'[GUARDIAN_CRASH] '+String(eG&&eG.message||eG).slice(0,400),Date.now(),0); dE.close(); bus.emit(runId,{type:'agent.error',run_id:runId,agent:'guardian',error:String(eG&&eG.message||eG),ts:Date.now()}); }
+        const agStart=Date.now(); const model=MODEL_BY_AGENT[ag.id]||HAIKU;
         bus.emit(runId,{type:'agent.start',run_id:runId,agent:ag.id,model,ts:Date.now()});
-        /* B124e8_AGENT_ERROR */ let out; try { out=await callLLM(ctx+'\n\n[VOCE E '+ag.id.toUpperCase()+'] '+ag.role, ag.id, ctx); } catch(eAg){ const errMsg='[AGENT_ERROR] '+ag.id+': '+String(eAg&&eAg.message||eAg).slice(0,300); const dErr=db(); dErr.prepare('INSERT INTO mas_event(run_id,agent,phase,model,tokens_in,tokens_out,latency_ms,cost_usd,output,ts) VALUES(?,?,?,?,?,?,?,?,?,?)').run(runId,ag.id,'error',(MODEL_BY_AGENT&&MODEL_BY_AGENT[ag.id])||'unknown',0,0,0,0,errMsg,Date.now()); dErr.close(); bus.emit(runId,{type:'agent.error',run_id:runId,agent:ag.id,error:errMsg,ts:Date.now()}); out={text:errMsg,model:(MODEL_BY_AGENT&&MODEL_BY_AGENT[ag.id])||'error',tokens_in:0,tokens_out:0,latency_ms:0,cost_usd:0}; }
+        /* B124e8_AGENT_ERROR */ let out; try { out=await callLLM(ctx+'\n\n[VOCE E '+ag.id.toUpperCase()+'] '+ag.role, ag.id, ctx); } catch(eAg){ const errMsg='[AGENT_ERROR] '+ag.id+': '+String(eAg&&eAg.message||eAg).slice(0,300); const dErr=db(); dErr.prepare('INSERT INTO mas_event(run_id,agent,phase,model,tokens_in,tokens_out,latency_ms,cost_usd,output,ts,duration_ms) VALUES(?,?,?,?,?,?,?,?,?,?,?)').run(runId,ag.id,'error',(MODEL_BY_AGENT&&MODEL_BY_AGENT[ag.id])||'unknown',0,0,0,0,errMsg,Date.now(),Date.now()-agStart); dErr.close(); bus.emit(runId,{type:'agent.error',run_id:runId,agent:ag.id,error:errMsg,ts:Date.now()}); out={text:errMsg,model:(MODEL_BY_AGENT&&MODEL_BY_AGENT[ag.id])||'error',tokens_in:0,tokens_out:0,latency_ms:0,cost_usd:0}; }
         const d2=db();
-        d2.prepare('INSERT INTO mas_event(run_id,agent,phase,model,tokens_in,tokens_out,latency_ms,cost_usd,output,ts) VALUES(?,?,?,?,?,?,?,?,?,?)')
-          .run(runId,ag.id,'done',out.model,out.tokens_in,out.tokens_out,out.latency_ms,out.cost_usd,out.text,Date.now());
+        d2.prepare('INSERT INTO mas_event(run_id,agent,phase,model,tokens_in,tokens_out,latency_ms,cost_usd,output,ts,duration_ms) VALUES(?,?,?,?,?,?,?,?,?,?,?)')
+          .run(runId,ag.id,'done',out.model,out.tokens_in,out.tokens_out,out.latency_ms,out.cost_usd,out.text,Date.now(),Date.now()-agStart);
         d2.close();
         tin+=out.tokens_in; tout+=out.tokens_out; tc+=out.cost_usd;
         bus.emit(runId,{type:'agent.done',run_id:runId,agent:ag.id,model:out.model,tokens_in:out.tokens_in,tokens_out:out.tokens_out,latency_ms:out.latency_ms,cost_usd:out.cost_usd,text:out.text,ts:Date.now()});

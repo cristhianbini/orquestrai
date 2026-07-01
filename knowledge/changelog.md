@@ -1,3 +1,7 @@
+## [0.3.1] - 2026-07-01
+### Mudado
+- CTXDURATION01 duration_ms em mas_event + CTXLITESTREAM01 backup continuo Litestream
+
 ## [0.3.0] - 2026-06-30
 ### Mudado
 - Rodada 2 completa: memoria MAS+individual, BLOCO MAS, aba Modelos com filtros, aba Agentes time titular, escalacao 26 agentes, REVISOR slot 9, seguranca nginx, git auto-push
