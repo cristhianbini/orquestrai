@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-01 00:33:16 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-01 01:05:41 -03:00 (auto, git pre-commit)
 // OQ46Z-v1
 import { createRequire as _oqReq } from "module";
 const _oqRequire = _oqReq(import.meta.url);
@@ -411,17 +411,16 @@ app.post('/api/agents/position', authMiddleware, (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// CTXAGT02: atualiza modelo de uma posicao do time
-app.post('/api/agents/position', authMiddleware, (req, res) => {
+// CTXAGT03: le posicoes salvas do time
+app.get('/api/agents/positions', authMiddleware, (req, res) => {
   try {
-    const { position, provider, model, label } = req.body || {};
-    if (position === undefined || !model) return res.status(400).json({ error: 'position e model obrigatorios' });
     const Database = require('better-sqlite3');
     const db = new Database(process.env.CLUSTER_DB || (process.env.LAVE_BASE || process.cwd()) + '/data/cluster.db');
     db.pragma('journal_mode=WAL');
     db.exec("CREATE TABLE IF NOT EXISTS agent_positions (position INTEGER PRIMARY KEY, provider TEXT, model TEXT, label TEXT, updated_at TEXT DEFAULT (datetime('now')))");
-    db.prepare("INSERT OR REPLACE INTO agent_positions (position,provider,model,label,updated_at) VALUES (?,?,?,?,datetime('now'))").run(position, provider, model, label || '');
+    const rows = db.prepare('SELECT position,provider,model,label FROM agent_positions ORDER BY position').all();
     db.close();
-    res.json({ ok: true });
+    res.json({ ok: true, positions: rows });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
+

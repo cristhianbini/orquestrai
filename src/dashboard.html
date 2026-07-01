@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-01 01:01:29 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-01 01:05:41 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -222,6 +222,23 @@ aside .panel,aside.panel{background:linear-gradient(180deg,#070b12,#0a1119)}
 /*OQ46Y2-END*/</style>
 <script>/*OQ46Y2-START*/ /*OQ46Y2-v1*/
 (function(){
+// CTXAGT03: sobrescreve AGS com posicoes salvas no banco ao carregar
+(function(){
+  var tk=localStorage.getItem('oq_token')||localStorage.getItem('token')||'';
+  if(!tk) return;
+  fetch('/api/agents/positions',{headers:{Authorization:'Bearer '+tk}}).then(function(r){return r.json();}).then(function(d){
+    if(!d.ok||!d.positions||!d.positions.length) return;
+    var map={'BATEDOR':'#7ce7ff','AUDITOR':'#a78bfa','DETETIVE':'#22d3ee','ARQUITETO':'#fbbf24','GUARDIAO':'#22c55e','MEMORIALISTA':'#f472b6','RELATOR':'#60a5fa','METRICO':'#94a3b8','REVISOR':'#f87171','#10':'#6b7280','#11':'#6b7280'};
+    var nm_map={'BATEDOR':'scout','AUDITOR':'auditor','DETETIVE':'detetive','ARQUITETO':'smith','GUARDIAO':'guardian','MEMORIALISTA':'memorialista','RELATOR':'rel','METRICO':'metrico','REVISOR':'revisor','#10':'pos10','#11':'pos11'};
+    d.positions.forEach(function(row){
+      var idx=row.position;
+      if(idx>=0 && idx<window.AGS.length){
+        window.AGS[idx].mdl = (row.provider && row.provider!=='' ? row.provider+'/' : '') + row.model;
+        if(row.label && map[row.label]) window.AGS[idx].col=map[row.label];
+      }
+    });
+  }).catch(function(){});
+})();
 var AGS=[ /*B181_AGS8*/ {nm:'scout',mdl:'claude-haiku-4-5',col:'#7ce7ff',st:'idle',lbl:'BATEDOR'},{nm:'auditor',mdl:'gpt-oss-120b',col:'#a78bfa',st:'idle',lbl:'AUDITOR'},{nm:'detetive',mdl:'claude-sonnet-4-5',col:'#22d3ee',st:'idle',lbl:'DETETIVE'},{nm:'smith',mdl:'claude-sonnet-4-5',col:'#fbbf24',st:'idle',lbl:'ARQUITETO'},{nm:'guardian',mdl:'claude-haiku-4-5',col:'#22c55e',st:'idle',lbl:'GUARDIAO'},{nm:'memorialista',mdl:'zai-glm-4.7',col:'#f472b6',st:'idle',lbl:'MEMORIALISTA'},{nm:'rel',mdl:'claude-haiku-4-5',col:'#60a5fa',st:'idle',lbl:'RELATOR'},{nm:'metrico',mdl:'gpt-oss-120b',col:'#94a3b8',st:'idle',lbl:'METRICO'}];
 var AMB=[{nm:'prod',cor:'#22c55e'},{nm:'teste',cor:'#22c55e'},{nm:'release',cor:'#f59e0b'}];
 function paintAg(){var el=document.getElementById('agentes');if(!el)return;var FREE={detetive:1,memorialista:1,metrico:1};el.innerHTML=AGS.map((a,i)=>{var isFree=FREE[a.nm];return '<div class="oq46y-card" data-agent="'+a.nm+'" data-order="'+i+'" title="'+a.mdl+'" style="--ag-col:'+a.col+'"><span class="av" style="background:'+a.col+';box-shadow:0 0 8px '+a.col+'66"></span><span class="nm">'+(a.lbl||a.nm)+'</span><span class="mdl">'+a.mdl+'</span><span class="oq46y-dot '+a.st+'" title="'+a.st+'"></span><span class="tk"><span>tk</span><b>—</b></span>'+(isFree?'<span class="usd free"><span>$</span><b>FREE</b></span>':'<span class="usd"><span>$</span><b>—</b></span>')+'</div>';}).join('');}
