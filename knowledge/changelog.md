@@ -1,3 +1,7 @@
+## [0.14.0] - 2026-07-01
+### Mudado
+- CTXVITE02 (parcial) - AgentPanel React com 9 cards, SSE real, StatusBadge animado, ScoreMeter visual (sem dado ate CTXUNIFY01 resolver fonte de dados confiavel)
+
 ## [0.13.0] - 2026-07-01
 ### Mudado
 - CTXVITE01 concluido - login em Vite+React deployado em producao, fluxo completo testado (senha+2FA+redirect+logout)
