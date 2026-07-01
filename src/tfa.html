@@ -1,3 +1,4 @@
+<!-- ATUALIZADO: 2026-07-01 12:15:31 -03:00 (auto, git pre-commit) -->
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"/>
 <title>OrquestrAI — Ativar 2FA</title>
 <style>
@@ -36,8 +37,10 @@ async function api(path,body){
 async function setup(){
   const {s,j}=await api('/auth/2fa/setup',{});
   if(s>=400){$('setupOut').innerHTML='<div class="err">'+(j.error||s)+'</div>';return}
-  const qr='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='+encodeURIComponent(j.otpauth);
-  $('setupOut').innerHTML='<img src="'+qr+'"/><div>Secret manual:</div><div class="mono">'+j.secret+'</div>';
+  // CTXAUTH2FA01: QR vem pronto do backend (data URI local), sem chamada
+  // externa -- antes mandava o secret do TOTP pra api.qrserver.com.
+  const qr=j.qr||'';
+  $('setupOut').innerHTML=(qr?'<img src="'+qr+'"/>':'<div class="err">QR indisponivel, use o secret manual</div>')+'<div>Secret manual:</div><div class="mono">'+j.secret+'</div>';
 }
 async function verify(){
   const {s,j}=await api('/auth/2fa/verify',{code:$('code').value});

@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-01 11:39:12 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-01 12:15:31 -03:00 (auto, git pre-commit)
 // OQ46Z-v1
 import { createRequire as _oqReq } from "module";
 const _oqRequire = _oqReq(import.meta.url);
@@ -24,6 +24,9 @@ const app = express();
 const Providers = require('./providers.cjs');
 app.use(cors());
 app.use(express.json());
+if (!process.env.JWT_SECRET) {
+  console.warn('[CTXAUTH2FA01] JWT_SECRET ausente no .env -- usando fallback fraco e publico. Tokens emitidos NAO SAO SEGUROS.');
+}
 const JWT_SECRET = process.env.JWT_SECRET || 'orquestrai-secret-2025';
 const PORT = 3000;
 
@@ -49,8 +52,15 @@ const limiter = rateLimit({
   }
 }); /*B49L*/
 app.use('/api/', limiter);
+// CTXAUTH2FA01: senha do admin nao pode ficar em texto plano no codigo
+// versionado (estava assim, ja publicado no historico do GitHub). Se
+// ADMIN_PASSWORD existir no .env, usa ela; senao mantem a senha antiga
+// como fallback -- zero downtime, so um aviso no log ate voce migrar.
+if (!process.env.ADMIN_PASSWORD) {
+  console.warn('[CTXAUTH2FA01] ADMIN_PASSWORD ausente no .env -- usando senha padrao antiga. Defina ADMIN_PASSWORD no .env e reinicie para trocar de vez.');
+}
 const users = [
-  { id: 1, name: 'Admin', email: 'admin@cbini.com.br', password: bcrypt.hashSync('OrquestrAI@2025', 10), role: 'admin' }
+  { id: 1, name: 'Admin', email: 'admin@cbini.com.br', password: bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'OrquestrAI@2025', 10), role: 'admin' }
 ];
 const sessions = {};
 var SP = [ /*OQ64_LAVE*/
@@ -139,7 +149,7 @@ app.get('/api/auth/2fa/status', authMiddleware, (req,res)=>{
   const row = _b31cGetRow(req.user.id);
   res.json({ enabled: !!(row && row.enabled), exists: !!row });
 });
-app.post('/api/auth/2fa/setup', authMiddleware, (req,res)=>{
+app.post('/api/auth/2fa/setup', authMiddleware, async (req,res)=>{
   if (!_b31cDB) return res.status(500).json({error:'db indisponível'});
   let row = _b31cGetRow(req.user.id);
   let secret;
@@ -152,7 +162,16 @@ app.post('/api/auth/2fa/setup', authMiddleware, (req,res)=>{
   const label = encodeURIComponent('OrquestrAI:'+req.user.email);
   const issuer = encodeURIComponent('OrquestrAI');
   const uri = `otpauth://totp/${label}?secret=${secret}&issuer=${issuer}&algorithm=SHA1&digits=6&period=30`;
-  res.json({ secret, otpauth: uri });
+  // CTXAUTH2FA01: QR gerado localmente (lib qrcode, sem rede) -- antes
+  // tfa.html mandava o secret pra api.qrserver.com (terceiro externo),
+  // vazando o segredo do TOTP pela URL. Corrigido.
+  try {
+    const QRCode = require('qrcode');
+    const qr = await QRCode.toDataURL(uri);
+    res.json({ secret, otpauth: uri, qr });
+  } catch (eqr) {
+    res.json({ secret, otpauth: uri, qr: null });
+  }
 });
 app.post('/api/auth/2fa/verify', authMiddleware, (req,res)=>{
   const row = _b31cGetRow(req.user.id);
@@ -196,17 +215,9 @@ app.post('/api/login', async (req,res)=>{
 });
 console.log('[B31C] 2FA TOTP routes mounted');
 // B31C_2FA_END
-app.post('/api/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ error: 'Email e senha obrigatorios.' });
-    const user = users.find(u => u.email === email);
-    if (!user) return res.status(401).json({ error: 'Email ou senha incorretos.' });
-    if (!bcrypt.compareSync(password, user.password)) return res.status(401).json({ error: 'Email ou senha incorretos.' });
-    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '24h' });
-    res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
-  } catch (err) { res.status(500).json({ error: 'Erro interno.' }); }
-});
+// CTXAUTH2FA01: /api/login duplicado removido -- este handler nunca executava
+// (o primeiro registrado, com checagem 2FA, sempre finaliza a resposta antes).
+// Codigo morto que confundia analise futura. Mantido so em backup.
 app.get('/api/me', (req, res) => {
   const auth = req.headers.authorization;
   if (!auth || !auth.startsWith('Bearer ')) return res.status(401).json({ error: 'Token obrigatorio.' });

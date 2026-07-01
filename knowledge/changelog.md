@@ -1,3 +1,7 @@
+## [0.8.0] - 2026-07-01
+### Mudado
+- CTXAUTH2FA01 - senha admin para .env, /api/login duplicado removido, QR TOTP local (sem vazar secret pra terceiro), avisos de fallback fraco em JWT_SECRET/ADMIN_PASSWORD
+
 ## [0.7.2] - 2026-07-01
 ### Mudado
 - Roadmap: corrige 3 mencoes de CTXSCORE01 (nunca implementado) + CTXAGENTSCORE01 inserido no Bloco 1 Seguranca + CTXVITE02 detalhado
