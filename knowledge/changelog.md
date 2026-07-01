@@ -1,3 +1,7 @@
+## [0.7.0] - 2026-07-01
+### Mudado
+- CTXHARNESS01 - Harness Score v1 (exec_success+guardian_pass+cost_score, sem join entre bancos). Achado: execucoes.mas_run_id nunca preenchido -- CTXPROVBRIDGE01 registrado para proxima rodada
+
 ## [0.6.0] - 2026-07-01
 ### Mudado
 - CTXREVISOR01 - agente REVISOR posicao 9 do pipeline MAS (claude-opus-4-8, convocado ao final, avalia qualidade da solucao)

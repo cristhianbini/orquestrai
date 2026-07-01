@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-01 06:34:13 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-01 12:01:12 -03:00 (auto, git pre-commit)
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 import express from 'express';
@@ -135,6 +135,83 @@ router.get('/models-last', (req,res) => {
   } catch (e) {
     res.status(500).json({ ok: false, error: String(e.message || e) });
   }
+});
+
+// ===== CTXHARNESS01_SCORE =====
+// Harness Score v1: mede qualidade+custo de um run do MAS.
+// Le SO do blackboard.db (mas_run + mas_event) -- decisao 2026-07-01 apos
+// confirmar que execucoes.mas_run_id NUNCA e preenchido na pratica (16/16
+// execucoes com valor nulo). Fazer join com a tabela execucoes daria
+// numero sempre zerado, entao ficou fora ate a ponte existir de verdade.
+// Formula: 0.4*exec_success + 0.3*guardian_pass + 0.3*cost_score
+// human_approve (w3, botao 👍/👎 do CTXFEEDBACK01) fica de fora por ora --
+// falta o item CTXPROVBRIDGE01 (proxima rodada) ligando bloco_n ao run_id
+// certo. Campo retornado como null, nao omitido, pra deixar claro que o
+// dado existe no sistema mas nao esta conectado ainda.
+function computeHarnessScore(runId){
+  const D = require('better-sqlite3');
+  const d = new D('/app/data/blackboard.db', { readonly: true });
+
+  const run = d.prepare('SELECT * FROM mas_run WHERE id=?').get(runId);
+  if (!run) { d.close(); return null; }
+
+  // exec_success: o run terminou sem cair no catch geral do pipeline
+  const execSuccess = run.status === 'done' ? 1 : 0;
+
+  // guardian_pass: nenhum veto nesse run. HARD-VETO e regra fixa (regex,
+  // roda antes do loop de agentes); REJEITADO/VETO sao vetos via LLM
+  // (guardian dentro do loop normal). phase='error' cobre crash do guardian.
+  const vetoEvent = d.prepare(
+    `SELECT id FROM mas_event WHERE run_id=? AND agent='guardian'
+     AND (phase='error' OR output LIKE '%HARD-VETO%' OR output LIKE '%REJEITADO%' OR output LIKE '%VETO%')
+     LIMIT 1`
+  ).get(runId);
+  const guardianPass = vetoEvent ? 0 : 1;
+
+  // cost_score: normalizado contra teto de referencia $0.10/run.
+  // Amostra real de producao (antes do REVISOR/Opus) ficou entre
+  // $0.02-$0.05. Reavaliar o teto se o custo medio subir muito com o
+  // REVISOR (CTXREVISOR01) rodando Opus 4.8 em todo run.
+  const COST_CEILING = 0.10;
+  const costScore = Math.max(0, 1 - (run.cost_usd || 0) / COST_CEILING);
+
+  const score = 0.4*execSuccess + 0.3*guardianPass + 0.3*costScore;
+  d.close();
+
+  return {
+    run_id: runId,
+    harness_score: Math.round(score * 1000) / 1000,
+    signals: {
+      exec_success: execSuccess,
+      guardian_pass: guardianPass,
+      cost_score: Math.round(costScore * 1000) / 1000,
+      human_approve: null // pendente CTXPROVBRIDGE01 -- ver nota acima
+    },
+    cost_usd: run.cost_usd,
+    status: run.status
+  };
+}
+
+// Score de um run especifico
+router.get('/harness-score/:id', (req,res) => {
+  const result = computeHarnessScore(req.params.id);
+  if (!result) return res.status(404).json({ error: 'run nao encontrado' });
+  res.json(result);
+});
+
+// Ultimos N runs com score + media -- alimenta o futuro dashboard (CTXVITE02)
+router.get('/harness-score', (req,res) => {
+  const limit = Math.min(Number(req.query.limit) || 20, 100);
+  const D = require('better-sqlite3');
+  const d = new D('/app/data/blackboard.db', { readonly: true });
+  const runs = d.prepare('SELECT id FROM mas_run ORDER BY started_at DESC LIMIT ?').all(limit);
+  d.close();
+
+  const scored = runs.map(r => computeHarnessScore(r.id)).filter(Boolean);
+  const avg = scored.length
+    ? Math.round((scored.reduce((a,s)=>a+s.harness_score,0)/scored.length) * 1000) / 1000
+    : null;
+  res.json({ count: scored.length, avg_harness_score: avg, runs: scored });
 });
 
 export default router;

@@ -288,3 +288,9 @@ Duas fases, evitando over-engineering prematuro (single-tenant hoje):
 - Framework AIOX completo (Next.js/outra taxonomia, colide com decisoes ja tomadas)
 - Grafo de conhecimento / sistema de reputacao entre agentes (overkill para 8 agentes, reavaliar em Release 0.7+)
 - Stack MySQL/Redis do Escopo V6.0 (implementacao real ja divergiu para SQLite por decisao consciente e funciona bem)
+
+## CTXPROVBRIDGE01 (adicionado 2026-07-01, achado durante CTXHARNESS01)
+- [ ] CTXPROVBRIDGE01 - Ligar bloco_n (execucoes) ao run_id certo do MAS: quando o
+      frontend chama /api/blocos/preparar a partir de um card BLOCO extraido de um
+      run do MAS, enviar mas_run_id no body. Sem isso, human_approve nunca entra no
+      Harness Score de verdade. Pre-requisito para Harness Score v2 completo.
