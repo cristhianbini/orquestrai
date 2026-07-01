@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-01 01:09:23 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-01 01:12:54 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -239,6 +239,23 @@ aside .panel,aside.panel{background:linear-gradient(180deg,#070b12,#0a1119)}
     });
   }).catch(function(){});
 })();
+var RESERVAS=[
+  {pos:11,nm:'pesquisador',lbl:'PESQUISADOR',col:'#34d399',fn:'Busca RAG em fontes externas, GitHub, docs'},
+  {pos:12,nm:'designer',lbl:'DESIGNER',col:'#fb923c',fn:'UI/UX, visual consistency, paleta, tipografia'},
+  {pos:13,nm:'documentador',lbl:'DOCUMENTADOR',col:'#a78bfa',fn:'Gera e atualiza documentacao tecnica'},
+  {pos:14,nm:'otimizador',lbl:'OTIMIZADOR',col:'#facc15',fn:'Performance, refactoring, reducao de custos'},
+  {pos:15,nm:'integrador',lbl:'INTEGRADOR',col:'#38bdf8',fn:'APIs, webhooks, integracoes externas'},
+  {pos:16,nm:'analista',lbl:'ANALISTA',col:'#e879f9',fn:'Analise de dados, logs, metricas avancadas'},
+  {pos:17,nm:'consultor',lbl:'CONSULTOR',col:'#4ade80',fn:'Best practices, recomendacoes arquiteturais'},
+  {pos:18,nm:'monitor',lbl:'MONITOR',col:'#f43f5e',fn:'Observabilidade, alertas, saude do sistema'},
+  {pos:19,nm:'planejador',lbl:'PLANEJADOR',col:'#818cf8',fn:'Roadmap, sprints, decomposicao de tarefas'},
+  {pos:20,nm:'critico',lbl:'CRITICO',col:'#fb7185',fn:'Code review, feedback negativo construtivo'},
+  {pos:21,nm:'treinador',lbl:'TREINADOR',col:'#86efac',fn:'Fine-tuning, exemplos, curadoria de datasets'},
+  {pos:22,nm:'descobridor',lbl:'DESCOBRIDOR',col:'#67e8f9',fn:'Exploracao de novas ferramentas e libs'},
+  {pos:23,nm:'sintetizador',lbl:'SINTETIZADOR',col:'#d8b4fe',fn:'Resumos, condensacao de contexto longo'},
+  {pos:24,nm:'validador',lbl:'VALIDADOR',col:'#6ee7b7',fn:'Testes, QA, validacao de contratos de API'},
+  {pos:25,nm:'tradutor',lbl:'TRADUTOR',col:'#fde68a',fn:'Traducao, localizacao, adaptacao cultural'}
+]; // CTXRESERVA01: 15 reservas pre-configuradas
 var AGS=[ /*B181_AGS8*/ {nm:'scout',mdl:'claude-haiku-4-5',col:'#7ce7ff',st:'idle',lbl:'BATEDOR'},{nm:'auditor',mdl:'gpt-oss-120b',col:'#a78bfa',st:'idle',lbl:'AUDITOR'},{nm:'detetive',mdl:'claude-sonnet-4-5',col:'#22d3ee',st:'idle',lbl:'DETETIVE'},{nm:'smith',mdl:'claude-sonnet-4-5',col:'#fbbf24',st:'idle',lbl:'ARQUITETO'},{nm:'guardian',mdl:'claude-haiku-4-5',col:'#22c55e',st:'idle',lbl:'GUARDIAO'},{nm:'memorialista',mdl:'zai-glm-4.7',col:'#f472b6',st:'idle',lbl:'MEMORIALISTA'},{nm:'rel',mdl:'claude-haiku-4-5',col:'#60a5fa',st:'idle',lbl:'RELATOR'},{nm:'metrico',mdl:'gpt-oss-120b',col:'#94a3b8',st:'idle',lbl:'METRICO'}];
 var AMB=[{nm:'prod',cor:'#22c55e'},{nm:'teste',cor:'#22c55e'},{nm:'release',cor:'#f59e0b'}];
 function paintAg(){var el=document.getElementById('agentes');if(!el)return;var FREE={detetive:1,memorialista:1,metrico:1};el.innerHTML=AGS.map((a,i)=>{var isFree=FREE[a.nm];return '<div class="oq46y-card" data-agent="'+a.nm+'" data-order="'+i+'" title="'+a.mdl+'" style="--ag-col:'+a.col+'"><span class="av" style="background:'+a.col+';box-shadow:0 0 8px '+a.col+'66"></span><span class="nm">'+(a.lbl||a.nm)+'</span><span class="mdl">'+a.mdl+'</span><span class="oq46y-dot '+a.st+'" title="'+a.st+'"></span><span class="tk"><span>tk</span><b>—</b></span>'+(isFree?'<span class="usd free"><span>$</span><b>FREE</b></span>':'<span class="usd"><span>$</span><b>—</b></span>')+'</div>';}).join('');}
@@ -1073,7 +1090,33 @@ button[onclick="send()"]:hover{
     modPane.innerHTML='<div class="b356-empty"><b>Modelos</b>Selecione um provider na aba PROVEDORES para listar modelos.<br>Endpoint: <code>GET /api/providers/:id/models</code></div>';
     var agtPane=document.createElement('div'); agtPane.className='b356-pane'; agtPane.dataset.p='agt';
     function buildAgtPane(){
-      var ags=window.AGS||[]; var slots=11; var reservas=15;
+      var ags=window.AGS||[]; var res=window.RESERVAS||[]; var slots=11;
+      var html='<div style="padding:12px 16px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;height:100%;box-sizing:border-box">';
+      html+='<div style="display:flex;justify-content:space-between;align-items:center">';
+      html+='<span style="color:#e5e7eb;font:12px ui-monospace,monospace;font-weight:bold">TITULAR ('+ags.length+'/'+slots+')</span>';
+      html+='<button onclick="window.__oqOpenNewAgent()" style="padding:4px 12px;border-radius:6px;border:1px solid #3b82f6;background:#1e3a5f;color:#93c5fd;font:11px ui-monospace,monospace;cursor:pointer">+ Novo Agente</button>';
+      html+='</div>';
+      html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:5px">';
+      ags.forEach(function(a,i){
+        html+='<div style="background:#0a1119;border:1px solid '+a.col+'44;border-radius:7px;padding:8px 10px">';
+        html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">';
+        html+='<span style="width:18px;height:18px;border-radius:50%;background:'+a.col+';display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:bold;color:#000;flex-shrink:0">'+(i+1)+'</span>';
+        html+='<span style="color:'+a.col+';font:11px ui-monospace,monospace;font-weight:bold">'+a.lbl+'</span>';
+        html+='</div><span style="display:block;color:#6b7280;font:10px ui-monospace,monospace;word-break:break-all">'+a.mdl+'</span></div>';
+      });
+      for(var v=ags.length;v<slots;v++){
+        html+='<div style="background:#0a1119;border:1px dashed #1f2937;border-radius:7px;padding:8px;display:flex;align-items:center;justify-content:center;min-height:52px"><span style="color:#374151;font:10px ui-monospace,monospace">#'+(v+1)+' vago</span></div>';
+      }
+      html+='</div><div style="border-top:1px solid #1f2937;padding-top:10px"><span style="color:#9ca3af;font:11px ui-monospace,monospace;font-weight:bold">RESERVA ('+res.length+'/15)</span></div>';
+      html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:5px">';
+      res.forEach(function(r){
+        html+='<div style="background:#0a1119;border:1px solid '+r.col+'33;border-radius:7px;padding:8px 10px">';
+        html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span style="width:8px;height:8px;border-radius:50%;background:'+r.col+';flex-shrink:0;display:inline-block"></span>';
+        html+='<span style="color:'+r.col+';font:11px ui-monospace,monospace;font-weight:bold">'+r.lbl+'</span></div>';
+        html+='<span style="display:block;color:#4b5563;font:10px ui-monospace,monospace;line-height:1.3">'+r.fn+'</span></div>';
+      });
+      html+='</div></div>';
+      return html;
       var html='<div style="padding:12px 16px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;height:100%;box-sizing:border-box">';
       html+='<div style="display:flex;justify-content:space-between;align-items:center">';
       html+='<span style="color:#e5e7eb;font:12px ui-monospace,monospace;font-weight:bold">⚽ TITULAR ('+ags.length+'/'+slots+') | RESERVA 0/'+reservas+'</span>';
