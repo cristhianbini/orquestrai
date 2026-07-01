@@ -371,3 +371,18 @@ nao root direto) como item separado, tambem exige decisao de arquitetura com cal
       (SSE) tem tratamento especial de auth via query param (?_t=) antes
       de aplicar authMiddleware padrao, que pode nao funcionar em EventSource
       nativo (nao manda header Authorization).
+
+## 🎉 Rodada 4 -- 10/10 CONCLUIDA (2026-07-01)
+1-6. Bloco Seguranca (2FA, secrets, audit, ratelimit x2, agent auth) -- concluidos
+7. CTXVITE01 -- concluido (login React em producao)
+8. CTXVITE02 -- parcial (AgentPanel pronto, aguardando integracao)
+9. CTXKBCURATOR01 -- concluido (fila de revisao humana)
+10. CTXSKILL01 -- concluido (9/9 AGENT_CARD titulares completos)
+
+Backlog de achados (fora dos 10, aguardando decisao/momento certo):
+CTXUNIFY01, CTXMASAUTH01, CTXCLOUDFLARE01, CTXCLEANURL01, CTXPROVBRIDGE01
+
+## Rodada 5 (planejar ao iniciar a proxima sessao, regra permanente do ciclo)
+Candidatos naturais: fechar CTXVITE02 (integrar AgentPanel ao dashboard real),
+CTXPIPELINE01 (pipeline adaptativo), CTXRAG01 (GitHub RAG), + decisao do
+CTXUNIFY01 como pre-requisito de varios itens represados.

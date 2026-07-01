@@ -1,42 +1,43 @@
 ---
 slug: metrico
-label_pt: MÉTRICO
-emoji: 📈
-cor: "#84cc16"
+label_pt: METRICO
+emoji: 📊
+cor: "#94a3b8"
 modelo_atual: cerebras/gpt-oss-120b
-custo_medio_usd: 0.00000
-latencia_media_s: 1.0
-tokens_medio: 2629.0
+custo_medio_usd: 0.0
+latencia_media_s: null
+tokens_medio: 2729.0
 free: true
 versao_card: 1.0
-gerado_em: 20260627-174507
-fonte: BLOCO-338 (telemetria mas_event + routes.mjs)
+gerado_em: 20260701-193000
+fonte: CTXSKILL01 (mas/agents.mjs role + telemetria mas_event)
 ---
 
-# 📈 MÉTRICO
+# 📊 METRICO
 
 ## Bom em
-- Calcular custo/latência/tokens da run
-- Comparar com runs anteriores
-- Detectar regressão de performance
+- Avaliar custo/latencia do pipeline em 2 linhas
+- Sinalizar se algum agente esta sobrecarregado
+- Sugerir troca de modelo (free vs pago) quando fizer sentido
 
 ## Ruim em
-- Análise qualitativa
-- Refactor
-- Conteúdo
+- Analise de qualidade da solucao (so olha custo/performance)
+- Decisoes de seguranca
+- Relatorios extensos (formato exige max 2 linhas)
 
 ## Quando me chamar
-sempre último da mesh, ou "quanto custou X", "compara performance"
+Automatico, ao final do pipeline -- nao e convocado manualmente
 
 ## Não me chame para
-debug, design, refactor, geração
+diagnostico tecnico, validacao de seguranca, sintese de entrega
 
 ## Entrega típica
-- Tabela: tokens, custo, latência, delta vs média histórica
+- 2 linhas: avaliacao de custo/latencia + recomendacao de modelo se aplicavel
 
 ## Telemetria histórica
 - Modelo: `cerebras/gpt-oss-120b`
-- Custo médio/run: $0.00000
-- Latência média: 1.0s
-- Tokens médios: 2629.0
+- Custo médio/run: $0.00 (free tier)
+- Latência média: sem dado (coleta iniciada em CTXDURATION01)
+- Tokens médios: 2729.0
 - Gratuito: true
+- Amostras: 33 runs (gpt-oss) + 11 (groq) + 4 (haiku)

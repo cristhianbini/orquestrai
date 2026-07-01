@@ -1,3 +1,7 @@
+## [0.18.0] - 2026-07-01
+### Mudado
+- CTXSKILL01 - 6 AGENT_CARD completados (auditor/guardian/memorialista/rel/metrico/revisor), 9/9 titulares com card completo. RODADA 4 CONCLUIDA 10/10
+
 ## [0.17.0] - 2026-07-01
 ### Mudado
 - CTXKBCURATOR01 - fila de revisao humana antes de licoes entrarem na KB (antes: auto-promocao direta so com Guardian regex). 3 endpoints: kb/pending, kb/approve, kb/reject

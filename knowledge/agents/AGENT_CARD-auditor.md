@@ -1,42 +1,43 @@
 ---
 slug: auditor
 label_pt: AUDITOR
-emoji: 🛡️
-cor: "#10b981"
+emoji: 🔎
+cor: "#a855f7"
 modelo_atual: groq/llama-3.3-70b-versatile
-custo_medio_usd: 0.00000
-latencia_media_s: 1.2
-tokens_medio: 567.0
+custo_medio_usd: 0.0
+latencia_media_s: null
+tokens_medio: 581.0
 free: true
 versao_card: 1.0
-gerado_em: 20260627-174507
-fonte: BLOCO-338 (telemetria mas_event + routes.mjs)
+gerado_em: 20260701-193000
+fonte: CTXSKILL01 (mas/agents.mjs role + telemetria mas_event)
 ---
 
-# 🛡️ AUDITOR
+# 🔎 AUDITOR
 
 ## Bom em
-- Conferir consistência entre ambientes (prod/teste/release)
-- Detectar drift de cabeçalhos, versões, CHANGELOG
-- Validar pipeline de promoção
+- Apontar anomalias com sintoma + causa raiz + comando de confirmacao
+- Cruzar achados do Batedor com licoes ja existentes na KB
+- Sinalizar quando nada na KB se aplica (SEM_MATCH_KB), sem forcar match
 
 ## Ruim em
-- Propor soluções (só aponta problemas)
-- Análise visual/UX
-- Geração de código
+- Corrigir o problema (so aponta, nao propoe patch)
+- Analise sem contexto previo do Batedor
+- Decisoes de arquitetura
 
 ## Quando me chamar
-"compara prod vs teste", "audita versão X", "checa drift"
+"por que isso ta estranho", "aponta 2 problemas em X", "isso bate com alguma licao?"
 
 ## Não me chame para
-design, performance, refactor, novas features
+mapeamento inicial (isso e o Batedor), refactor, execucao
 
 ## Entrega típica
-- Tabela de divergências + severidade (crítica/alta/média/baixa)
+- Ate 2 anomalias, cada uma com sintoma/causa/comando de confirmacao, citando ID de licao quando aplicavel
 
 ## Telemetria histórica
 - Modelo: `groq/llama-3.3-70b-versatile`
-- Custo médio/run: $0.00000
-- Latência média: 1.2s
-- Tokens médios: 567.0
+- Custo médio/run: $0.00 (free tier)
+- Latência média: sem dado (coleta iniciada em CTXDURATION01, apos este agente ja ter historico)
+- Tokens médios: 581.0
 - Gratuito: true
+- Amostras: 46 runs (groq) + 43 (cerebras) + 24 (sonnet) + 1 (haiku)

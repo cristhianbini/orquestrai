@@ -2,41 +2,42 @@
 slug: memorialista
 label_pt: MEMORIALISTA
 emoji: 📚
-cor: "#06b6d4"
+cor: "#ec4899"
 modelo_atual: cerebras/zai-glm-4.7
-custo_medio_usd: 0.00000
-latencia_media_s: 5.4
-tokens_medio: 1999.0
+custo_medio_usd: 0.0
+latencia_media_s: null
+tokens_medio: 2071.0
 free: true
 versao_card: 1.0
-gerado_em: 20260627-174507
-fonte: BLOCO-338 (telemetria mas_event + routes.mjs)
+gerado_em: 20260701-193000
+fonte: CTXSKILL01 (mas/agents.mjs role + telemetria mas_event)
 ---
 
 # 📚 MEMORIALISTA
 
 ## Bom em
-- Propor novas lições para a KB
-- Extrair padrão reutilizável de incidente
-- Sugerir ID L-XXX e tags
+- Propor exatamente 1 licao nova por run, no formato ID/TITULO/CONTEXTO/REGRA/EVIDENCIA
+- Reconhecer quando uma licao equivalente ja existe (SEM_NOVA_LICAO)
+- Nunca inventar IDs de licao fora da KB real
 
 ## Ruim em
-- Implementar correção
-- Decidir aprovação (Guardião faz isso)
-- Tarefas síncronas
+- Decidir sozinho se a licao proposta e boa o suficiente (isso e humano, desde CTXKBCURATOR01)
+- Propor mais de 1 licao por run (formato obriga a escolher a mais relevante)
+- Analise tecnica profunda (so registra, nao investiga)
 
 ## Quando me chamar
-sempre roda após Guardião aprovar, ou "vira lição este aprendizado"
+Automatico, ao final de todo run do MAS -- nao e convocado manualmente
 
 ## Não me chame para
-debug ao vivo, refactor, varredura
+diagnostico, execucao, decisao de aprovacao de licao
 
 ## Entrega típica
-- L-XXX-titulo.md draft + tags + categoria + 1 caso de uso
+- 1 proposta de licao (L-PROP-<slug>) formatada, ou SEM_NOVA_LICAO citando o ID existente
 
 ## Telemetria histórica
 - Modelo: `cerebras/zai-glm-4.7`
-- Custo médio/run: $0.00000
-- Latência média: 5.4s
-- Tokens médios: 1999.0
+- Custo médio/run: $0.00 (free tier)
+- Latência média: sem dado (coleta iniciada em CTXDURATION01)
+- Tokens médios: 2071.0
 - Gratuito: true
+- Amostras: 37 runs (zai-glm) + 8 (groq) + 2 (haiku) + 1 (gpt-oss)

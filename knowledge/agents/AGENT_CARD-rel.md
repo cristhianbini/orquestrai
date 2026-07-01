@@ -1,42 +1,42 @@
 ---
 slug: rel
 label_pt: RELATOR
-emoji: 📊
-cor: "#ec4899"
+emoji: 📝
+cor: "#06b6d4"
 modelo_atual: claude-haiku-4-5
-custo_medio_usd: 0.00417
-latencia_media_s: 2.7
-tokens_medio: 3565.0
+custo_medio_usd: 0.004913
+latencia_media_s: null
+tokens_medio: 4156.0
 free: false
 versao_card: 1.0
-gerado_em: 20260627-174507
-fonte: BLOCO-338 (telemetria mas_event + routes.mjs)
+gerado_em: 20260701-193000
+fonte: CTXSKILL01 (mas/agents.mjs role + telemetria mas_event)
 ---
 
-# 📊 RELATOR
+# 📝 RELATOR
 
 ## Bom em
-- Consolidar saída de todos os agentes em relatório final
-- Sumarizar para humano (TL;DR)
-- Formatar markdown limpo
+- Resumir em 1 frase o que o BLOCO entrega
+- Sugerir a versao semver correta (patch/minor/major) pra mudanca
 
 ## Ruim em
-- Análise técnica profunda
-- Decisões
-- Geração de código
+- Analise tecnica (so resume o que os outros ja concluiram)
+- Decisoes de arquitetura ou seguranca
+- Relatorios longos (formato exige max 3 linhas)
 
 ## Quando me chamar
-sempre penúltimo da mesh, ou "resume isso pra mim"
+Automatico, proximo ao final do pipeline -- nao e convocado manualmente
 
 ## Não me chame para
-investigação, refactor, debug
+diagnostico, validacao, execucao
 
 ## Entrega típica
-- Relatório .md com TL;DR + seções por agente + próximos passos
+- 1 frase de resumo + sugestao de versao semver
 
 ## Telemetria histórica
 - Modelo: `claude-haiku-4-5`
-- Custo médio/run: $0.00417
-- Latência média: 2.7s
-- Tokens médios: 3565.0
+- Custo médio/run: $0.004913
+- Latência média: sem dado (coleta iniciada em CTXDURATION01)
+- Tokens médios: 4156.0
 - Gratuito: false
+- Amostras: 59 runs (haiku) + 40 (gpt-oss)
