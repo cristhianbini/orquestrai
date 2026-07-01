@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-01 11:49:50 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-01 12:30:28 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -2809,6 +2809,11 @@ try{var k='orquestrai_xterminal_notes';var a=JSON.parse(localStorage.getItem(k)|
   if(!chip)return;
   var last=0;
   function sync(){
+    // CTXSPOT06: null guard -- mlist/chip/n podem nao existir no DOM
+    // dependendo da aba ativa (mesmo padrao do bug corrigido no
+    // CTXSPOT05/refresh()). setInterval(sync,2500) rodava sem parar
+    // e gerava erro repetido toda vez que a aba atual nao tinha o modal.
+    if(!mlist || !chip || !n) return;
     var ul=document.getElementById('licoes');if(!ul)return;
     var items=ul.querySelectorAll('li');var c=items.length;
     if(c>0){chip.style.display='inline-flex';n.textContent=c;}

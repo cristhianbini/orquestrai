@@ -1,3 +1,7 @@
+## [0.8.1] - 2026-07-01
+### Mudado
+- CTXSPOT06 - null guard em sync() do chip de licoes (mlist/chip/n), elimina 271 erros de console recorrentes
+
 ## [0.8.0] - 2026-07-01
 ### Mudado
 - CTXAUTH2FA01 - senha admin para .env, /api/login duplicado removido, QR TOTP local (sem vazar secret pra terceiro), avisos de fallback fraco em JWT_SECRET/ADMIN_PASSWORD
