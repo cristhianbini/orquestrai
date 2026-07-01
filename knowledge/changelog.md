@@ -1,3 +1,7 @@
+## [0.16.0] - 2026-07-01
+### Mudado
+- CTXRATELIM02 - rate limit diferenciado em mas/routes.mjs (run 5/min, leituras 30/min, SSE sem limite). Achado: 7 rotas sem authMiddleware -- CTXMASAUTH01 registrado
+
 ## [0.15.0] - 2026-07-01
 ### Mudado
 - CTXAGENTAUTH01 - authMiddleware em /api/agents/create + token no fetch do dashboard. Testado: 401 sem auth, criacao normal com token

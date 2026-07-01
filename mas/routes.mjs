@@ -1,8 +1,24 @@
-// ATUALIZADO: 2026-07-01 12:01:12 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-01 18:05:50 -03:00 (auto, git pre-commit)
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 import express from 'express';
 import { runMas, getRun, bus } from './agents.mjs';
+import rateLimit from 'express-rate-limit';
+
+// CTXRATELIM02: limites diferenciados por sensibilidade da rota.
+// /run dispara pipeline completo (custo real por chamada) -- restritivo.
+// Leituras (run/:id, last, models-last, harness-score) sao baratas -- soltas.
+// /events/:id (SSE) fica DE FORA -- rate limit quebraria o stream aberto.
+const runLimiter = rateLimit({
+  windowMs: 60000, max: 5,
+  message: { error: 'Limite de runs do MAS atingido. Aguarde um minuto.' },
+  standardHeaders: true, legacyHeaders: false,
+});
+const readLimiter = rateLimit({
+  windowMs: 60000, max: 30,
+  message: { error: 'Limite de requisicoes atingido.' },
+  standardHeaders: true, legacyHeaders: false,
+});
 
 
 // ===== B271_INTENT_GATE =====
@@ -46,7 +62,7 @@ async function quickChatReply(text){
 
 const router=express.Router();
 
-router.post('/run', express.json(), async (req,res)=>{
+router.post('/run', runLimiter, express.json(), async (req,res)=>{ // CTXRATELIM02
     try {
       const userText = (req.body && (req.body.prompt || req.body.message || req.body.text || req.body.goal)) || '';
       // CTXROUTE01: respeita mas_mode=true do frontend (usuario ativou MAS explicitamente)
@@ -85,9 +101,9 @@ router.post('/run', express.json(), async (req,res)=>{
   catch(e){ res.status(500).json({ok:false,error:String(e.message||e)}); }
 });
 
-router.get('/run/:id',(req,res)=>{ res.json(getRun(req.params.id)); });
+router.get('/run/:id', readLimiter, (req,res)=>{ res.json(getRun(req.params.id)); }); // CTXRATELIM02
 
-router.get('/last',(req,res)=>{
+router.get('/last', readLimiter, (req,res)=>{ // CTXRATELIM02
   try{
     const D=require('better-sqlite3');
     const d=new D('/app/data/blackboard.db',{readonly:true});
@@ -117,7 +133,7 @@ router.get('/events/:id',(req,res)=>{
 
 
 // B418_MODELS_LAST — último modelo real por agente (lido do SQLite)
-router.get('/models-last', (req,res) => {
+router.get('/models-last', readLimiter, (req,res) => { // CTXRATELIM02
   try {
     const Database = require('better-sqlite3');
     const db = new Database('/app/data/blackboard.db', { readonly: true });
@@ -193,14 +209,14 @@ function computeHarnessScore(runId){
 }
 
 // Score de um run especifico
-router.get('/harness-score/:id', (req,res) => {
+router.get('/harness-score/:id', readLimiter, (req,res) => { // CTXRATELIM02
   const result = computeHarnessScore(req.params.id);
   if (!result) return res.status(404).json({ error: 'run nao encontrado' });
   res.json(result);
 });
 
 // Ultimos N runs com score + media -- alimenta o futuro dashboard (CTXVITE02)
-router.get('/harness-score', (req,res) => {
+router.get('/harness-score', readLimiter, (req,res) => { // CTXRATELIM02
   const limit = Math.min(Number(req.query.limit) || 20, 100);
   const D = require('better-sqlite3');
   const d = new D('/app/data/blackboard.db', { readonly: true });

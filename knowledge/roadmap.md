@@ -351,3 +351,13 @@ nao root direto) como item separado, tambem exige decisao de arquitetura com cal
       Depende de decisao: Cloudflare como proxy DNS completo (protege toda a VPS,
       mascara IP real) vs so o widget Turnstile no formulario (mais simples, nao
       muda infraestrutura). Avaliar as duas opcoes quando chegar a vez do item.
+
+## 🟡 CTXMASAUTH01 (achado 2026-07-01, durante CTXRATELIM02)
+- [ ] CTXMASAUTH01 - Nenhuma das 7 rotas de mas/routes.mjs (/run, /run/:id,
+      /last, /events/:id, /models-last, /harness-score, /harness-score/:id)
+      tem authMiddleware. /run em especial dispara o pipeline MAS completo
+      (custo real de API) sem exigir login. Mesmo padrao do CTXAGENTAUTH01
+      ja corrigido, mas aqui em 7 rotas -- verificar se o /events/:id
+      (SSE) tem tratamento especial de auth via query param (?_t=) antes
+      de aplicar authMiddleware padrao, que pode nao funcionar em EventSource
+      nativo (nao manda header Authorization).
