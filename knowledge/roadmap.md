@@ -188,3 +188,25 @@ Criterio de convocacao: taxa de acerto por tipo de tarefa (agent_executions, Rel
 8. [ ] CTXVITE02 - Modularizar painel de agentes MAS como segundo componente React (score visual nasce aqui limpo)
 9. [ ] CTXLMEVAL01 - Integrar LM Eval Harness para benchmarking de modelos por posicao antes de designar ao time
 10. [ ] CTXRESERVA01 - Estrutura para reservas: suporte a mais de 11 posicoes no AGS, convocacao por tipo de tarefa (liga com agent_executions)
+
+## Metas futuras registradas em sessao (2026-07-01)
+
+### Dog-fooding: OrquestrAI melhorando o proprio OrquestrAI
+- [ ] Usar o MAS do OrquestrAI para propor e revisar patches do proprio sistema (ja funciona parcialmente -- formalizar como workflow padrao)
+- [ ] Conectar projeto "orquestrai" no modulo de Projetos e usar os agentes via interface, sem precisar do Claude.ai externo
+- [ ] Pipeline: humano descreve goal -> MAS propoe BLOCO -> REVISOR comenta antes de executar -> humano aprova -> executor roda
+
+### Calibracao dos agentes via knowledge base (em vez de fine-tuning)
+- [ ] Criar SKILL.md individual por agente em knowledge/skills/ (Bom em, Ruim em, Quando chamar, Nao chamar, Exemplos reais)
+- [ ] Agentes lerem o SKILL.md dos outros agentes antes de delegar -- conhecimento mutuo do time
+- [ ] Tooltip de descricao nos cards da Mesh Network (lado direito) mostrando especialidade do agente ao passar o mouse
+
+### Polimento visual (rodada 4)
+- [ ] Topbar mais compacta (fonte menor, icones, info densa sem poluicao)
+- [ ] Cards da Mesh Network com indicador de desempenho historico (taxa de acerto, ultimas runs)
+- [ ] Animacao suave ao trocar de aba no modal de Providers
+
+### Monitoramento e avaliacao dos agentes
+- [ ] Dashboard de metricas por agente: total de runs, taxa de sucesso, custo acumulado, tempo medio
+- [ ] Comparativo de modelos por posicao (qual modelo teve melhor taxa no slot AUDITOR, por exemplo)
+- [ ] Alerta automatico quando um agente falha mais de N vezes seguidas (liga com CTXSSE03 heartbeat)
