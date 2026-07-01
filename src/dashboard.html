@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-01 12:30:28 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-01 18:03:47 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -3844,7 +3844,7 @@ window.oqNovag = {
     const msg = document.getElementById('oqn-msg');
     if (!payload.slug){ msg.innerHTML='<div class="oq-novag-msg err">slug é obrigatório</div>'; return; }
     try {
-      const r = await fetch('/api/agents/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      const r = await fetch('/api/agents/create',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},body:JSON.stringify(payload)}); // CTXAGENTAUTH01
       const j = await r.json();
       if (j.ok){
         msg.innerHTML = '<div class="oq-novag-msg ok">✔ Agente '+j.slug+' cadastrado em '+j.file+'</div>';

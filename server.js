@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-01 16:56:51 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-01 18:03:47 -03:00 (auto, git pre-commit)
 // OQ46Z-v1
 import { createRequire as _oqReq } from "module";
 const _oqRequire = _oqReq(import.meta.url);
@@ -385,7 +385,7 @@ app.get('/api/agents/cards', (req, res) => {
 
 
 // B340_AGENT_CREATE — cria AGENT_CARD .md a partir do form
-app.post('/api/agents/create', kbLimiter, express.json(), (req, res) => { // CTXRATELIM01: ainda sem authMiddleware -- achado separado, ver roadmap CTXAGENTAUTH01
+app.post('/api/agents/create', kbLimiter, authMiddleware, express.json(), (req, res) => { // CTXAGENTAUTH01: auth adicionado
   const fs = require('fs'), path = require('path');
   const dir = '/app/knowledge/agents';
   try {

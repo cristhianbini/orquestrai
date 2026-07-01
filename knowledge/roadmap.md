@@ -327,9 +327,8 @@ acesso root total ao host. Considerar CTXOQTERM01 (escopo de usuario limitado,
 nao root direto) como item separado, tambem exige decisao de arquitetura com calma.
 
 ## 🟡 Achados do CTXRATELIM01 (2026-07-01) -- pendentes, nao corrigidos hoje
-- [ ] CTXAGENTAUTH01 - /api/agents/create (server.js:375) nao tem authMiddleware --
-      qualquer um pode criar agente sem login. Achado durante CTXRATELIM01, nao
-      corrigido na hora (fim de sessao longa, prefere decisao com calma).
+- [x] CTXAGENTAUTH01 - CONCLUIDO 2026-07-01. authMiddleware adicionado ao backend +
+      Authorization header adicionado no fetch do dashboard.html. Testado: 401 sem token.
 - [ ] CTXRATELIM02 - /api/mas/* e /api/blocos/* continuam SEM rate limit dedicado
       (isentos pelo skip do limiter global B49L). CTXRATELIM01 cobriu so os
       endpoints de server.js que nao dependiam de reler arquivo separado com

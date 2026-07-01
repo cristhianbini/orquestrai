@@ -1,3 +1,7 @@
+## [0.15.0] - 2026-07-01
+### Mudado
+- CTXAGENTAUTH01 - authMiddleware em /api/agents/create + token no fetch do dashboard. Testado: 401 sem auth, criacao normal com token
+
 ## [0.14.0] - 2026-07-01
 ### Mudado
 - CTXVITE02 (parcial) - AgentPanel React com 9 cards, SSE real, StatusBadge animado, ScoreMeter visual (sem dado ate CTXUNIFY01 resolver fonte de dados confiavel)
