@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-01 01:05:41 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-01 01:09:23 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -1125,19 +1125,58 @@ button[onclick="send()"]:hover{
         var bar=document.getElementById('oqMBar');
         var provs=['groq','openrouter','cerebras','gemini','anthropic','openai'];
         // CTXAGT02: funcao global para atribuir modelo a posicao do time
-        window.__oqUsar=function(pid,mid){
-          var ags=window.AGS||[];
-          var ocupadas=ags.map(function(a){return a.lbl;});
-          var lbl=['BATEDOR','AUDITOR','DETETIVE','ARQUITETO','GUARDIAO','MEMORIALISTA','RELATOR','METRICO','REVISOR','#10','#11'];
-          var menu=lbl.map(function(l,i){return (i+1)+'. '+l+(ocupadas.indexOf(l)>=0?' (ocupado)':' (livre)');}).join('\n');
-          var pos=prompt('Atribuir "'+mid+'" a qual posicao?\n\n'+menu+'\n\n(numero 1-11)');
-          if(!pos||isNaN(+pos)||+pos<1||+pos>11) return;
-          var idx=+pos-1;
-          if(!confirm('Confirmar: '+lbl[idx]+' -> '+pid+'/'+mid+'?')) return;
-          var tk=localStorage.getItem('oq_token')||localStorage.getItem('token')||'';
-          fetch('/api/agents/position',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tk},body:JSON.stringify({position:idx,provider:pid,model:mid,label:lbl[idx]})})
-            .then(function(r){return r.json();}).then(function(d){alert(d.ok?'Salvo! Recarregue aba AGENTES.':'Erro: '+(d.error||'?'));}).catch(function(){alert('Erro de conexao.');});
-        };
+        // CTXUSAR01: mini-modal inline -- substitui prompt/confirm/alert do browser
+        (function(){
+          var _overlay=null;
+          window.__oqUsar=function(pid,mid){
+            if(_overlay) _overlay.remove();
+            var ags=window.AGS||[];
+            var ocupadas=ags.map(function(a){return a.lbl;});
+            var lbl=['BATEDOR','AUDITOR','DETETIVE','ARQUITETO','GUARDIAO','MEMORIALISTA','RELATOR','METRICO','REVISOR','#10','#11'];
+            var cols=['#7ce7ff','#a78bfa','#22d3ee','#fbbf24','#22c55e','#f472b6','#60a5fa','#94a3b8','#f87171','#6b7280','#6b7280'];
+            var ov=document.createElement('div');
+            ov.style.cssText='position:fixed;inset:0;z-index:9999999;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center';
+            var box=document.createElement('div');
+            box.style.cssText='background:#0d1117;border:1px solid #30363d;border-radius:10px;padding:20px;width:320px;max-height:80vh;overflow-y:auto;font-family:ui-monospace,monospace';
+            var title=document.createElement('div');
+            title.style.cssText='color:#e5e7eb;font-size:12px;margin-bottom:14px;word-break:break-all;line-height:1.4';
+            title.innerHTML='<span style="color:#9ca3af">Usar modelo em:</span><br><b style="color:#7ce7ff">'+mid+'</b>';
+            box.appendChild(title);
+            var grid=document.createElement('div');
+            grid.style.cssText='display:grid;gap:6px';
+            lbl.forEach(function(l,i){
+              var btn=document.createElement('button');
+              var livre=ocupadas.indexOf(l)<0;
+              btn.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;border:1px solid '+(livre?cols[i]+'44':'#1f2937')+';background:'+(livre?cols[i]+'11':'#111827')+';color:'+(livre?'#e5e7eb':'#6b7280')+';font:11px ui-monospace,monospace;cursor:'+(livre?'pointer':'default');
+              btn.innerHTML='<span style="width:16px;height:16px;border-radius:50%;background:'+cols[i]+';display:inline-block;flex-shrink:0"></span>'+
+                '<span>'+(i+1)+'. '+l+'</span>'+
+                '<span style="margin-left:auto;font-size:10px;color:'+(livre?'#22c55e':'#6b7280')+'">'+(livre?'livre':'ocupado')+'</span>';
+              if(livre) btn.onclick=function(){
+                var tk=localStorage.getItem('oq_token')||localStorage.getItem('token')||'';
+                btn.textContent='salvando...'; btn.disabled=true;
+                fetch('/api/agents/position',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tk},body:JSON.stringify({position:i,provider:pid,model:mid,label:l})})
+                  .then(function(r){return r.json();}).then(function(d){
+                    ov.remove();
+                    var toast=document.createElement('div');
+                    toast.style.cssText='position:fixed;bottom:24px;right:24px;z-index:9999999;background:'+(d.ok?'#064e3b':'#7f1d1d')+';color:'+(d.ok?'#6ee7b7':'#fca5a5')+';border:1px solid '+(d.ok?'#10b981':'#ef4444')+';border-radius:8px;padding:10px 16px;font:12px ui-monospace,monospace';
+                    toast.textContent=d.ok?'✓ '+l+' agora usa '+mid:'Erro: '+(d.error||'?');
+                    document.body.appendChild(toast);
+                    setTimeout(function(){toast.remove();},3000);
+                  }).catch(function(){ov.remove();});
+              };
+              grid.appendChild(btn);
+            });
+            var cancel=document.createElement('button');
+            cancel.textContent='Cancelar';
+            cancel.style.cssText='width:100%;margin-top:12px;padding:7px;border-radius:6px;border:1px solid #374151;background:transparent;color:#9ca3af;font:11px ui-monospace,monospace;cursor:pointer';
+            cancel.onclick=function(){ov.remove();};
+            box.appendChild(grid); box.appendChild(cancel);
+            ov.appendChild(box);
+            ov.onclick=function(e){if(e.target===ov)ov.remove();};
+            document.body.appendChild(ov);
+            _overlay=ov;
+          };
+        })();
         var st={p:'groq',all:[],freeOnly:false,sortCtx:true,q:''};
         function pill(p,act){var b=document.createElement('button');b.textContent=p;b.dataset.p=p;b.style.cssText='padding:3px 10px;border-radius:20px;border:1px solid '+(act?'#7c3aed':'#374151')+';background:'+(act?'#312e81':'#1f2937')+';color:'+(act?'#c4b5fd':'#9ca3af')+';font:11px ui-monospace,monospace;cursor:pointer';b.onclick=function(){bar.querySelectorAll('button').forEach(function(x){x.style.background='#1f2937';x.style.color='#9ca3af';x.style.borderColor='#374151';});b.style.background='#312e81';b.style.color='#c4b5fd';b.style.borderColor='#7c3aed';st.p=p;loadM(p);};return b;}
         function render(){
