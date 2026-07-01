@@ -1,5 +1,39 @@
+// ATUALIZADO: 2026-07-01 12:47:48 -03:00 (auto, git pre-commit)
 const fs = require('fs');
+const crypto = require('crypto');
 const FILE = '/var/www/orquestrai/data/providers.json';
+
+// CTXSECRETS01: API keys dos providers cifradas em repouso (AES-256-GCM).
+// Antes: providers.json guardava a chave em texto plano no disco -- achado
+// durante auditoria de seguranca 2026-07-01 (Escopo V6.0 §11 ja exigia isso).
+// Fallback: se PROVIDERS_ENC_KEY nao existir no .env, mantem texto plano
+// e avisa no log -- nunca quebra o login/chat por falta de chave mestra.
+const ENC_KEY = process.env.PROVIDERS_ENC_KEY
+  ? Buffer.from(process.env.PROVIDERS_ENC_KEY, 'hex')
+  : null;
+if (!ENC_KEY) {
+  console.warn('[CTXSECRETS01] PROVIDERS_ENC_KEY ausente no .env -- API keys dos providers ficam em texto plano.');
+}
+const ENC_PREFIX = 'enc1:'; // marca valor cifrado, distingue de chave legada em texto plano
+
+function encryptKey(plain){
+  if (!ENC_KEY || !plain) return plain;
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv('aes-256-gcm', ENC_KEY, iv);
+  const enc = Buffer.concat([cipher.update(String(plain), 'utf8'), cipher.final()]);
+  const tag = cipher.getAuthTag();
+  return ENC_PREFIX + Buffer.concat([iv, tag, enc]).toString('base64');
+}
+
+function decryptKey(stored){
+  if (!stored || !String(stored).startsWith(ENC_PREFIX)) return stored; // texto plano legado, devolve como esta
+  if (!ENC_KEY) throw new Error('PROVIDERS_ENC_KEY ausente -- nao e possivel decifrar chave existente');
+  const raw = Buffer.from(String(stored).slice(ENC_PREFIX.length), 'base64');
+  const iv = raw.subarray(0, 12), tag = raw.subarray(12, 28), enc = raw.subarray(28);
+  const decipher = crypto.createDecipheriv('aes-256-gcm', ENC_KEY, iv);
+  decipher.setAuthTag(tag);
+  return Buffer.concat([decipher.update(enc), decipher.final()]).toString('utf8');
+}
 
 // OQ-71i SYSTEM LAVE
 const OQ71I_SYS = { role: 'system', content: 'Voce e o OrquestrAI, cockpit de auditoria da VPS cbini (XMonex + servicos). Quando a pergunta pedir comando shell, diagnostico, listagem, correcao, deploy ou qualquer acao executavel na VPS, voce DEVE responder com UM bloco fenceado triple-backtick lave (NAO bash, NAO sh) contendo o comando pronto pra rodar. Formato OBRIGATORIO: tres-crases lave + newline + comandos + newline + tres-crases. O parser do OrquestrAI captura blocos lave e cria card no painel BLOCO LAVE — bash/sh vai para o chat e nao executa. Para explicacao curta use texto normal antes do fence. Sem fence lave = comando perdido.' };
@@ -10,7 +44,17 @@ function oq71kGeminiBody(messages){ const all = oq71iEnsureSys(messages); const 
 function oq71iEnsureSys(msgs){ if(!Array.isArray(msgs)) return msgs; if(msgs[0] && msgs[0].role==='system'){ msgs[0].content = OQ71I_SYS.content + '\n\n' + (msgs[0].content||''); return msgs; } return [OQ71I_SYS, ...msgs]; }
 
 
-function load(){ try{ return JSON.parse(fs.readFileSync(FILE,'utf8')); }catch(e){ return {}; } }
+function load(){
+  try{
+    const d = JSON.parse(fs.readFileSync(FILE,'utf8'));
+    // CTXSECRETS01: decifra na leitura -- codigo que consome load() (chat/test/
+    // publicList) nunca precisa saber se a chave estava cifrada ou nao.
+    for (const id of Object.keys(d)) {
+      if (d[id] && d[id].key) { try { d[id].key = decryptKey(d[id].key); } catch(e) { console.error('[CTXSECRETS01] falha ao decifrar chave de', id, e.message); } }
+    }
+    return d;
+  }catch(e){ return {}; }
+}
 function save(d){ fs.writeFileSync(FILE, JSON.stringify(d,null,2)); fs.chmodSync(FILE,0o600); }
 
 function publicList(){
@@ -21,10 +65,14 @@ function publicList(){
   return out;
 }
 function setKey(id, key){
-  const d = load();
+  const d = load(); // ja vem decifrado
   if(!d[id]) throw new Error('provider desconhecido: '+id);
-  d[id].key = String(key||'').trim();
-  save(d);
+  d[id].key = String(key||'').trim(); // fica em memoria em texto plano ate save()
+  const toSave = load(); // recarrega cru (evita re-cifrar o que ja foi decifrado em d)
+  toSave[id] = toSave[id] || {};
+  toSave[id].key = encryptKey(d[id].key); // CTXSECRETS01: cifra so na hora de gravar
+  toSave[id].models = d[id].models;
+  save(toSave);
 }
 
 const ENDPOINTS = {

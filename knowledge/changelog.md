@@ -1,3 +1,7 @@
+## [0.9.0] - 2026-07-01
+### Mudado
+- CTXSECRETS01 - API keys dos providers cifradas em repouso (AES-256-GCM, 5/6 migradas, openai sem chave configurada). Achado critico: docker restart nao rele .env, precisa --force-recreate
+
 ## [0.8.1] - 2026-07-01
 ### Mudado
 - CTXSPOT06 - null guard em sync() do chip de licoes (mlist/chip/n), elimina 271 erros de console recorrentes
