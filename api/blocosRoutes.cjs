@@ -1,3 +1,4 @@
+// ATUALIZADO: 2026-07-01 13:19:04 -03:00 (auto, git pre-commit)
 // OQ-58a — Executor LAVE remoto
 const crypto = require('crypto');
 const { spawn } = require('child_process');
@@ -85,6 +86,14 @@ module.exports = function(app, requireAuth){
     });
   })();
 
+  (function ensureSchemaCTXAUDIT01(){ // CTXAUDIT01: hash-chain append-only, idempotente
+    var cols = ["prev_hash TEXT", "chain_hash TEXT"];
+    cols.forEach(function(def){
+      try{ db().prepare('ALTER TABLE execucoes ADD COLUMN '+def).run(); }
+      catch(e){ if(!/duplicate column/i.test(e.message||'')) throw e; }
+    });
+  })();
+
   // CTXSCORE01: ranking de desempenho por posicao do MAS (sucesso/falha real, exit_code)
   app.get('/api/agents/score', requireAuth, (req, res) => {
     try {
@@ -121,9 +130,21 @@ module.exports = function(app, requireAuth){
       const id = 'x_' + crypto.randomBytes(8).toString('hex');
       const sub = (req.user && req.user.sub) || '?';
       const ip = req.headers['x-forwarded-for'] || req.ip || '?';
-      db().prepare(`INSERT INTO execucoes (id,bloco_n,titulo,modo,ambiente,script,script_sha256,avisos,status,usuario_jwt_sub,ip_origem,criado_em,origem,agente,mas_run_id,provider,modelo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
-        id, String(n), titulo, modo, ambiente, script, sha, JSON.stringify(avisos), bloqueado ? 'bloqueado' : 'preparado', sub, ip, Date.now(), origem, agente, mas_run_id, provider, modelo
-      ); // CTXPROV01
+      const status = bloqueado ? 'bloqueado' : 'preparado';
+      const criadoEm = Date.now();
+
+      // CTXAUDIT01: hash-chain append-only (Escopo V6.0 §11). prev_hash
+      // encadeia com a ultima linha gravada; alterar qualquer registro no
+      // meio do historico quebra a corrente a partir dali (detectavel via
+      // GET /api/execucoes/verify-chain).
+      const prevRow = db().prepare('SELECT chain_hash FROM execucoes ORDER BY criado_em DESC, rowid DESC LIMIT 1').get();
+      const prevHash = (prevRow && prevRow.chain_hash) || 'GENESIS';
+      const chainInput = prevHash + '|' + id + '|' + sha + '|' + status + '|' + sub + '|' + ip + '|' + criadoEm;
+      const chainHash = crypto.createHash('sha256').update(chainInput).digest('hex');
+
+      db().prepare(`INSERT INTO execucoes (id,bloco_n,titulo,modo,ambiente,script,script_sha256,avisos,status,usuario_jwt_sub,ip_origem,criado_em,origem,agente,mas_run_id,provider,modelo,prev_hash,chain_hash) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
+        id, String(n), titulo, modo, ambiente, script, sha, JSON.stringify(avisos), status, sub, ip, criadoEm, origem, agente, mas_run_id, provider, modelo, prevHash, chainHash
+      ); // CTXPROV01 + CTXAUDIT01
       const preview = script.split('\n').slice(0, 10);
       res.json({ id, sha256: sha, preview_linhas: preview, total_linhas: script.split('\n').length, avisos, destrutivo, bloqueado, status: bloqueado ? 'bloqueado' : 'preparado' });
     } catch(e){ res.status(500).json({ error: e.message }); }
@@ -192,6 +213,30 @@ module.exports = function(app, requireAuth){
     sseAdd(row.id, res);
     const keep = setInterval(() => { try { res.write(`: ping\n\n`); } catch(_){} }, 15000);
     req.on('close', () => { clearInterval(keep); sseDrop(row.id, res); });
+  });
+
+  // CTXAUDIT01: verifica a integridade da corrente inteira. Recalcula cada
+  // chain_hash a partir do prev_hash gravado; se algum registro foi
+  // alterado direto no banco depois de gravado, o hash nao bate mais e a
+  // corrente "quebra" exatamente naquele ponto.
+  app.get('/api/execucoes/verify-chain', requireAuth, (req, res) => {
+    try {
+      const rows = db().prepare('SELECT id,script_sha256,status,usuario_jwt_sub,ip_origem,criado_em,prev_hash,chain_hash FROM execucoes ORDER BY criado_em ASC, rowid ASC').all();
+      let esperado = 'GENESIS';
+      for (const r of rows) {
+        if (r.prev_hash === null) continue; // registro anterior ao CTXAUDIT01, fora da cadeia
+        if (r.prev_hash !== esperado) {
+          return res.json({ ok: false, quebrado_em: r.id, motivo: 'prev_hash nao bate com o chain_hash anterior' });
+        }
+        const chainInput = r.prev_hash + '|' + r.id + '|' + r.script_sha256 + '|' + r.status + '|' + r.usuario_jwt_sub + '|' + r.ip_origem + '|' + r.criado_em;
+        const recalculado = crypto.createHash('sha256').update(chainInput).digest('hex');
+        if (recalculado !== r.chain_hash) {
+          return res.json({ ok: false, quebrado_em: r.id, motivo: 'chain_hash nao confere -- registro possivelmente alterado' });
+        }
+        esperado = r.chain_hash;
+      }
+      res.json({ ok: true, total_verificado: rows.filter(r => r.prev_hash !== null).length });
+    } catch(e){ res.status(500).json({ ok: false, error: e.message }); }
   });
 
   // GET /api/blocos/historico

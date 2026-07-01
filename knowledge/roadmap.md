@@ -297,3 +297,14 @@ Duas fases, evitando over-engineering prematuro (single-tenant hoje):
       frontend chama /api/blocos/preparar a partir de um card BLOCO extraido de um
       run do MAS, enviar mas_run_id no body. Sem isso, human_approve nunca entra no
       Harness Score de verdade. Pre-requisito para Harness Score v2 completo.
+
+## 🔴 CTXUNIFY01 (achado critico 2026-07-01, prioridade maxima proxima sessao)
+- [ ] CTXUNIFY01 - Dois sistemas de EXECUTAR coexistem na mesma tela: (1) execBloco()/#bloco
+      -> /api/blocos/preparar+executar, PROTEGIDO (sha256 anti-tampering, autorizo+confirmacao+
+      motivo, hash-chain CTXAUDIT01), mas ultima execucao real foi ha 8 dias; (2) cards numerados
+      (BLOCKS/cardHTML/oq71z-exec) -> manda script DIRETO pro terminal via WebSocket (window.oqRealWs),
+      SEM nenhuma protecao, e e o que esta sendo usado de fato no dia a dia. CTXAUDIT01 (hash-chain)
+      esta funcionando mas protegendo um caminho que a UI real nao usa. Decisao necessaria: unificar
+      os dois OU migrar o caminho protegido pra ser o unico visivel (matar o inseguro). NAO tentar
+      corrigir isso no fim de uma sessao longa -- toca o caminho real de execucao na VPS, exige
+      cabeca fresca e testes cuidadosos, mesmo padrao de risco do incidente do router hoje.

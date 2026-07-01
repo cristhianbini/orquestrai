@@ -1,3 +1,7 @@
+## [0.10.0] - 2026-07-01
+### Mudado
+- CTXAUDIT01 - hash-chain append-only em execucoes + endpoint verify-chain, funcionando e testado. Achado critico: 2 sistemas de EXECUTAR coexistem, um protegido (pouco usado) e outro inseguro (uso real) -- CTXUNIFY01 registrado como prioridade maxima da proxima sessao
+
 ## [0.9.0] - 2026-07-01
 ### Mudado
 - CTXSECRETS01 - API keys dos providers cifradas em repouso (AES-256-GCM, 5/6 migradas, openai sem chave configurada). Achado critico: docker restart nao rele .env, precisa --force-recreate
