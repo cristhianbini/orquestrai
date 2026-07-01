@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-01 07:13:28 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-01 11:49:50 -03:00 (auto, git pre-commit)
 
 // [B220-LOG]
 import { appendFileSync as _appB220 } from "node:fs";
@@ -22,6 +22,7 @@ const DB_PATH='/app/data/blackboard.db';
 
 const HAIKU='claude-haiku-4-5';
 const SONNET='claude-sonnet-4-5';
+const OPUS='claude-opus-4-8';
 
 const MODEL_BY_AGENT={
   scout:        HAIKU,
@@ -32,11 +33,13 @@ const MODEL_BY_AGENT={
   memorialista: HAIKU,
   rel:          HAIKU,
   metrico:      HAIKU,
+  revisor:      OPUS,
 };
 
 const PRICE={
   [HAIKU]:  { in:1.0, out:5.0  },
   [SONNET]: { in:3.0, out:15.0 },
+  [OPUS]:   { in:5.0, out:25.0 },
 };
 
 /* B124g9_LAVE */
@@ -69,7 +72,8 @@ const AGENTS=[
   { id:'memorialista', role:'MEMORIALISTA (L4). Apos sintese, PROPONHA exatamente 1 licao nova OU diga SEM_NOVA_LICAO. Formato OBRIGATORIO (literal, sem variacao): \nID: L-PROP-<slug-curto>\nTITULO: <texto>\nCONTEXTO: <quando aparece>\nREGRA: <o que fazer/evitar>\nEVIDENCIA: <run_id ou trecho>\nSe ja existe licao equivalente nas LICOES RELEVANTES acima, responda APENAS: SEM_NOVA_LICAO L-<id-existente>. NUNCA invente IDs fora da KB.' },
   { id:'rel',          role:'RELATOR (L5). Resuma em 1 frase o que o BLOCO entrega ao Cris e sugira semver vX.Y.Z. Max 3 linhas.' },
   { id:'metrico',      role:'METRICO (L5). Em 2 linhas: avalie custo/latencia do pipeline e diga se algum agente esta sobrecarregado ou se cabe trocar modelo (free vs pago).' },
-]; /* B175_AGENTES8 */
+  { id:'revisor',      role:'REVISOR (L6). Voce e o revisor final de qualidade, ultimo a falar. Releia a solucao completa construida pelos agentes anteriores (arquiteto, guardiao, relator). Avalie: resolve mesmo o objetivo? Ha gaps ou edge cases nao tratados? Nao repita checagens de seguranca ja feitas pelo Guardiao -- foco e qualidade da solucao, nao risco. Responda APROVADO + 1 frase, ou RESSALVAS: <max 4 itens objetivos>.' },
+]; /* B175_AGENTES9_CTXREVISOR01 */
 
 /* B172 */
 
@@ -174,6 +178,7 @@ const ROUTING = {
   memorialista: { provider: 'cerebras',  model: 'zai-glm-4.7' },
   rel:          { provider: 'anthropic', model: 'claude-haiku-4-5' },
   metrico:      { provider: 'cerebras',  model: 'gpt-oss-120b' },
+  revisor:      { provider: 'anthropic', model: 'claude-opus-4-8' },
 };
 
 async function callLLM(prompt, agentId='scout', meta=''){

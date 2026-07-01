@@ -1,3 +1,7 @@
+## [0.6.0] - 2026-07-01
+### Mudado
+- CTXREVISOR01 - agente REVISOR posicao 9 do pipeline MAS (claude-opus-4-8, convocado ao final, avalia qualidade da solucao)
+
 ## [0.5.0] - 2026-07-01
 ### Mudado
 - Roadmap Rodada 4 (seguranca->frontend->conhecimento->escala) + status de ciclo + analise Mega-Brain/AIOX/Evolucao Colaborativa + fix path knowledge/roadmap.md
