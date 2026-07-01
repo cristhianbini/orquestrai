@@ -298,13 +298,29 @@ Duas fases, evitando over-engineering prematuro (single-tenant hoje):
       run do MAS, enviar mas_run_id no body. Sem isso, human_approve nunca entra no
       Harness Score de verdade. Pre-requisito para Harness Score v2 completo.
 
-## 🔴 CTXUNIFY01 (achado critico 2026-07-01, prioridade maxima proxima sessao)
-- [ ] CTXUNIFY01 - Dois sistemas de EXECUTAR coexistem na mesma tela: (1) execBloco()/#bloco
-      -> /api/blocos/preparar+executar, PROTEGIDO (sha256 anti-tampering, autorizo+confirmacao+
-      motivo, hash-chain CTXAUDIT01), mas ultima execucao real foi ha 8 dias; (2) cards numerados
-      (BLOCKS/cardHTML/oq71z-exec) -> manda script DIRETO pro terminal via WebSocket (window.oqRealWs),
-      SEM nenhuma protecao, e e o que esta sendo usado de fato no dia a dia. CTXAUDIT01 (hash-chain)
-      esta funcionando mas protegendo um caminho que a UI real nao usa. Decisao necessaria: unificar
-      os dois OU migrar o caminho protegido pra ser o unico visivel (matar o inseguro). NAO tentar
-      corrigir isso no fim de uma sessao longa -- toca o caminho real de execucao na VPS, exige
-      cabeca fresca e testes cuidadosos, mesmo padrao de risco do incidente do router hoje.
+## 🔴 CTXUNIFY01 (investigado 2026-07-01, DECISAO DE ARQUITETURA pendente)
+Mapeamento completo feito -- sao 2 modelos DIFERENTES, nao so 2 botoes pro mesmo lugar:
+
+1. execBloco()/#bloco -> /api/blocos/preparar+executar (container orquestrai-api):
+   comando ISOLADO com sha256 anti-tampering, autorizo+confirmacao+motivo obrigatorios,
+   hash-chain (CTXAUDIT01), timeout/ulimit, roda DENTRO do container Docker.
+   Pouco usado na pratica (ultima execucao real: 8 dias atras).
+
+2. Cards numerados (BLOCKS/cardHTML/oq71z-exec) -> /opt/oqterm/server.js (porta 7654,
+   FORA do docker-compose, roda direto no host como root, PID solto desde 22/06):
+   sessao de TERMINAL INTERATIVA real (pty.spawn('/bin/login',['-f','root'])), com
+   estado entre comandos, diretorio atual mantido. Valida JWT (role=admin/super_admin
+   ou sub na ALLOWED list), nega com 403 se nao autorizado, loga por usuario/dia em
+   /opt/oqterm -- tem protecao propria, so que DIFERENTE da do resto do sistema (fora
+   do 2FA/cifra/hash-chain que protegemos hoje). E o que voce usa de fato no dia a dia.
+
+## Decisao necessaria (nao e patch simples, e escolha de arquitetura):
+- Opcao A: aceitar que sao 2 modelos legitimos p/ usos diferentes (comando pontual
+  auditado vs sessao interativa root) -- documentar claramente, sem tentar fundir.
+- Opcao B: fazer o terminal interativo tambem gravar em execucoes (hash-chain cobre
+  os 2), sem mudar o modelo de execucao em si.
+- Opcao C: migrar tudo pro modelo protegido (perderia a interatividade de sessao).
+Risco do oqterm em si (fora do escopo do unify, mas achado junto): root sem senha,
+fora de Docker, unico controle e assinatura do JWT_SECRET -- se JWT_SECRET vazar,
+acesso root total ao host. Considerar CTXOQTERM01 (escopo de usuario limitado,
+nao root direto) como item separado, tambem exige decisao de arquitetura com calma.

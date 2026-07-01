@@ -1,3 +1,7 @@
+## [0.11.0] - 2026-07-01
+### Mudado
+- CTXUNIFY01 - investigacao completa (sem patch): sao 2 modelos de execucao diferentes, nao duplicados. Achado adicional: /opt/oqterm roda root sem senha fora do Docker, controlado so por JWT. Decisao de arquitetura registrada pra proxima sessao com calma (CTXUNIFY01 + CTXOQTERM01 novo)
+
 ## [0.10.0] - 2026-07-01
 ### Mudado
 - CTXAUDIT01 - hash-chain append-only em execucoes + endpoint verify-chain, funcionando e testado. Achado critico: 2 sistemas de EXECUTAR coexistem, um protegido (pouco usado) e outro inseguro (uso real) -- CTXUNIFY01 registrado como prioridade maxima da proxima sessao
