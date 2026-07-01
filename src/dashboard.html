@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-01 01:30:45 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-01 01:34:24 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -3732,7 +3732,29 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           <option>cerebras/zai-glm-4.7</option>
           <option>groq/llama-3.3-70b-versatile</option>
         </select></div>
-        <div><label>Ordem na mesh</label><input id="oqn-ordem" type="number" value="9" min="1" max="20"></div>
+        <div><label>Posicao no time</label>
+        <select id="oqn-ordem" style="width:100%;padding:6px 8px;background:#0d1117;border:1px solid #30363d;color:#e5e7eb;border-radius:6px;font:12px ui-monospace,monospace;cursor:pointer">
+        </select>
+        <script>
+        (function(){
+          var sel=document.getElementById('oqn-ordem');
+          if(!sel||sel.dataset.built) return; sel.dataset.built='1';
+          var lbl=['BATEDOR','AUDITOR','DETETIVE','ARQUITETO','GUARDIAO','MEMORIALISTA','RELATOR','METRICO','REVISOR','TESTADOR','PUBLICADOR'];
+          var ocupadas=(window.AGS||[]).map(function(a){return a.lbl;});
+          lbl.forEach(function(l,i){
+            var op=document.createElement('option');
+            op.value=i+1;
+            op.textContent=(i+1)+'. '+l+(ocupadas.indexOf(l)>=0?' (ocupado)':' (livre)');
+            if(ocupadas.indexOf(l)>=0) op.style.color='#4b5563';
+            sel.appendChild(op);
+          });
+          // seleciona primeiro livre
+          for(var i=0;i<sel.options.length;i++){
+            if(sel.options[i].textContent.indexOf('livre')>=0){sel.selectedIndex=i;break;}
+          }
+        })();
+        </script>
+        </div>
       </div>
     </div>
 
