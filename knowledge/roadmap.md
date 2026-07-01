@@ -5,6 +5,14 @@ ultima_atualizacao: 2026-06-30
 status: vivo
 ---
 
+## 📊 Status do ciclo de sprints (2026-07-01)
+
+**Ciclo atual:** Rodada 3 (10 itens)
+**Concluidos (8/10):** CTXAGT02, CTXAGT03, CTXFORMAGT01, CTXSSE03, CTXDURATION01, CTXLITESTREAM01, CTXSPOT05, CTXFEEDBACK01
+**Em andamento:** 9/10 CTXREVISOR01
+**Restante:** 10/10 CTXHARNESS01
+**Regra permanente:** ao fechar 10/10, a proxima rodada de 10 e planejada automaticamente antes de novo pedido do humano.
+
 ## Concluido - fundacao tecnica (2026-06-29/30)
 - [x] CTXMEM01 - memoria de conversa persistente no chat individual (history + conversationId)
 - [x] OQ-SEC01 - bloqueio de backups (.bak/.env/.log) expostos no docroot publico
@@ -230,3 +238,53 @@ Criterio de convocacao: taxa de acerto por tipo de tarefa (agent_executions, Rel
 
 ### Principios do documento que ja seguimos (confirmados)
 # LAVE_sempre, KB_versionada, sem_vendor_lockin, dogfood_primeiro, incremental
+
+
+## Rodada 4 (planejada automaticamente ao fechar Rodada 3, 2026-07-01)
+
+Ordem: SEGURANCA -> FRONTEND -> CONHECIMENTO -> ESCALA. Fundamentos antes de expansao.
+
+### Bloco 1 -- Seguranca (rapido, critico)
+1. [ ] CTXAUTH2FA01 - Finalizar 2FA TOTP (RFC 6238, ja parcial em server.js B31C). Compativel
+       nativamente com Google Authenticator/Authy. Obrigatorio para sessao com kind=E.
+2. [ ] CTXSECRETS01 - Criptografar API keys em repouso (hoje .env plano) via age/sops.
+       Revisita decisao anterior de adiar -- priorizado por pedido explicito 2026-07-01.
+3. [ ] CTXAUDIT01 - Auditoria hash-chain estendendo colunas ja existentes em execucoes
+       (usuario_jwt_sub, ip_origem) -- tamper-evident, Escopo V6.0 §11.
+4. [ ] CTXRATELIM01 - Rate limiting dedicado nos endpoints que tocam a knowledge base
+       (/api/mas/*, /api/agents/*, /api/providers/*) -- previne extracao em massa.
+
+### Bloco 2 -- Frontend (antecipado por decisao 2026-07-01)
+5. [ ] CTXVITE01 - Login (index.html) para Vite+React+Tailwind, piloto do pipeline
+6. [ ] CTXVITE02 - Painel de agentes MAS como componente React (score visual nasce aqui)
+
+### Bloco 3 -- Conhecimento
+7. [ ] CTXKBCURATOR01 - Revisao semanal da KB em batch (Memorialista + Guardian pre-filtro)
+8. [ ] CTXSKILL01 - SKILL.md por agente, frontmatter type:lesson/type:adr (inspirado em
+       analise do documento Mega-Brain, sem instalar plugin externo)
+9. [ ] CTXPIPELINE01 - Pipeline MAS adaptativo (simples/medio/complexo -> 3/6/8 agentes)
+
+### Bloco 4 -- Escala
+10. [ ] CTXRAG01 - GitHub RAG com sanitizacao anti-prompt-injection desde o design
+        (conteudo externo indexado e sempre dado, nunca instrucao)
+
+## Arquitetura de seguranca da Knowledge Base (decidido 2026-07-01)
+
+Duas fases, evitando over-engineering prematuro (single-tenant hoje):
+- **Fase atual:** rate limiting (CTXRATELIM01), secrets cifrados (CTXSECRETS01), auditoria
+  hash-chain (CTXAUDIT01), sanitizacao anti-prompt-injection no RAG desde o design.
+- **Fase GA (Release 1.0, multi-tenant):** isolamento real por organizacao/workspace,
+  RBAC granular, embeddings/indices vetoriais segregados por tenant. Prematuro fazer agora.
+
+## Analise de documentos anexados (2026-07-01) -- filtrado
+
+### Incorporado
+- Padronizar frontmatter type:lesson/type:adr em knowledge/ (inspirado em Mega-Brain, sem plugin)
+- 2FA TOTP + secrets cifrados + audit hash-chain (ja exigidos no Escopo V6.0 §11, nao implementados)
+- Validacao 3 camadas (AIOX) -- vira item quando houver suite de testes automatizados
+
+### Descartado
+- Plugin claude-mega-brain (dependencia externa, ja coberto pelo Claude Project + KB propria)
+- Framework AIOX completo (Next.js/outra taxonomia, colide com decisoes ja tomadas)
+- Grafo de conhecimento / sistema de reputacao entre agentes (overkill para 8 agentes, reavaliar em Release 0.7+)
+- Stack MySQL/Redis do Escopo V6.0 (implementacao real ja divergiu para SQLite por decisao consciente e funciona bem)

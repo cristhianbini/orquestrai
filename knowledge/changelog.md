@@ -1,3 +1,7 @@
+## [0.5.0] - 2026-07-01
+### Mudado
+- Roadmap Rodada 4 (seguranca->frontend->conhecimento->escala) + status de ciclo + analise Mega-Brain/AIOX/Evolucao Colaborativa + fix path knowledge/roadmap.md
+
 ## [0.4.0] - 2026-07-01
 ### Mudado
 - Fix botoes feedback (write faltante) + roadmap Rodada 4 (seguranca->frontend->conhecimento) + analise Mega-Brain/AIOX/Evolucao
