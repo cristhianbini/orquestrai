@@ -1,3 +1,4 @@
+// ATUALIZADO: 2026-06-30 21:03:52 -03:00 (auto, git pre-commit)
 // OQ46Z-v1
 import { createRequire as _oqReq } from "module";
 const _oqRequire = _oqReq(import.meta.url);
@@ -394,3 +395,18 @@ app.get("/api/providers/:id/models", authMiddleware, async (req,res)=>{
 // B342b-MODELS-END
 
 app.listen(PORT, '0.0.0.0', () => console.log('OrquestraAI API rodando na porta ' + PORT));
+
+// CTXAGT02: atualiza modelo de uma posicao do time
+app.post('/api/agents/position', authMiddleware, (req, res) => {
+  try {
+    const { position, provider, model, label } = req.body || {};
+    if (position === undefined || !model) return res.status(400).json({ error: 'position e model obrigatorios' });
+    const Database = require('better-sqlite3');
+    const db = new Database(process.env.CLUSTER_DB || (process.env.LAVE_BASE || process.cwd()) + '/data/cluster.db');
+    db.pragma('journal_mode=WAL');
+    db.exec("CREATE TABLE IF NOT EXISTS agent_positions (position INTEGER PRIMARY KEY, provider TEXT, model TEXT, label TEXT, updated_at TEXT DEFAULT (datetime('now')))");
+    db.prepare("INSERT OR REPLACE INTO agent_positions (position,provider,model,label,updated_at) VALUES (?,?,?,?,datetime('now'))").run(position, provider, model, label || '');
+    db.close();
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
