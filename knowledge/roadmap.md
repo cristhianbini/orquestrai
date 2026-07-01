@@ -386,3 +386,16 @@ CTXUNIFY01, CTXMASAUTH01, CTXCLOUDFLARE01, CTXCLEANURL01, CTXPROVBRIDGE01
 Candidatos naturais: fechar CTXVITE02 (integrar AgentPanel ao dashboard real),
 CTXPIPELINE01 (pipeline adaptativo), CTXRAG01 (GitHub RAG), + decisao do
 CTXUNIFY01 como pre-requisito de varios itens represados.
+
+## Rodada 5 (2026-07-01, iniciada logo apos fechar Rodada 4)
+
+1. [ ] CTXPROVBRIDGE01 - Investigar/corrigir ponte bloco_n -> mas_run_id
+2. [ ] CTXMASAUTH01 - authMiddleware nas 7 rotas de mas/routes.mjs (cuidado com SSE)
+3. [ ] CTXHYGIENE01 - ADMIN_PASSWORD real, arquivo orfao blocosRoutes.cjs, pastas mortas knowledge/agentes/
+4. [ ] CTXCLOUDFLARE01 - Turnstile na tela de login
+5. [ ] CTXUNIFY01 - Decisao de arquitetura: unificar execBloco vs oqterm (precisa decisao conjunta)
+6. [ ] CTXAGENTSCORE01 - Score real por agente (desbloqueado apos item 5)
+7. [ ] CTXVITE02 - Fechar: integrar AgentPanel no dashboard real de producao
+8. [ ] CTXCLEANURL01 - URL sem /dashboard.html (nasce apos item 7)
+9. [ ] CTXPIPELINE01 - Pipeline MAS adaptativo (3/6/8 agentes por complexidade)
+10. [ ] CTXRAG01 - GitHub RAG basico com sanitizacao anti-prompt-injection

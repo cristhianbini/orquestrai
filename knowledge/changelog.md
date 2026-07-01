@@ -1,3 +1,7 @@
+## [0.18.1] - 2026-07-01
+### Mudado
+- CTXHYGIENE01 - knowledge/agentes/ (pastas mortas) arquivado. Esclarecido: blocosRoutes.cjs duplicado e mount intencional, nao bug. ADMIN_PASSWORD ainda pendente (decisao do usuario)
+
 ## [0.18.0] - 2026-07-01
 ### Mudado
 - CTXSKILL01 - 6 AGENT_CARD completados (auditor/guardian/memorialista/rel/metrico/revisor), 9/9 titulares com card completo. RODADA 4 CONCLUIDA 10/10
