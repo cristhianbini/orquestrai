@@ -76,7 +76,7 @@ status: vivo
 2. [x] BLOCO no modo MAS - extrair codigo do agente 'smith' para o card BLOCO (igual chat individual ja faz); comentario no chat vira resumo curto por agente; codigo do BLOCO entregue ja vem comentado
 3. [x] Teste de validacao - CONFIRMADO em producao (memoria individual + memoria MAS + BLOCO extraido + resumo curto). Achado: chave Groq invalida para auditor/metrico (corrigida via UI Providers, fora do codigo) - confirmar memoria do MAS funcionando (mesmo teste do chat individual: pergunta, depois "lembra?", via run com palavra-gatilho de auditoria)
 4. [x] agent_executions (via tabela existente 'execucoes' + colunas de proveniencia, CTXPROV01) - schema de outcome (sucesso/falha) ligado a /api/execute, base do Release 0.7
-5. [x] UI do card de agente - badge ja existia (b124g5), intensificado (CTXPULSE01); score backend pronto (CTXSCORE01), UI visual adiada para Vite/React por decisao consciente - badge "trabalhando agora" (liga no inicio, muda ao proximo agente) + indicador de score visual (luz vermelho/verde) abaixo do custo, alimentado por agent_executions
+5. [x] UI do card de agente - badge ja existia (b124g5), intensificado (CTXPULSE01); score por agente planejado (CTXAGENTSCORE01, Rodada 4), UI visual adiada para Vite/React por decisao consciente - badge "trabalhando agora" (liga no inicio, muda ao proximo agente) + indicador de score visual (luz vermelho/verde) abaixo do custo, alimentado por agent_executions
 
 ## Backlog futuro - ordenado de mais facil para mais dificil
 
@@ -99,7 +99,7 @@ status: vivo
 ### Distante / depende de investimento separado
 - [ ] VPS dedicada com GPU para rodar modelos localmente -- AVALIACAO HONESTA: viavel tecnicamente (vLLM/Ollama com modelo open-weight), mas e projeto de infraestrutura a parte, nao so configuracao: GPU VPS custa significativamente mais que a KVM2 atual, exige escolher/quantizar modelo e dimensionar VRAM. Visao de longo prazo, nao proximo passo.
 
-## Decisao 2026-06-30: card .oq46y-card ja tem 10+ patches sobrepostos (B330/B423/B434/B435/B443). Backend de score pronto (CTXSCORE01, /api/agents/score). Renderizacao visual (luz vermelho/verde) ADIADA de proposito ate a migracao Vite/React -- evitar patch #12 num elemento ja fragil.
+## Decisao 2026-06-30: card .oq46y-card ja tem 10+ patches sobrepostos (B330/B423/B434/B435/B443). Backend de score por agente planejado (CTXAGENTSCORE01, Rodada 4 -- CTXSCORE01 nunca foi implementado, achado em 2026-07-01 durante CTXHARNESS01). Renderizacao visual (luz vermelho/verde) ADIADA de proposito ate a migracao Vite/React -- evitar patch #12 num elemento ja fragil.
 
 ### Distante / depende de investimento separado (cont.)
 - [ ] Isolamento por container (Docker) por projeto -- AVALIACAO: ideia solida, padrao conhecido de isolamento multi-tenant. Conecta direto com pendencia 27-multi-tenant ja existente, nao e item isolado. Caminho natural: hoje (VPS unica) -> container Docker dedicado por projeto (isolamento de processo/rede/volume, viavel ainda na VPS atual) -> futuro distante (cluster/datacenter proprio, multiplas VPS), so se a demanda real justificar esse investimento. Exige projeto de orquestracao de containers (provisionamento dinamico, limites de recurso, rede isolada) -- nao e so "rodar mais um docker-compose".
@@ -150,7 +150,7 @@ status: vivo
 
 10. [ ] CTXVITE02 -- Modularizar dashboard.html: apos CTXVITE01 validar o pipeline,
         extrair o painel de agentes MAS como segundo componente React. Score visual
-        (luz vermelho/verde, CTXSCORE01 UI) nasce aqui, limpo, sem mais patch em cima
+        (luz vermelho/verde, dado de CTXAGENTSCORE01) nasce aqui, limpo, sem mais patch em cima
         de patch.
 
 ## Escalacao do Time de Agentes (decidido 2026-06-30)
@@ -253,6 +253,9 @@ Ordem: SEGURANCA -> FRONTEND -> CONHECIMENTO -> ESCALA. Fundamentos antes de exp
        (usuario_jwt_sub, ip_origem) -- tamper-evident, Escopo V6.0 §11.
 4. [ ] CTXRATELIM01 - Rate limiting dedicado nos endpoints que tocam a knowledge base
        (/api/mas/*, /api/agents/*, /api/providers/*) -- previne extracao em massa.
+5. [ ] CTXAGENTSCORE01 - Score por agente (nao por run): % de runs sem veto/erro por agent_id,
+       extensao do CTXHARNESS01 agrupando mas_event por agent. So backend/API, zero risco de HTML.
+       Pre-requisito de dados para a animacao visual pedida em CTXVITE02 (item abaixo).
 
 ### Bloco 2 -- Frontend (antecipado por decisao 2026-07-01)
 5. [ ] CTXVITE01 - Login (index.html) para Vite+React+Tailwind, piloto do pipeline

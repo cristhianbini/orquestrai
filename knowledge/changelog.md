@@ -1,3 +1,7 @@
+## [0.7.2] - 2026-07-01
+### Mudado
+- Roadmap: corrige 3 mencoes de CTXSCORE01 (nunca implementado) + CTXAGENTSCORE01 inserido no Bloco 1 Seguranca + CTXVITE02 detalhado
+
 ## [0.7.1] - 2026-07-01
 ### Mudado
 - Roadmap: CTXAGENTSCORE01 (score por agente, backend) + CTXVITE02 detalhado com pedido de animacao no indicador de score
