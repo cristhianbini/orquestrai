@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-06-30 19:50:47 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-01 06:34:13 -03:00 (auto, git pre-commit)
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 import express from 'express';
@@ -103,6 +103,9 @@ router.get('/events/:id',(req,res)=>{
   res.setHeader('Connection','keep-alive');
   res.setHeader('X-Accel-Buffering','no');
   res.flushHeaders&&res.flushHeaders();
+  // CTXSSE03: heartbeat 15s evita timeout 504 do nginx em runs longas
+  const _hb=setInterval(()=>{try{res.write(': keepalive\n\n');}catch(_){}},15000);
+  req.on('close',()=>clearInterval(_hb));
   const { events }=getRun(runId);
   for(const ev of events){
     res.write('data: '+JSON.stringify({type:'agent.done',run_id:runId,agent:ev.agent,model:ev.model,tokens_in:ev.tokens_in,tokens_out:ev.tokens_out,latency_ms:ev.latency_ms,cost_usd:ev.cost_usd,text:ev.output,ts:ev.ts})+'\n\n');
