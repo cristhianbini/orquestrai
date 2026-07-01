@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-01 01:00:11 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-01 01:01:29 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -1107,6 +1107,20 @@ button[onclick="send()"]:hover{
         '</div>';
         var bar=document.getElementById('oqMBar');
         var provs=['groq','openrouter','cerebras','gemini','anthropic','openai'];
+        // CTXAGT02: funcao global para atribuir modelo a posicao do time
+        window.__oqUsar=function(pid,mid){
+          var ags=window.AGS||[];
+          var ocupadas=ags.map(function(a){return a.lbl;});
+          var lbl=['BATEDOR','AUDITOR','DETETIVE','ARQUITETO','GUARDIAO','MEMORIALISTA','RELATOR','METRICO','REVISOR','#10','#11'];
+          var menu=lbl.map(function(l,i){return (i+1)+'. '+l+(ocupadas.indexOf(l)>=0?' (ocupado)':' (livre)');}).join('\n');
+          var pos=prompt('Atribuir "'+mid+'" a qual posicao?\n\n'+menu+'\n\n(numero 1-11)');
+          if(!pos||isNaN(+pos)||+pos<1||+pos>11) return;
+          var idx=+pos-1;
+          if(!confirm('Confirmar: '+lbl[idx]+' -> '+pid+'/'+mid+'?')) return;
+          var tk=localStorage.getItem('oq_token')||localStorage.getItem('token')||'';
+          fetch('/api/agents/position',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tk},body:JSON.stringify({position:idx,provider:pid,model:mid,label:lbl[idx]})})
+            .then(function(r){return r.json();}).then(function(d){alert(d.ok?'Salvo! Recarregue aba AGENTES.':'Erro: '+(d.error||'?'));}).catch(function(){alert('Erro de conexao.');});
+        };
         var st={p:'groq',all:[],freeOnly:false,sortCtx:true,q:''};
         function pill(p,act){var b=document.createElement('button');b.textContent=p;b.dataset.p=p;b.style.cssText='padding:3px 10px;border-radius:20px;border:1px solid '+(act?'#7c3aed':'#374151')+';background:'+(act?'#312e81':'#1f2937')+';color:'+(act?'#c4b5fd':'#9ca3af')+';font:11px ui-monospace,monospace;cursor:pointer';b.onclick=function(){bar.querySelectorAll('button').forEach(function(x){x.style.background='#1f2937';x.style.color='#9ca3af';x.style.borderColor='#374151';});b.style.background='#312e81';b.style.color='#c4b5fd';b.style.borderColor='#7c3aed';st.p=p;loadM(p);};return b;}
         function render(){
@@ -1121,8 +1135,13 @@ button[onclick="send()"]:hover{
             var brd=m.free?'#064e3b':'#1f2937';
             var tags=(m.free?'<span style="font-size:10px;padding:1px 4px;border-radius:3px;background:#064e3b;color:#6ee7b7;border:1px solid #10b981;margin-right:2px">FREE</span>':'')+
               (m.ctx?'<span style="font-size:10px;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#93c5fd;border:1px solid #3b82f6">'+(m.ctx>=1000?Math.round(m.ctx/1000)+'k':m.ctx)+'</span>':'');
+            var _ep=encodeURIComponent(st.p),_em=encodeURIComponent(m.id);
             return '<div style="background:#111827;border:1px solid '+brd+';border-radius:6px;padding:8px;cursor:default">'+
-              '<span style="display:block;color:#e5e7eb;font:11px ui-monospace,monospace;word-break:break-all;margin-bottom:4px">'+m.id+'</span>'+tags+'</div>';
+              '<span style="display:block;color:#e5e7eb;font:11px ui-monospace,monospace;word-break:break-all;margin-bottom:4px">'+m.id+'</span>'+
+              '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">'+tags+
+              '<button data-p="'+_ep+'" data-m="'+_em+'" onclick="window.__oqUsar(decodeURIComponent(this.dataset.p),decodeURIComponent(this.dataset.m))" '+
+              'style="margin-left:auto;padding:2px 7px;font:10px ui-monospace,monospace;border:1px solid #374151;background:#1f2937;color:#9ca3af;border-radius:4px;cursor:pointer">usar</button>'+
+              '</div></div>'; // CTXAGT02
           }).join('');
         }
         function loadM(p){
