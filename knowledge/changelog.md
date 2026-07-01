@@ -1,3 +1,7 @@
+## [0.12.0] - 2026-07-01
+### Mudado
+- CTXRATELIM01 - rate limit dedicado (20/min) em providers/key, providers/test, agents/create, agents/position. Achados pendentes registrados: agents/create sem auth, mas/blocos ainda sem rate limit dedicado
+
 ## [0.11.0] - 2026-07-01
 ### Mudado
 - CTXUNIFY01 - investigacao completa (sem patch): sao 2 modelos de execucao diferentes, nao duplicados. Achado adicional: /opt/oqterm roda root sem senha fora do Docker, controlado so por JWT. Decisao de arquitetura registrada pra proxima sessao com calma (CTXUNIFY01 + CTXOQTERM01 novo)

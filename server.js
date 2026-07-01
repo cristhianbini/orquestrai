@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-01 12:15:31 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-01 16:56:51 -03:00 (auto, git pre-commit)
 // OQ46Z-v1
 import { createRequire as _oqReq } from "module";
 const _oqRequire = _oqReq(import.meta.url);
@@ -51,6 +51,19 @@ const limiter = rateLimit({
     return hot.test(u) || hot.test(p);
   }
 }); /*B49L*/
+
+// CTXRATELIM01: limiter dedicado, mais restritivo, para endpoints que
+// tocam credenciais de providers ou criam/alteram agentes -- protege
+// contra tentativas automatizadas de forcar/testar chaves em massa ou
+// spam de criacao de agentes. NAO cobre /api/mas ou /api/blocos ainda
+// (fora do escopo do B49L skip -- decisao pendente ligada ao CTXUNIFY01).
+const kbLimiter = rateLimit({
+  windowMs: 60000,
+  max: 20,
+  message: { error: 'Limite de requisicoes atingido para este endpoint sensivel.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+}); /*CTXRATELIM01*/
 app.use('/api/', limiter);
 // CTXAUTH2FA01: senha do admin nao pode ficar em texto plano no codigo
 // versionado (estava assim, ja publicado no historico do GitHub). Se
@@ -282,8 +295,8 @@ app.post('/api/session/clear', (req, res) => {
 
 // === Providers IA ===
 app.get('/api/providers', authMiddleware, (req,res)=>{ try{ res.json(Providers.publicList()); }catch(e){ res.status(500).json({error:e.message}); } });
-app.post('/api/providers/:id/key', authMiddleware, (req,res)=>{ try{ Providers.setKey(req.params.id, req.body.key); res.json({ok:true}); }catch(e){ res.status(400).json({error:e.message}); } });
-app.post('/api/providers/:id/test', authMiddleware, async (req,res)=>{ try{ const r = await Providers.test(req.params.id); res.json({ok:true, sample: (r.content||'').slice(0,80)}); }catch(e){ res.status(400).json({error:e.message}); } });
+app.post('/api/providers/:id/key', kbLimiter, authMiddleware, (req,res)=>{ try{ Providers.setKey(req.params.id, req.body.key); res.json({ok:true}); }catch(e){ res.status(400).json({error:e.message}); } });
+app.post('/api/providers/:id/test', kbLimiter, authMiddleware, async (req,res)=>{ try{ const r = await Providers.test(req.params.id); res.json({ok:true, sample: (r.content||'').slice(0,80)}); }catch(e){ res.status(400).json({error:e.message}); } });
 
 // OQ-46e SQLite + conversations
 const conversationsRouter = require("./routes/conversations.cjs");
@@ -372,7 +385,7 @@ app.get('/api/agents/cards', (req, res) => {
 
 
 // B340_AGENT_CREATE — cria AGENT_CARD .md a partir do form
-app.post('/api/agents/create', express.json(), (req, res) => {
+app.post('/api/agents/create', kbLimiter, express.json(), (req, res) => { // CTXRATELIM01: ainda sem authMiddleware -- achado separado, ver roadmap CTXAGENTAUTH01
   const fs = require('fs'), path = require('path');
   const dir = '/app/knowledge/agents';
   try {
@@ -439,7 +452,7 @@ app.get("/api/providers/:id/models", authMiddleware, async (req,res)=>{
 app.listen(PORT, '0.0.0.0', () => console.log('OrquestraAI API rodando na porta ' + PORT));
 
 // CTXAGT02: atualiza modelo de uma posicao do time
-app.post('/api/agents/position', authMiddleware, (req, res) => {
+app.post('/api/agents/position', kbLimiter, authMiddleware, (req, res) => {
   try {
     const { position, provider, model, label } = req.body || {};
     if (position === undefined || !model) return res.status(400).json({ error: 'position e model obrigatorios' });
