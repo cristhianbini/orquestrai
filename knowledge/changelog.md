@@ -1,3 +1,7 @@
+## [0.17.0] - 2026-07-01
+### Mudado
+- CTXKBCURATOR01 - fila de revisao humana antes de licoes entrarem na KB (antes: auto-promocao direta so com Guardian regex). 3 endpoints: kb/pending, kb/approve, kb/reject
+
 ## [0.16.1] - 2026-07-01
 ### Mudado
 - Fix critico CTXVITE01 - login travava no dashboard.html:1393 (chave de token) + tela preta no logout (rota /index.html ausente no router). Resolvido e testado.

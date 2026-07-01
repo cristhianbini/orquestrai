@@ -5,6 +5,16 @@ ultima_atualizacao: 2026-06-30
 status: vivo
 ---
 
+## 📊 Status do ciclo de sprints (atualizado 2026-07-01, noite)
+
+**Rodada 4 -- 7/10 concluidos, 1 parcial, 2 restantes:**
+1-6. CTXAUTH2FA01, CTXSECRETS01, CTXAUDIT01, CTXRATELIM01, CTXAGENTAUTH01, CTXRATELIM02 -- concluidos
+7. CTXVITE01 -- concluido (com incidente de login resolvido, ver L-VITE03)
+8. CTXVITE02 -- parcial (componente AgentPanel pronto, testado isolado, nao integrado ao dashboard.html)
+9. CTXKBCURATOR01 -- proximo
+10. CTXSKILL01 -- pendente
+Backlog separado (achados, nao contam nos 10): CTXUNIFY01, CTXMASAUTH01, CTXCLOUDFLARE01, CTXCLEANURL01, CTXPROVBRIDGE01
+
 ## 📊 Status do ciclo de sprints (2026-07-01)
 
 **Ciclo atual:** Rodada 3 (10 itens)

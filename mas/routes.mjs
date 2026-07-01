@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-01 18:05:50 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-01 19:18:35 -03:00 (auto, git pre-commit)
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 import express from 'express';
@@ -228,6 +228,37 @@ router.get('/harness-score', readLimiter, (req,res) => { // CTXRATELIM02
     ? Math.round((scored.reduce((a,s)=>a+s.harness_score,0)/scored.length) * 1000) / 1000
     : null;
   res.json({ count: scored.length, avg_harness_score: avg, runs: scored });
+});
+
+// ===== CTXKBCURATOR01_REVIEW =====
+// Revisao semanal em lote das licoes propostas pelo Memorialista (ja
+// pre-filtradas pelo Guardian). Humano decide de verdade antes de
+// qualquer coisa virar licao real na KB.
+
+router.get('/kb/pending', readLimiter, async (req, res) => {
+  try {
+    const { listPending } = await import('./promote-lessons.mjs');
+    res.json({ ok: true, items: listPending() });
+  } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
+});
+
+router.post('/kb/approve', express.json(), async (req, res) => {
+  try {
+    const ids = (req.body && req.body.ids) || [];
+    if (!Array.isArray(ids) || !ids.length) return res.status(400).json({ error: 'ids[] obrigatorio' });
+    const { approvePending } = await import('./promote-lessons.mjs');
+    res.json({ ok: true, ...approvePending(ids) });
+  } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
+});
+
+router.post('/kb/reject', express.json(), async (req, res) => {
+  try {
+    const ids = (req.body && req.body.ids) || [];
+    const reason = (req.body && req.body.reason) || '';
+    if (!Array.isArray(ids) || !ids.length) return res.status(400).json({ error: 'ids[] obrigatorio' });
+    const { rejectPending } = await import('./promote-lessons.mjs');
+    res.json({ ok: true, ...rejectPending(ids, reason) });
+  } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
 });
 
 export default router;
