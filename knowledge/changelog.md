@@ -1,3 +1,7 @@
+## [0.25.1] - 2026-07-02
+### Mudado
+- Meta futura: estrategia de auditoria Fable 5 (analise critica + 4 artefatos + 2 modos). Nao executar ate acionar o Fable.
+
 ## [0.25.0] - 2026-07-02
 ### Mudado
 - CTXMASAUTH01 - auth completa nas 10 rotas do MAS + 9 pontos no frontend. Modulo mas/auth.mjs (fonte unica). Ver L-CTXMASAUTH01.md
