@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-01 13:19:04 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-02 14:48:32 -03:00 (auto, git pre-commit)
 // OQ-58a — Executor LAVE remoto
 const crypto = require('crypto');
 const { spawn } = require('child_process');
@@ -240,6 +240,26 @@ module.exports = function(app, requireAuth){
   });
 
   // GET /api/blocos/historico
+  app.post('/api/blocos/oqterm-log', requireAuth, (req, res) => {
+    try {
+      const { hash, tamanho } = req.body || {};
+      if (!hash) return res.status(400).json({ error: 'hash obrigatorio' });
+      const id = 'oq_' + crypto.randomBytes(8).toString('hex');
+      const sub = (req.user && req.user.sub) || '?';
+      const ip = req.headers['x-forwarded-for'] || req.ip || '?';
+      const status = 'registrado';
+      const criadoEm = Date.now();
+      const prevRow = db().prepare('SELECT chain_hash FROM execucoes ORDER BY criado_em DESC, rowid DESC LIMIT 1').get();
+      const prevHash = (prevRow && prevRow.chain_hash) || 'GENESIS';
+      const chainInput = prevHash + '|' + id + '|' + hash + '|' + status + '|' + sub + '|' + ip + '|' + criadoEm;
+      const chainHash = crypto.createHash('sha256').update(chainInput).digest('hex');
+      db().prepare(`INSERT INTO execucoes (id,bloco_n,titulo,modo,ambiente,script,script_sha256,avisos,status,usuario_jwt_sub,ip_origem,criado_em,origem,agente,mas_run_id,provider,modelo,prev_hash,chain_hash) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
+        id, null, null, null, null, null, hash, JSON.stringify({tamanho: tamanho||null}), status, sub, ip, criadoEm, 'oqterm', null, null, null, null, prevHash, chainHash
+      );
+      res.json({ ok: true });
+    } catch(e){ res.status(500).json({ error: e.message }); }
+  });
+
   app.get('/api/blocos/historico', requireAuth, (req, res) => {
     const rows = db().prepare(`SELECT id,bloco_n,titulo,modo,ambiente,status,exit_code,iniciado_em,finalizado_em,usuario_jwt_sub,criado_em FROM execucoes ORDER BY criado_em DESC LIMIT 50`).all();
     res.json({ ok: true, items: rows });

@@ -1,3 +1,7 @@
+## [0.23.3] - 2026-07-02
+### Mudado
+- CTXUNIFY01 - revertido hook oqterm (bug nao identificado apos investigacao extensa), fix real 8080->3000 mantido, endpoint auditoria testado e pronto para proxima sessao. Licao completa em L-CTXUNIFY01.md
+
 ## [0.23.2] - 2026-07-02
 ### Mudado
 - CTXPROXYFIX01 - corrigido mismatch de porta 8080->3000 em /api/blocos (nginx/proxy.conf). 107 ocorrencias de 502 confirmadas em logs -- caminho protegido de execucao estava inacessivel havia tempo indeterminado.
