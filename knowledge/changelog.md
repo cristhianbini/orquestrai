@@ -1,3 +1,7 @@
+## [0.25.0] - 2026-07-02
+### Mudado
+- CTXMASAUTH01 - auth completa nas 10 rotas do MAS + 9 pontos no frontend. Modulo mas/auth.mjs (fonte unica). Ver L-CTXMASAUTH01.md
+
 ## [0.24.0] - 2026-07-02
 ### Mudado
 - CTXOQTERMHOOK01 pendente + Rodada 6 planejada (polimento visual + testes MAS/absorcao KB)

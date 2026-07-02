@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-02 01:25:15 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-02 19:05:42 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1283,7 +1283,7 @@ button[onclick="send()"]:hover{
   function fmtK(n){n=+n||0; return n>=1000?(n/1000).toFixed(1)+'k':String(n);}
   async function fetchOnce(){
     try{
-      const r=await fetch('/api/mas/models-last',{cache:'no-store'});
+      const r=await fetch('/api/mas/models-last',{cache:'no-store',headers:{'Authorization':'Bearer '+(localStorage.getItem('oq_token')||'')}}); // CTXMASAUTH01
       if(!r.ok)return;
       const j=await r.json();
       const tk=j.tokens||{};
@@ -1498,11 +1498,11 @@ async function send(){
         }
       }
     } catch(_){}
-    var rr = await fetch('/api/mas/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal: t + __masCtx, mas_mode: true})}); // CTXROUTE01
+    var rr = await fetch('/api/mas/run',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(localStorage.getItem('oq_token')||'')},body:JSON.stringify({goal: t + __masCtx, mas_mode: true})}); // CTXROUTE01 + CTXMASAUTH01
     var jj = await rr.json().catch(function(){return{}});
     if(!rr.ok){ pushChat('erro','MAS nao iniciou: '+(jj.error||rr.status)); input.focus(); return; } if(jj.mode==='chat' && jj.reply){ pushChat('ia',jj.reply); input.focus(); return; } if(!(jj.run_id||jj.id)){ pushChat('erro','MAS sem run_id: '+(jj.error||JSON.stringify(jj).slice(0,120))); input.focus(); return; } var __rid = jj.run_id||jj.id;
     if(window.__oqMasES){ try{window.__oqMasES.close();}catch(_){} } // CTXSSE02: fecha SSE anterior
-    var es = window.__oqMasES = new EventSource('/api/mas/events/'+encodeURIComponent(__rid));
+    var es = window.__oqMasES = new EventSource('/api/mas/events/'+encodeURIComponent(__rid)+'?_t='+encodeURIComponent(localStorage.getItem('oq_token')||'')); // CTXMASAUTH01: token na URL, EventSource nao manda headers
     var lastBash = ''; var __lastBashAgent=''; var __lastBashModel=''; // CTXPROV01
     var B124G5_BUF = {};   /* buffer por agente p/ remontar blocos fragmentados */
     function tryExtract(src){
@@ -2726,11 +2726,11 @@ try{var k='orquestrai_xterminal_notes';var a=JSON.parse(localStorage.getItem(k)|
 <script>/* B163_AUTOATTACH */
 (function(){
   function open(){
-    fetch('/api/mas/last',{cache:'no-store'}).then(r=>r.json()).then(j=>{
+    fetch('/api/mas/last',{cache:'no-store',headers:{'Authorization':'Bearer '+(localStorage.getItem('oq_token')||'')}}).then(r=>r.json()).then(j=>{ // CTXMASAUTH01
       if(!j||!j.run_id){console.log('[B163] sem run');return;}
       console.log('[B163] attach',j.run_id);
       if(window.__oqMasES){ try{window.__oqMasES.close();}catch(_){} } // CTXSSE02
-      var es=window.__oqMasES=new EventSource('/api/mas/events/'+encodeURIComponent(j.run_id));
+      var es=window.__oqMasES=new EventSource('/api/mas/events/'+encodeURIComponent(j.run_id)+'?_t='+encodeURIComponent(localStorage.getItem('oq_token')||'')); // CTXMASAUTH01
       var MAP={scout:'Explorador',auditor:'Auditor',detetive:'Detetive',smith:'Codificador',guardian:'Guardião',memorialista:'Memorialista',rel:'Relator',metrico:'Métrico'};
       es.onmessage=function(ev){
         try{
@@ -2986,7 +2986,7 @@ else{setTimeout(ensure,200);setTimeout(ensure,1500);}
     attached[runId] = true;
     try{
       if(window.__oqMasES){ try{window.__oqMasES.close();}catch(_){} } // CTXSSE02
-      var es = window.__oqMasES = new EventSource('/api/mas/events/' + encodeURIComponent(runId));
+      var es = window.__oqMasES = new EventSource('/api/mas/events/' + encodeURIComponent(runId) + '?_t=' + encodeURIComponent(localStorage.getItem('oq_token')||'')); // CTXMASAUTH01
       es.onmessage = function(msg){
         try { paint(JSON.parse(msg.data)); } catch(_){}
       };
@@ -2995,7 +2995,7 @@ else{setTimeout(ensure,200);setTimeout(ensure,1500);}
   }
 
   function findLastRun(){
-    fetch('/api/mas/last', { cache:'no-store' })
+    fetch('/api/mas/last', { cache:'no-store', headers:{'Authorization':'Bearer '+(localStorage.getItem('oq_token')||'')} }) // CTXMASAUTH01
       .then(function(r){ return r.ok ? r.json() : null; })
       .then(function(j){
         if(!j) return;
@@ -4496,7 +4496,7 @@ window.oqNovag = {
   let LIVE={};
   async function pull(){
     try{
-      const r=await fetch('/api/mas/models-last',{cache:'no-store'});
+      const r=await fetch('/api/mas/models-last',{cache:'no-store',headers:{'Authorization':'Bearer '+(localStorage.getItem('oq_token')||'')}}); // CTXMASAUTH01
       const j=await r.json();
       if(j&&j.ok) LIVE=j.models||{};
     }catch(e){}

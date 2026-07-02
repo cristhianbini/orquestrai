@@ -1,4 +1,9 @@
-// ATUALIZADO: 2026-07-02 00:23:53 -03:00 (auto, git pre-commit)
+// CTXMASAUTH01 (2026-07-02): auth adicionada em todas as rotas do MAS,
+// exceto /events/:id que usa authMiddlewareSSE (SSE nao manda headers).
+// Ver mas/auth.mjs para o raciocinio completo.
+import { authMiddleware, authMiddlewareSSE } from './auth.mjs';
+
+// ATUALIZADO: 2026-07-02 19:05:42 -03:00 (auto, git pre-commit)
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 import express from 'express';
@@ -66,7 +71,7 @@ async function quickChatReply(text){
 
 const router=express.Router();
 
-router.post('/run', runLimiter, express.json(), async (req,res)=>{ // CTXRATELIM02
+router.post('/run', authMiddleware, runLimiter, express.json(), async (req,res)=>{ // CTXRATELIM02 + CTXMASAUTH01
     try {
       const userText = (req.body && (req.body.prompt || req.body.message || req.body.text || req.body.goal)) || '';
       // CTXROUTE01: respeita mas_mode=true do frontend (usuario ativou MAS explicitamente)
@@ -105,9 +110,9 @@ router.post('/run', runLimiter, express.json(), async (req,res)=>{ // CTXRATELIM
   catch(e){ res.status(500).json({ok:false,error:String(e.message||e)}); }
 });
 
-router.get('/run/:id', readLimiter, (req,res)=>{ res.json(getRun(req.params.id)); }); // CTXRATELIM02
+router.get('/run/:id', authMiddleware, readLimiter, (req,res)=>{ res.json(getRun(req.params.id)); }); // CTXRATELIM02 + CTXMASAUTH01
 
-router.get('/last', readLimiter, (req,res)=>{ // CTXRATELIM02
+router.get('/last', authMiddleware, readLimiter, (req,res)=>{ // CTXRATELIM02 + CTXMASAUTH01
   try{
     const D=require('better-sqlite3');
     const d=new D('/app/data/blackboard.db',{readonly:true});
@@ -116,7 +121,7 @@ router.get('/last', readLimiter, (req,res)=>{ // CTXRATELIM02
   }catch(e){ res.json({run_id:null,err:String(e.message||e)}); }
 });
 
-router.get('/events/:id',(req,res)=>{
+router.get('/events/:id', authMiddlewareSSE, (req,res)=>{ // CTXMASAUTH01: auth via ?_t= (EventSource nao manda headers)
   const runId=req.params.id;
   res.setHeader('Content-Type','text/event-stream');
   res.setHeader('Cache-Control','no-cache, no-transform');
@@ -137,7 +142,7 @@ router.get('/events/:id',(req,res)=>{
 
 
 // B418_MODELS_LAST — último modelo real por agente (lido do SQLite)
-router.get('/models-last', readLimiter, (req,res) => { // CTXRATELIM02
+router.get('/models-last', authMiddleware, readLimiter, (req,res) => { // CTXRATELIM02 + CTXMASAUTH01
   try {
     const Database = require('better-sqlite3');
     const db = new Database('/app/data/blackboard.db', { readonly: true });
@@ -213,14 +218,14 @@ function computeHarnessScore(runId){
 }
 
 // Score de um run especifico
-router.get('/harness-score/:id', readLimiter, (req,res) => { // CTXRATELIM02
+router.get('/harness-score/:id', authMiddleware, readLimiter, (req,res) => { // CTXRATELIM02 + CTXMASAUTH01
   const result = computeHarnessScore(req.params.id);
   if (!result) return res.status(404).json({ error: 'run nao encontrado' });
   res.json(result);
 });
 
 // Ultimos N runs com score + media -- alimenta o futuro dashboard (CTXVITE02)
-router.get('/harness-score', readLimiter, (req,res) => { // CTXRATELIM02
+router.get('/harness-score', authMiddleware, readLimiter, (req,res) => { // CTXRATELIM02 + CTXMASAUTH01
   const limit = Math.min(Number(req.query.limit) || 20, 100);
   const D = require('better-sqlite3');
   const d = new D('/app/data/blackboard.db', { readonly: true });
@@ -239,14 +244,14 @@ router.get('/harness-score', readLimiter, (req,res) => { // CTXRATELIM02
 // pre-filtradas pelo Guardian). Humano decide de verdade antes de
 // qualquer coisa virar licao real na KB.
 
-router.get('/kb/pending', readLimiter, async (req, res) => {
+router.get('/kb/pending', authMiddleware, readLimiter, async (req, res) => { // CTXMASAUTH01
   try {
     const { listPending } = await import('./promote-lessons.mjs');
     res.json({ ok: true, items: listPending() });
   } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
 });
 
-router.post('/kb/approve', express.json(), async (req, res) => {
+router.post('/kb/approve', authMiddleware, express.json(), async (req, res) => { // CTXMASAUTH01
   try {
     const ids = (req.body && req.body.ids) || [];
     if (!Array.isArray(ids) || !ids.length) return res.status(400).json({ error: 'ids[] obrigatorio' });
@@ -255,7 +260,7 @@ router.post('/kb/approve', express.json(), async (req, res) => {
   } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
 });
 
-router.post('/kb/reject', express.json(), async (req, res) => {
+router.post('/kb/reject', authMiddleware, express.json(), async (req, res) => { // CTXMASAUTH01
   try {
     const ids = (req.body && req.body.ids) || [];
     const reason = (req.body && req.body.reason) || '';
