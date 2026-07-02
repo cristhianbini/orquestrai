@@ -24,7 +24,12 @@ status: vivo
 
 ## 📊 Status do ciclo de sprints
 
-**Rodada 5 (ativa) -- 4/10 concluidos (CTXCLOUDFLARE01 fechado), 1 em andamento (CTXVITE02, React Island), 5 restantes.**
+**Rodada 5 (ativa) -- 5/10 concluidos (CTXCLOUDFLARE01 + CTXVITE02 fechados), 5 restantes.**
+
+**Sessao de polish visual 2026-07-01 (fora da contagem formal, trabalho real):**
+spotlight animado, scroll do painel corrigido, 3 botoes do terminal
+reorganizados, card LAVE reposicionado, favicon, versao dinamica no login.
+3 metas novas registradas (2FA terminal, agente consultavel, badge B94).
 Ver detalhamento completo na secao 🔵 Rodada Ativa abaixo.
 
 **Historico:** Rodada 1 ✅ (ver chat1.md) · Rodada 2 ✅ 9/10 (ver chat1.md) ·

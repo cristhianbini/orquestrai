@@ -1,3 +1,7 @@
+## [0.23.1] - 2026-07-02
+### Mudado
+- Roadmap: ticker da Rodada 5 atualizado (5/10), sessao de polish visual documentada
+
 ## [0.23.0] - 2026-07-02
 ### Mudado
 - Tela de login: versao dinamica (busca /api/version em vez de texto fixo v0.12.0, que ficou 10 releases desatualizado). Fallback silencioso se a API falhar.
