@@ -49,7 +49,7 @@ frontend-vite/src/
 
 ## BLOCO E — Limpeza da divida (cada item apaga bug de hoje)
 - [x] R6-12  Remover BLOG_MAS duplicado (2 declaracoes conflitantes)
-- [ ] R6-13  Remover wrappers de EventSource empilhados
+- [~] R6-13 (em progresso: .2 de 5 sub-sprints)  Remover wrappers de EventSource empilhados
 - [ ] R6-14  Remover MutationObserver pesado (observe document.body inteiro)
 - [ ] R6-15  Tratar B94 (executar-sem-confirmar): decisao de seguranca --
              remover ou proteger (fura o modelo do CTXUNIFY01 hoje)
@@ -113,3 +113,14 @@ INVESTIGACAO OBRIGATORIA antes de remover qualquer wrapper (proxima sessao):
    testar o painel React apos cada remocao.
 Abordagem: 1 wrapper por vez, quarentena, Ctrl+Shift+R e confirmacao visual
 entre cada um. Nunca em lote.
+
+### R6-13 progresso (fracionado)
+- [x] R6-13.1  Investigacao: #agentes esta display:none (cards legados = fantasmas).
+               3 wrappers reais restantes: L2693 (__masxWrapped), L3014 (__B187_WRAP),
+               L3702 (origES). onEvt/onCost so alimentam o container invisivel.
+- [x] R6-13.2  Removidos hooks __b332 + __b334 (alimentavam #agentes invisivel).
+               onEvt/onCost ficaram orfaos (sem chamador) -> saem no R6-13.3.
+               setIdle preservado (usado por init).
+- [ ] R6-13.3  Remover funcoes orfas onEvt/onCost/paintAg + avaliar __masxWrapped (L2693)
+- [ ] R6-13.4  Avaliar/remover __B187_WRAP (L3014)
+- [ ] R6-13.5  Avaliar/remover origES (L3702)

@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-02 20:01:59 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-02 20:07:51 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -775,10 +775,6 @@ button[onclick="send()"]:hover{
   }
   // hook EventSource
   var OES=window.EventSource;
-  if(OES && !OES.__b332){
-    window.EventSource=function(u,o){var es=new OES(u,o); var om=es.onmessage; es.addEventListener('message',function(ev){try{var d=JSON.parse(ev.data);onEvt(d);}catch(e){}}); return es;};
-    Object.setPrototypeOf(window.EventSource,OES); window.EventSource.prototype=OES.prototype; window.EventSource.__b332=true;
-  }
   // init idle labels
   function init(){setIdle(); setTimeout(setIdle,500); setTimeout(setIdle,1500);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init); else init();
@@ -833,12 +829,6 @@ button[onclick="send()"]:hover{
   }
   // hook SSE: reaproveita o EventSource ja interceptado
   var OES=window.EventSource;
-  if(OES && !OES.__b334){
-    var Prev=OES;
-    window.EventSource=function(u,o){var es=new Prev(u,o); es.addEventListener('message',function(ev){try{var d=JSON.parse(ev.data); if(d&&d.agent&&(d.phase==='done'||d.cost!=null)) onCost(d.agent,d.cost);}catch(e){}}); return es;};
-    Object.setPrototypeOf(window.EventSource,Prev); window.EventSource.prototype=Prev.prototype; window.EventSource.__b334=true;
-  }
-})();
 </script>
 <!-- B343-POLISH-START -->
 <style>

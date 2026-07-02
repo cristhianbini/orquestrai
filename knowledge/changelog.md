@@ -1,3 +1,7 @@
+## [0.32.0] - 2026-07-02
+### Mudado
+- R6-13.2: removidos hooks __b332/__b334 (interceptavam EventSource p/ cards invisiveis). 3 wrappers restantes mapeados. R6-13 fracionado em 5.
+
 ## [0.31.0] - 2026-07-02
 ### Mudado
 - R6-12 fechado (BLOG_MAS removido, cards React OK). Ponto de parada do R6-13 documentado para sessao fresca. 12/20
