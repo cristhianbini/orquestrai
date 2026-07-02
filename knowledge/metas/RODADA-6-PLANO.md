@@ -27,7 +27,7 @@ frontend-vite/src/
 - [x] R6-01  build-island.sh: compila E copia dist-island->src/island automatico
              (fim da copia manual -- causa raiz do "editei e nao atualizou" de hoje)
 - [x] R6-02  ARCHITECTURE.md: convencao de nomes premium documentada
-- [ ] R6-03  lib/api.js + lib/tokenStore.js: token centralizado (hoje espalhado
+- [x] R6-03  lib/api.js + lib/tokenStore.js: token centralizado (hoje espalhado
              em 9 lugares no dashboard)
 
 ## BLOCO B — Primeira vitoria visual (voce VE resultado)
@@ -35,9 +35,9 @@ frontend-vite/src/
 - [ ] R6-05  styles/tokens.css: design tokens centralizados (cores/espacos premium)
 
 ## BLOCO C — Hooks compartilhados (preparam multi-user do futuro)
-- [ ] R6-06  hooks/useAuth.js + interceptar 401->login (resolve UX de token
+- [x] R6-06  hooks/useAuth.js + interceptar 401->login (resolve UX de token
              expirado que travou o dashboard hoje)
-- [ ] R6-07  hooks/useSSE.js: um EventSource gerenciado (mata os 4 wrappers
+- [x] R6-07  hooks/useSSE.js: um EventSource gerenciado (mata os 4 wrappers
              duplicados do legado)
 
 ## BLOCO D — Cards de agente (coracao, resolve o bug de hoje)

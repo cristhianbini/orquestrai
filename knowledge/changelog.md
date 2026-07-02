@@ -1,3 +1,7 @@
+## [0.28.0] - 2026-07-02
+### Mudado
+- R6-06 useAuth + R6-07 useSSE: hooks de auth (401->login) e SSE gerenciado (mata wrappers duplicados). 7/20
+
 ## [0.27.0] - 2026-07-02
 ### Mudado
 - R6-01 build-island.sh (build+deploy+hash) + R6-02 ARCHITECTURE.md (convencao de nomes premium). 2/20
