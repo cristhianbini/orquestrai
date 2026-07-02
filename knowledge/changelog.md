@@ -1,3 +1,7 @@
+## [0.29.0] - 2026-07-02
+### Mudado
+- R6-08/09/10: AgentCard extraido + useMasRun (SSE+auth) + metricas no card. Bug das metricas vazias resolvido na fonte. 10/20
+
 ## [0.28.0] - 2026-07-02
 ### Mudado
 - R6-06 useAuth + R6-07 useSSE: hooks de auth (401->login) e SSE gerenciado (mata wrappers duplicados). 7/20

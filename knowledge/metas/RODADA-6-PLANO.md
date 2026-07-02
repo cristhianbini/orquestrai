@@ -41,9 +41,9 @@ frontend-vite/src/
              duplicados do legado)
 
 ## BLOCO D — Cards de agente (coracao, resolve o bug de hoje)
-- [ ] R6-08  AgentCard.jsx isolado (componente premium por agente)
-- [ ] R6-09  hooks/useMasRun.js: estado do run (preparado p/ multi-user)
-- [ ] R6-10  Metricas no card (tokens/custo/modelo) -- CONSERTA o tk=null de hoje
+- [x] R6-08  AgentCard.jsx isolado (componente premium por agente)
+- [x] R6-09  hooks/useMasRun.js: estado do run (preparado p/ multi-user)
+- [x] R6-10  Metricas no card (tokens/custo/modelo) -- CONSERTA o tk=null de hoje
              na fonte, nao com curativo
 - [ ] R6-11  Score/harness no card + animacoes de estado (idle->running->done)
 
