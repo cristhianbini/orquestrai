@@ -1,3 +1,7 @@
+## [0.23.2] - 2026-07-02
+### Mudado
+- CTXPROXYFIX01 - corrigido mismatch de porta 8080->3000 em /api/blocos (nginx/proxy.conf). 107 ocorrencias de 502 confirmadas em logs -- caminho protegido de execucao estava inacessivel havia tempo indeterminado.
+
 ## [0.23.1] - 2026-07-02
 ### Mudado
 - Roadmap: ticker da Rodada 5 atualizado (5/10), sessao de polish visual documentada
