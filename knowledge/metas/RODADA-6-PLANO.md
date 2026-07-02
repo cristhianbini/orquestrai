@@ -48,7 +48,7 @@ frontend-vite/src/
 - [x] R6-11  Score/harness no card + animacoes de estado (idle->running->done)
 
 ## BLOCO E — Limpeza da divida (cada item apaga bug de hoje)
-- [ ] R6-12  Remover BLOG_MAS duplicado (2 declaracoes conflitantes)
+- [x] R6-12  Remover BLOG_MAS duplicado (2 declaracoes conflitantes)
 - [ ] R6-13  Remover wrappers de EventSource empilhados
 - [ ] R6-14  Remover MutationObserver pesado (observe document.body inteiro)
 - [ ] R6-15  Tratar B94 (executar-sem-confirmar): decisao de seguranca --
@@ -91,3 +91,25 @@ Nao e so destravar o CTXAGENTSCORE01 -- e definir a metrica primeiro.
 Ideia do usuario (Rodada 5) a considerar: pontuar agente por features
 repetidas sem sucesso (nao "marcou gol" -> candidato a troca de modelo).
 Enquanto indefinido, ScoreMeter renderiza "sem dados" (honesto).
+
+---
+
+## PONTO DE PARADA — R6-13 (registrado 2026-07-02, fim de sessao longa)
+R6-12 fechado: BLOG_MAS removido (quarentena em _arquivados/), cards React
+100% funcionais confirmado no navegador. 12/20.
+
+R6-13 (remover wrappers de window.EventSource) NAO iniciado -- e a cirurgia
+mais delicada da rodada, adiada de proposito pra sessao fresca. Motivo:
+sao 5 wrappers (__b332 L777, __b334 L835, __masxWrapped L2701, __B187_WRAP
+L3008, origES L3711) ENTRELACADOS com 3 conexoes SSE VIVAS (L1505, L2733,
+L2989) e com CSS/modais/window.MASX/window.OQ46Y. Nao sao blocos isolados.
+
+INVESTIGACAO OBRIGATORIA antes de remover qualquer wrapper (proxima sessao):
+1. Os cards legados .oq46y-card ainda estao no DOM, ou o AgentPanel React ja
+   e o unico painel? (decide se quem os alimenta pode morrer)
+2. window.MASX e usado por algo ainda renderizado?
+3. Cada wrapper sobrescreve window.EventSource GLOBAL -> afeta o useSSE do
+   React tambem. Remover pode ate CORRIGIR bugs sutis do React, mas exige
+   testar o painel React apos cada remocao.
+Abordagem: 1 wrapper por vez, quarentena, Ctrl+Shift+R e confirmacao visual
+entre cada um. Nunca em lote.

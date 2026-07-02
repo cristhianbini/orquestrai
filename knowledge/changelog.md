@@ -1,3 +1,7 @@
+## [0.31.0] - 2026-07-02
+### Mudado
+- R6-12 fechado (BLOG_MAS removido, cards React OK). Ponto de parada do R6-13 documentado para sessao fresca. 12/20
+
 ## [0.30.0] - 2026-07-02
 ### Mudado
 - R6-11: animacoes de estado validadas (ja no bundle) + pendencia de score por agente documentada. 11/20

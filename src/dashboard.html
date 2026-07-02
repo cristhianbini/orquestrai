@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-02 19:41:20 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-02 20:01:59 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -4703,61 +4703,6 @@ window.oqNovag = {
 
 
 
-<script id="BLOG_MAS_TOKENS">
-(function(){
-  if(window.__BLOG_MAS__) return; window.__BLOG_MAS__=true;
-  window.BLOG_MAS={msgs:[],tk:[],usd:[]};
-  function log(msg){console.log('[BLOG_MAS]',msg);window.BLOG_MAS.msgs.push(msg);}
-  function logTk(ag,tk,fn,lat,err){(window.BLOG_MAS.tk=window.BLOG_MAS.tk||[]).push({ag,tk,fn,lat,err});console.log('[BLOG_MAS TK]',ag,'tk=',tk,'fn=',fn,'lat=',lat,'err=',err);}
-  function logUsd(ag,usd,isFree){(window.BLOG_MAS.usd=window.BLOG_MAS.usd||[]).push({ag,usd,isFree});console.log('[BLOG_MAS USD]',ag,'usd=',usd,'isFree=',isFree);}
-  // hook SSE
-  var OES=window.EventSource;
-  if(OES && !OES.__BLOG_MAS){
-    window.EventSource=function(u,o){
-      var es=new OES(u,o);
-      es.addEventListener('message',function(ev){
-        try{
-          var d=JSON.parse(ev.data);
-          log('SSE: '+JSON.stringify(d));
-          if(d.agent){
-            const card=document.querySelector('.oq46y-card[data-agent="'+d.agent+'"]');
-            const tkEl=card?.querySelector('.tk b');
-            const usdEl=card?.querySelector('.usd b');
-            const tk=tkEl?.getAttribute('data-tk');
-            const fn=tkEl?.getAttribute('data-fn');
-            const lat=tkEl?.getAttribute('data-lat');
-            const err=tkEl?.getAttribute('data-err');
-            const usd=usdEl?.getAttribute('data-usd');
-            const isFree=card?.querySelector('.usd.free')!==null;
-            logTk(d.agent,tk,fn,lat,err);
-            logUsd(d.agent,usd,isFree);
-          }
-        }catch(e){log('SSE parse error: '+e);}
-      });
-      return es;
-    };
-    Object.setPrototypeOf(window.EventSource,OES);
-    window.EventSource.prototype=OES.prototype;
-    window.EventSource.__BLOG_MAS=true;
-  }
-  // log inicial dos cards
-  setTimeout(()=>{
-    document.querySelectorAll('.oq46y-card[data-agent]').forEach(card=>{
-      const ag=card.getAttribute('data-agent');
-      const tkEl=card.querySelector('.tk b');
-      const usdEl=card.querySelector('.usd b');
-      const tk=tkEl?.getAttribute('data-tk');
-      const fn=tkEl?.getAttribute('data-fn');
-      const lat=tkEl?.getAttribute('data-lat');
-      const err=tkEl?.getAttribute('data-err');
-      const usd=usdEl?.getAttribute('data-usd');
-      const isFree=card.querySelector('.usd.free')!==null;
-      logTk(ag,tk,fn,lat,err);
-      logUsd(ag,usd,isFree);
-    });
-  },1000);
-})();
-</script>
 
 
 
@@ -4766,61 +4711,6 @@ window.oqNovag = {
 
 
 
-<script id="BLOG_MAS_INSPECT">
-(function(){
-  if(window.__BLOG_MAS_INSPECT__) return; window.__BLOG_MAS_INSPECT__=true;
-  window.BLOG_MAS={msgs:[],cards:[],sse:[]};
-  function log(msg){console.log('[BLOG_MAS]',msg);window.BLOG_MAS.msgs.push(msg);}
-  function inspectCards(){
-    const cards=document.querySelectorAll('.oq46y-card[data-agent]');
-    cards.forEach(card=>{
-      const ag=card.getAttribute('data-agent');
-      const mdl=card.querySelector('.b423-mdl');
-      const fn=card.querySelector('.b433-fn');
-      const tk=card.querySelector('.b434-tk');
-      const usd=card.querySelector('.b435-custo');
-      const usdEl=card.querySelector('.usd b');
-      const isFree=card.querySelector('.usd.free')!==null;
-      const info={
-        ag,
-        mdl: mdl ? mdl.innerHTML : null,
-        fn: fn ? fn.innerHTML : null,
-        tk: tk ? tk.innerHTML : null,
-        usd: usd ? usd.innerHTML : null,
-        usdData: usdEl ? usdEl.getAttribute('data-usd') : null,
-        isFree,
-        children: Array.from(card.children).map(ch=>({tag:ch.tagName,cls:ch.className,text:ch.textContent?.trim()}))
-      };
-      console.log('[BLOG_MAS CARD]',ag,info);
-      window.BLOG_MAS.cards.push(info);
-    });
-  }
-  // hook SSE
-  var OES=window.EventSource;
-  if(OES && !OES.__BLOG_MAS){
-    window.EventSource=function(u,o){
-      const es=new OES(u,o);
-      es.addEventListener('message',function(ev){
-        try{
-          const d=JSON.parse(ev.data);
-          console.log('[BLOG_MAS SSE]',d);
-          window.BLOG_MAS.sse.push(d);
-          inspectCards();
-        }catch(e){log('SSE parse error: '+e);}
-      });
-      return es;
-    };
-    Object.setPrototypeOf(window.EventSource,OES);
-    window.EventSource.prototype=OES.prototype;
-    window.EventSource.__BLOG_MAS=true;
-  }
-  // inicial
-  setTimeout(()=>{
-    log('Iniciando monitor...');
-    inspectCards();
-  },1000);
-})();
-</script>
 
 
 
