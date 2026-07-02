@@ -2,7 +2,7 @@
 documento: roadmap
 mantido_por: humano+ia
 ultima_atualizacao: 2026-07-01
-status: vivo (watcher v3 testado 04:35:11)
+status: vivo
 ---
 
 > **Como ler este documento:** 3 categorias com significado diferente.
