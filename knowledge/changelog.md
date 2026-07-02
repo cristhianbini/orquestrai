@@ -1,3 +1,7 @@
+## [0.23.0] - 2026-07-02
+### Mudado
+- Tela de login: versao dinamica (busca /api/version em vez de texto fixo v0.12.0, que ficou 10 releases desatualizado). Fallback silencioso se a API falhar.
+
 ## [0.22.0] - 2026-07-02
 ### Mudado
 - Fechamento da sessao 2026-07-01: spotlight animado (pulso cyan/erro) + scroll do painel de agentes corrigido (overflow-y:hidden sobrescrevendo especificidade CSS) + 3 botoes na barra do terminal (colar no chat/clear/conectar, apos remover 2 versoes duplicadas do botao original B298 vs B305) + card LAVE reposicionado (numero do bloco embaixo do titulo, X fixo no canto superior direito) + favicon + badge PT-BR e botao duplicado removidos + metas registradas (2FA de terminal, agente consultavel externo ao pipeline, badge B94)

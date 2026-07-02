@@ -22,8 +22,13 @@ function clearAuth() {
  * Nao e decoracao: cada etapa acende quando a etapa real do fluxo acontece.
  */
 
-const BOOT_LINES = [
-  "orquestrai-auth v0.12.0",
+// CTXPOLISH03: versao fixa "v0.12.0" nunca foi atualizada desde a criacao
+// desta tela (ja tinhamos passado por 10 releases sem o usuario perceber).
+// Corrigido: busca a versao real do mesmo endpoint que o dashboard ja usa
+// (/api/version, CTXVER01), com fallback silencioso se a chamada falhar
+// -- login nunca pode travar por causa de um texto decorativo.
+const BOOT_LINES_BASE = [
+  "orquestrai-auth vX.X.X",
   "handshake com api.orquestrai...",
   "protocolo LAVE carregado",
 ];
@@ -87,6 +92,20 @@ export default function App() {
   }, []);
 
   const [bootVisible, setBootVisible] = useState(0);
+  const [bootLines, setBootLines] = useState(BOOT_LINES_BASE);
+
+  useEffect(() => {
+    fetch("/api/version")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (j && j.version) {
+          setBootLines((prev) =>
+            prev.map((l) => (l.startsWith("orquestrai-auth") ? "orquestrai-auth v" + j.version : l))
+          );
+        }
+      })
+      .catch(() => {}); // fallback silencioso: mantem vX.X.X, login nunca trava por isso
+  }, []);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
@@ -124,7 +143,7 @@ export default function App() {
   // Boot log entra linha a linha, tipo terminal ligando -- reforca a
   // sensacao de "sistema real" antes mesmo do formulario aparecer.
   useEffect(() => {
-    if (bootVisible >= BOOT_LINES.length) return;
+    if (bootVisible >= bootLines.length) return;
     const t = setTimeout(() => setBootVisible((n) => n + 1), 220);
     return () => clearTimeout(t);
   }, [bootVisible]);
@@ -237,7 +256,7 @@ export default function App() {
         <div className="p-8 border-b md:border-b-0 md:border-r border-line flex flex-col justify-between">
           <div>
             <div className="font-mono text-xs text-muted space-y-1 mb-8 min-h-[60px]">
-              {BOOT_LINES.slice(0, bootVisible).map((line, i) => (
+              {bootLines.slice(0, bootVisible).map((line, i) => (
                 <div key={i} className="fade-up">
                   <span className="text-green">$</span> {line}
                 </div>
