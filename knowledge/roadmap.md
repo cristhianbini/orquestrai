@@ -26,7 +26,7 @@ status: vivo
 | 2 | CTXMASAUTH01 | ⬜ Escopo mapeado, aguardando sessão dedicada |
 | 3 | CTXHYGIENE01 | ✅ Concluído (1 sub-item adiado por decisão sua: `ADMIN_PASSWORD`) |
 | 4 | CTXCLOUDFLARE01 | ✅ Concluído |
-| 5 | CTXUNIFY01 | ⬜ Decisão de arquitetura pendente (precisa de você presente) |
+| 5 | CTXUNIFY01 | 🟡 Parcial: 8080→3000 corrigido (fix real, mantido) + endpoint /api/blocos/oqterm-log pronto e testado; hook oqterm→endpoint revertido (bug não identificado, ver L-CTXUNIFY01.md) |
 | 6 | CTXAGENTSCORE01 | ⬜ Bloqueado pelo item 5 |
 | 7 | CTXVITE02 | ✅ Concluído |
 | 8 | CTXCLEANURL01 | ⬜ Depende do item 5 (CTXUNIFY01) |

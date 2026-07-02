@@ -1,3 +1,7 @@
+## [0.23.4] - 2026-07-02
+### Mudado
+- CTXUNIFY01 roadmap atualizado - status real refletido
+
 ## [0.23.3] - 2026-07-02
 ### Mudado
 - CTXUNIFY01 - revertido hook oqterm (bug nao identificado apos investigacao extensa), fix real 8080->3000 mantido, endpoint auditoria testado e pronto para proxima sessao. Licao completa em L-CTXUNIFY01.md
