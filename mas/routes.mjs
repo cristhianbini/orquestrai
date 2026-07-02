@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-01 19:18:35 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-02 00:23:53 -03:00 (auto, git pre-commit)
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 import express from 'express';
@@ -14,8 +14,12 @@ const runLimiter = rateLimit({
   message: { error: 'Limite de runs do MAS atingido. Aguarde um minuto.' },
   standardHeaders: true, legacyHeaders: false,
 });
+// FIX 2026-07-01: 30/min era baixo demais para o polling legado real
+// do dashboard.html (findLastRun/fetchOnce/pull/tick chamam /last e
+// /models-last com frequencia alta) -- achado ao vivo via console do
+// usuario, nao mapeado nos meus testes originais do CTXRATELIM02.
 const readLimiter = rateLimit({
-  windowMs: 60000, max: 30,
+  windowMs: 60000, max: 300,
   message: { error: 'Limite de requisicoes atingido.' },
   standardHeaders: true, legacyHeaders: false,
 });

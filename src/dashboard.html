@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-01 18:03:47 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-02 00:23:53 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
@@ -1306,6 +1306,21 @@ button[onclick="send()"]:hover{
 })();
 </script>
 
+  <!-- CTXVITE02: React island -- CDN React/ReactDOM compartilhado (evita
+       reempacotar a cada peca nova migrada), depois o bundle do AgentPanel.
+       Ordem importa: React/ReactDOM precisam existir globalmente ANTES do
+       island.js rodar -- por isso os 3 scripts usam defer, que preserva
+       ordem de execucao mesmo carregando em paralelo. -->
+  <link rel="stylesheet" href="/island/agent-panel-style.css">
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" defer></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" defer></script>
+  <script src="/island/agent-panel-island.js" defer></script>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.OrquestrAIAgentPanel) window.OrquestrAIAgentPanel.mount('oq-agent-panel-island');
+      else console.error('[CTXVITE02] AgentPanel island nao carregou');
+    });
+  </script>
 </head>
 <body class="h-screen overflow-hidden">
 
@@ -1366,16 +1381,10 @@ button[onclick="send()"]:hover{
   <!-- COL 3: AGENTES / LIÇÕES / METAS -->
   <aside class="panel border-l flex flex-col overflow-y-auto">
     <div class="px-3 py-2 border-b border-[var(--line)] text-xs text-[var(--mute)] flex items-center justify-between"><span>▸ AGENTES MESH NETWORK</span><span style="display:flex;gap:6px;align-items:center"><span id="lic-chip" title="Lições aprendidas (clique para abrir)" style="cursor:pointer;font-size:10px;padding:2px 7px;border:1px solid #1d2a3a;border-radius:10px;color:#7CE7FF;background:rgba(124,231,255,.06);font-weight:700;display:none">📚 <span id="lic-chip-n">0</span></span><span class="oqag-badge">PT-BR</span></span></div>
-<div class="p-2 space-y-1 text-xs" id="agentes">
-<div class="masx" id="masx-cards">
-
-
-
-
-
-
-
-</div>
+<div class="p-2 space-y-1 text-xs" id="agentes" style="display:none"></div>
+<div id="oq-agent-panel-island" class="p-2"></div>
+<div class="p-2 space-y-1 text-xs" id="agentes-legacy-unused" style="display:none">
+<div class="masx" id="masx-cards" style="display:none"></div>
 </div>
 <!-- OQ50B-v1-END -->
       </div>

@@ -1,3 +1,7 @@
+## [0.21.0] - 2026-07-02
+### Mudado
+- CTXVITE02 CONCLUIDO - React island funcionando em producao, dados SSE ao vivo, grid corrigido. 6 bugs encadeados resolvidos (container/process.env/cache/grid). Dividas conhecidas registradas.
+
 ## [0.20.0] - 2026-07-01
 ### Mudado
 - CTXCLOUDFLARE01 concluido - Turnstile no login (fail-open no backend, widget horizontal tema escuro). Fluxo completo testado em producao: senha+2FA+turnstile

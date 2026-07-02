@@ -24,7 +24,7 @@ status: vivo
 
 ## 📊 Status do ciclo de sprints
 
-**Rodada 5 (ativa) -- 3/10 concluidos, 1 em decisao, 6 restantes.**
+**Rodada 5 (ativa) -- 4/10 concluidos (CTXCLOUDFLARE01 fechado), 1 em andamento (CTXVITE02, React Island), 5 restantes.**
 Ver detalhamento completo na secao 🔵 Rodada Ativa abaixo.
 
 **Historico:** Rodada 1 ✅ (ver chat1.md) · Rodada 2 ✅ 9/10 (ver chat1.md) ·
@@ -344,3 +344,24 @@ MÉDIO: CTXREVISOR01, CTXRAG01, CTXBUMP01
 DIFÍCIL: CTXVITE01, CTXVITE02, CTXLMEVAL01, CTXRESERVA01
 
 </details>
+
+### XMonex (pendencia baixa prioridade, 2026-07-01)
+Projeto abandonado, sem uso ativo hoje. Relato do Auditor (L-AUDITOR01)
+mencionou .env do XMonex tambem exposto -- nao verificado, mesmo relato
+que ja foi desmentido para orquestrai/.env (644 real vs 777 alegado).
+So investigar se XMonex passar a representar risco real e concreto para
+o OrquestrAI (ex: mesma rede, credenciais compartilhadas). Futuro: usar
+como ambiente de teste/auditoria pelo proprio OrquestrAI.
+
+### Meta: botao "colar no chat" alinhado a direita no cabecalho do terminal
+Usuario quer o botao no mesmo estilo dos botoes de bloco (COPIAR/EXECUTAR/X),
+alinhado a direita, dentro da barra "TERMINAL - conectado". Hoje o botao e
+inserido via JS dinamico (linha ~3498, script oq71z-xterm) buscando o texto
+na tela. Provavel fix simples de CSS (flex/position), nao logica. Baixa
+prioridade -- registrado para a rodada de polish visual apos CTXVITE02 estabilizar.
+
+### Meta: investigar/limpar badge "B94 direto" que aparece e some
+Usuario notou um indicador verde piscando no canto inferior direito ao
+carregar a pagina (badge tipo "B94v direto"). Funcional, nao quebra nada,
+mas precisa de investigacao visual/limpeza -- possivelmente debug info que
+deveria estar oculto ou redesenhado. Baixa prioridade, rodada de polish visual.

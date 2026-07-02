@@ -219,7 +219,11 @@ export default function AgentPanel() {
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+    <div // CTXVITE02-FIX: grid fixo em 1 coluna, sempre. O breakpoint md: do
+      // Tailwind reage a largura da JANELA, nao do container -- esse painel
+      // vive numa <aside> lateral estreita (~300px) independente do tamanho
+      // da tela, entao "responsivo por viewport" aqui so causava compressao.
+      className="grid grid-cols-1 gap-3">
       {AGENTS.map((agent) => (
         <AgentCard key={agent.id} agent={agent} live={liveData[agent.id]} />
       ))}
