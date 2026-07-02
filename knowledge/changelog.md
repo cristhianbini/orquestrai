@@ -1,3 +1,7 @@
+## [0.27.0] - 2026-07-02
+### Mudado
+- R6-01 build-island.sh (build+deploy+hash) + R6-02 ARCHITECTURE.md (convencao de nomes premium). 2/20
+
 ## [0.26.0] - 2026-07-02
 ### Mudado
 - Rodada 6 planejada: 20 sprints refatoracao dashboard React (fundacao->visual->hooks->cards->limpeza->polish). Plano em RODADA-6-PLANO.md

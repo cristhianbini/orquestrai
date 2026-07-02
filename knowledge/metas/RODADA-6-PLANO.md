@@ -24,9 +24,9 @@ frontend-vite/src/
 ---
 
 ## BLOCO A — Fundacao minima (invisivel, destrava tudo)
-- [ ] R6-01  build-island.sh: compila E copia dist-island->src/island automatico
+- [x] R6-01  build-island.sh: compila E copia dist-island->src/island automatico
              (fim da copia manual -- causa raiz do "editei e nao atualizou" de hoje)
-- [ ] R6-02  ARCHITECTURE.md: convencao de nomes premium documentada
+- [x] R6-02  ARCHITECTURE.md: convencao de nomes premium documentada
 - [ ] R6-03  lib/api.js + lib/tokenStore.js: token centralizado (hoje espalhado
              em 9 lugares no dashboard)
 
