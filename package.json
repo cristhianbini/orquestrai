@@ -2,7 +2,7 @@
   "dependencies": {
     "qrcode": "^1.5.4"
   },
-  "version": "0.32.0",
+  "version": "0.32.1",
   "devDependencies": {
     "autoprefixer": "^10.5.2",
     "postcss": "^8.5.16",

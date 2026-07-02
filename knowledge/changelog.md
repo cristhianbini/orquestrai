@@ -1,3 +1,7 @@
+## [0.32.1] - 2026-07-02
+### Mudado
+- R6-13.2 CORRIGIDO e VALIDADO: remocao por conteudo, SyntaxError da v0.32.0 eliminado (75 scripts, 0 erros), cards React OK no navegador. insertBefore L1231 confirmado pre-existente (nao relacionado).
+
 ## [0.32.0] - 2026-07-02
 ### Mudado
 - R6-13.2: removidos hooks __b332/__b334 (interceptavam EventSource p/ cards invisiveis). 3 wrappers restantes mapeados. R6-13 fracionado em 5.
