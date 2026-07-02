@@ -4,6 +4,9 @@ import React, { useState, useEffect, useRef } from "react";
 // Precisa ficar identica, senao o logout do dashboard nao limpa direito
 // o que essa tela grava, ou vice-versa.
 const AUTH_KEYS = ["oq_token", "token", "authToken", "jwt", "orq_jwt", "orquestrai_token", "OQ_TOKEN"];
+
+// CTXCLOUDFLARE01: Site Key publica (safe em codigo cliente)
+const TURNSTILE_SITE_KEY = "0x4AAAAAADuLrCp4bSEwmQwU";
 function clearAuth() {
   try {
     AUTH_KEYS.forEach((k) => { localStorage.removeItem(k); sessionStorage.removeItem(k); });
@@ -91,8 +94,32 @@ export default function App() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [steps, setSteps] = useState({ L: "pending", A: "pending", V: "pending", E: "pending" });
-  const [loginDone, setLoginDone] = useState(false); // apenas para teste isolado (porta 5173)
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileReady, setTurnstileReady] = useState(false);
   const codeInputRef = useRef(null);
+  const turnstileRef = useRef(null);
+
+  // CTXCLOUDFLARE01: renderiza o widget quando o script da Cloudflare carregar.
+  useEffect(() => {
+    if (need2fa) return; // widget so aparece na 1a etapa (token e uso unico)
+    let tries = 0;
+    const iv = setInterval(() => {
+      tries++;
+      if (window.turnstile && turnstileRef.current && !turnstileRef.current.dataset.rendered) {
+        turnstileRef.current.dataset.rendered = "1";
+        window.turnstile.render(turnstileRef.current, {
+          sitekey: TURNSTILE_SITE_KEY,
+          theme: "dark",
+          callback: (token) => setTurnstileToken(token),
+          "expired-callback": () => setTurnstileToken(""),
+        });
+        setTurnstileReady(true);
+        clearInterval(iv);
+      }
+      if (tries > 40) clearInterval(iv); // ~8s, desiste silenciosamente
+    }, 100);
+    return () => clearInterval(iv);
+  }, [need2fa]);
 
   // Boot log entra linha a linha, tipo terminal ligando -- reforca a
   // sensacao de "sistema real" antes mesmo do formulario aparecer.
@@ -119,7 +146,7 @@ export default function App() {
       const r = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, turnstile_token: turnstileToken }),
       });
       const j = await r.json().catch(() => ({}));
 
@@ -235,15 +262,7 @@ export default function App() {
 
         {/* Lado direito: formulario */}
         <div className="p-8 flex flex-col justify-center">
-          {loginDone ? (
-            <div className="text-center">
-              <div className="text-green text-4xl mb-3">✓</div>
-              <p className="font-sans text-lg text-green font-semibold">Login realizado com sucesso</p>
-              <p className="font-sans text-sm text-muted mt-2">
-                (teste isolado -- em producao redireciona direto pro dashboard)
-              </p>
-            </div>
-          ) : !need2fa ? (
+          {!need2fa ? (
             <form onSubmit={handleCredentialsSubmit} className="space-y-4">
               <div>
                 <label className="font-sans text-xs text-muted block mb-1.5">Email</label>
@@ -285,6 +304,21 @@ export default function App() {
               >
                 {loading ? "Validando..." : "Entrar"}
               </button>
+
+              <div
+                className={
+                  "flex flex-col items-center gap-1 -mt-1 transition-opacity duration-500 " +
+                  (turnstileReady ? "opacity-100" : "opacity-0 pointer-events-none")
+                }
+              >
+                <div
+                  ref={turnstileRef}
+                  className="opacity-60 hover:opacity-100 transition-opacity origin-top"
+                />
+                <p className="font-mono text-[10px] text-muted tracking-wide">
+                  protegido por Cloudflare
+                </p>
+              </div>
             </form>
           ) : (
             <form onSubmit={handleCodeSubmit} className="space-y-4">

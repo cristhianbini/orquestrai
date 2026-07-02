@@ -1,3 +1,7 @@
+## [0.20.0] - 2026-07-01
+### Mudado
+- CTXCLOUDFLARE01 concluido - Turnstile no login (fail-open no backend, widget horizontal tema escuro). Fluxo completo testado em producao: senha+2FA+turnstile
+
 ## [0.19.0] - 2026-07-01
 ### Mudado
 - Reorganizacao completa do roadmap.md: 3 categorias claras (Rodada Ativa/Achados Pendentes/Metas Futuras), status desatualizados corrigidos, secoes obsoletas arquivadas, 0 itens tecnicos perdidos (verificado por diff)

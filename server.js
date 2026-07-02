@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-01 18:03:47 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-01 22:01:26 -03:00 (auto, git pre-commit)
 // OQ46Z-v1
 import { createRequire as _oqReq } from "module";
 const _oqRequire = _oqReq(import.meta.url);
@@ -211,8 +211,43 @@ app._router && app._router.stack && (function(){
 })();
 app.post('/api/login', async (req,res)=>{
   try{
-    const { email, password, code } = req.body||{};
+    const { email, password, code, turnstile_token } = req.body||{};
     if (!email || !password) return res.status(400).json({error:'Email e senha obrigatorios.'});
+
+    // CTXCLOUDFLARE01: valida o desafio Turnstile antes de checar credenciais.
+    // Fail-OPEN por decisao consciente 2026-07-01: se o Cloudflare estiver
+    // fora do ar (erro de rede/timeout), o login SEGUE em frente -- a defesa
+    // primaria ja e senha+2FA, e um operador solo nao pode ficar trancado
+    // fora do proprio sistema por falha de terceiro. So bloqueia (fail-CLOSED)
+    // quando o Cloudflare responde de verdade dizendo que o token e invalido
+    // -- isso e sinal real de bot, nao falha de servico.
+    // CTXCLOUDFLARE01-FIX: so valida na 1a chamada (sem 'code' ainda). Tokens
+    // do Turnstile sao de USO UNICO -- se validassemos nas 2 chamadas do
+    // fluxo de 2FA (credenciais, depois codigo), a 2a falharia sempre por
+    // reuso de token. Um codigo TOTP valido ja e prova forte de humano,
+    // entao pular Turnstile nessa etapa e justificado, nao um atalho frouxo.
+    if (process.env.CLOUDFLARE_TURNSTILE_SECRET && !code) {
+      if (!turnstile_token) {
+        return res.status(400).json({ error: 'Verificacao de seguranca ausente. Recarregue a pagina.' });
+      }
+      try {
+        const cfResp = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            secret: process.env.CLOUDFLARE_TURNSTILE_SECRET,
+            response: turnstile_token,
+          }),
+        });
+        const cfData = await cfResp.json();
+        if (!cfData.success) {
+          console.warn('[CTXCLOUDFLARE01] Turnstile rejeitou o token:', JSON.stringify(cfData['error-codes'] || []));
+          return res.status(401).json({ error: 'Verificacao de seguranca falhou. Tente novamente.' });
+        }
+      } catch (cfErr) {
+        console.warn('[CTXCLOUDFLARE01] Turnstile indisponivel (fail-open, login segue):', cfErr.message);
+      }
+    }
     const user = users.find(u=>u.email===email);
     if (!user || !bcrypt.compareSync(password, user.password)) return res.status(401).json({error:'Email ou senha incorretos.'});
     if (user.role==='admin'){
