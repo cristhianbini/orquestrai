@@ -1,3 +1,7 @@
+## [0.24.0] - 2026-07-02
+### Mudado
+- CTXOQTERMHOOK01 pendente + Rodada 6 planejada (polimento visual + testes MAS/absorcao KB)
+
 ## [0.23.4] - 2026-07-02
 ### Mudado
 - CTXUNIFY01 roadmap atualizado - status real refletido

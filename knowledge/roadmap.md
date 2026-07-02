@@ -438,3 +438,35 @@ MÉDIO: CTXREVISOR01, CTXRAG01, CTXBUMP01
 DIFÍCIL: CTXVITE01, CTXVITE02, CTXLMEVAL01, CTXRESERVA01
 
 </details>
+
+
+### 🟡 CTXOQTERMHOOK01 (achado 2026-07-02, aguardando sessão dedicada)
+Hook automático oqterm -> `/api/blocos/oqterm-log` não disparou em produção
+apesar do buffer por linha funcionar (log HIT confirmado) e do endpoint
+estar testado via curl manual (200, hash-chain correto). Causa raiz não
+identificada após múltiplas tentativas. Revertido com segurança -- zero
+risco em produção. Histórico completo em `knowledge/licoes/L-CTXUNIFY01.md`.
+Próximo passo: ler `/opt/oqterm/server.js` por inteiro (não fatiado) antes
+do primeiro patch, sessão fresca dedicada.
+
+
+## 🟢 Rodada 6 (planejada 2026-07-02, inicia ao fechar Rodada 5 10/10)
+
+Foco: polimento visual + bateria de testes reais (MAS individual, absorção
+de conhecimento, regressão end-to-end).
+
+### FÁCIL
+1. [ ] CTXTOPBAR01 -- Topbar mais compacta (fonte menor, ícones)
+2. [ ] CTXPROVANIM01 -- Animação suave ao trocar de aba no modal Providers
+3. [ ] CTXMESHTIP01 -- Tooltip de especialidade nos cards Mesh Network (usa SKILL.md já existente)
+
+### MÉDIO
+4. [ ] CTXMESHPERF01 -- Cards Mesh Network com indicador de desempenho histórico (taxa de acerto, últimas runs)
+5. [ ] CTXAGTDASH01 -- Dashboard de métricas por agente (runs, sucesso, custo, tempo médio)
+6. [ ] CTXQAFULL01 -- Regressão end-to-end: login+2FA, MAS run completo, verify-chain, cadastro provider
+7. [ ] CTXMASTEST01 -- 3-5 cenários fixos rodados via MAS E via chat individual, resultado gravado em agent_executions p/ comparação
+
+### DIFÍCIL
+8. [ ] CTXKBABSORB01 -- Confirmar se agentes REALMENTE usam knowledge/licoes/ e SKILL.md nas respostas (não só que loadKB() existe)
+9. [ ] CTXMODELCOMP01 -- Comparativo de modelos por posição (dado real de agent_executions)
+10. [ ] CTXALERTFAIL01 -- Alerta automático de falhas consecutivas por agente (liga com CTXSSE03)
