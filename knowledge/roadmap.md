@@ -5,89 +5,127 @@ ultima_atualizacao: 2026-07-01
 status: vivo
 ---
 
-> **Nota de reorganizacao (2026-07-01):** este documento foi reestruturado em 3
-> categorias com significado diferente. Ler esta nota antes de interpretar
-> qualquer item abaixo:
+> **Como ler este documento:** 3 categorias com significado diferente.
 >
 > - **🔵 Rodada Ativa** = trabalho comprometido, ordem definida, sendo executado agora.
-> - **🟡 Achados Pendentes** = problemas descobertos no meio do trabalho (nao
->   estavam no plano original), aguardando decisao sobre quando entrar numa rodada.
+> - **🟡 Achados Pendentes** = problemas descobertos no meio do trabalho (não
+>   estavam no plano original), aguardando decisão sobre quando entrar numa rodada.
 > - **🟢 Metas Futuras** = ideias/desejos registrados, sem timeline, sem
->   compromisso de execucao ate serem promovidos para uma rodada.
+>   compromisso de execução até serem promovidos para uma rodada.
 >
-> Conteudo tecnico de cada item foi preservado integralmente na reorganizacao --
-> so a categoria/posicao mudou. Duas secoes de planejamento antigas (Sprint
-> Rodada 2 e Sprint Rodada 3 "proxima sessao") ficaram desatualizadas e nunca
-> foram sincronizadas com o que realmente aconteceu -- movidas para 📦 Arquivado
-> no final deste documento, com nota explicita de que `chat1.md` e fonte mais
-> confiavel pra status daquele periodo.
+> Histórico superado (planejamento antigo nunca sincronizado com a execução
+> real) fica em 📦 Arquivado, no final — não confiar em checkboxes lá.
 
 ## 📊 Status do ciclo de sprints
 
-**Rodada 5 (ativa) -- 5/10 concluidos (CTXCLOUDFLARE01 + CTXVITE02 fechados), 5 restantes.**
+**Rodada 5 (ativa) -- 5/10 concluídos, 5 restantes.**
 
-**Sessao de polish visual 2026-07-01 (fora da contagem formal, trabalho real):**
-spotlight animado, scroll do painel corrigido, 3 botoes do terminal
-reorganizados, card LAVE reposicionado, favicon, versao dinamica no login.
-3 metas novas registradas (2FA terminal, agente consultavel, badge B94).
-Ver detalhamento completo na secao 🔵 Rodada Ativa abaixo.
+| # | Item | Status |
+|---|---|---|
+| 1 | CTXPROVBRIDGE01 | ✅ Concluído |
+| 2 | CTXMASAUTH01 | ⬜ Escopo mapeado, aguardando sessão dedicada |
+| 3 | CTXHYGIENE01 | ✅ Concluído (1 sub-item adiado por decisão sua: `ADMIN_PASSWORD`) |
+| 4 | CTXCLOUDFLARE01 | ✅ Concluído |
+| 5 | CTXUNIFY01 | ⬜ Decisão de arquitetura pendente (precisa de você presente) |
+| 6 | CTXAGENTSCORE01 | ⬜ Bloqueado pelo item 5 |
+| 7 | CTXVITE02 | ✅ Concluído |
+| 8 | CTXCLEANURL01 | ⬜ Depende do item 5 (CTXUNIFY01) |
+| 9 | CTXPIPELINE01 | ⬜ Não iniciado |
+| 10 | CTXRAG01 | ⬜ Não iniciado |
 
-**Historico:** Rodada 1 ✅ (ver chat1.md) · Rodada 2 ✅ 9/10 (ver chat1.md) ·
-Rodada 3 ✅ 10/10 · Rodada 4 ✅ 10/10 (1 item parcial: CTXVITE02)
+**Sessão de polish visual (2026-07-01, fora da contagem formal da Rodada 5,
+trabalho real concluído):** ver seção dedicada mais abaixo.
 
-**Regra permanente:** ao fechar 10/10 de qualquer rodada, a proxima rodada de
-10 e planejada automaticamente antes de aguardar novo pedido do humano.
+**Histórico:** Rodada 1 ✅ · Rodada 2 ✅ 9/10 (ver `chat1.md`) · Rodada 3 ✅
+10/10 · Rodada 4 ✅ 10/10 (CTXVITE02 iniciado ali, fechado na Rodada 5)
+
+**Regra permanente:** ao fechar 10/10 de qualquer rodada, a próxima rodada
+de 10 é planejada automaticamente antes de aguardar novo pedido do humano.
 
 ---
 
 ## 🔵 Rodada Ativa (Rodada 5, iniciada 2026-07-01)
 
-1. [x] **CTXPROVBRIDGE01** -- Investigado. NAO era bug: todos os 16 registros de
-   `execucoes` sao origem='individual' (chat comum). O codigo ja manda
-   `mas_run_id` corretamente quando o BLOCO vem do MAS -- so nunca houve
-   amostra real pra confirmar. Sem acao de codigo necessaria. (ver L-PROVBRIDGE01)
+1. [x] **CTXPROVBRIDGE01** -- Investigado. NÃO era bug: todos os 16 registros
+   de `execucoes` são origem='individual' (chat comum). O código já manda
+   `mas_run_id` corretamente quando o BLOCO vem do MAS -- só nunca houve
+   amostra real pra confirmar. Sem ação de código necessária. (ver L-PROVBRIDGE01)
 
-2. [ ] **CTXMASAUTH01** -- Tentado e **revertido** hoje. Escopo real descoberto:
-   nao e 1 chamador (como CTXAGENTAUTH01), sao **9 pontos** espalhados no
+2. [ ] **CTXMASAUTH01** -- Tentado e **revertido**. Escopo real descoberto:
+   não é 1 chamador (como CTXAGENTAUTH01), são **9 pontos** espalhados no
    dashboard.html chamando as 7 rotas de `mas/routes.mjs` sem token (2x
    /models-last, 2x /run, 2x /last, 3x EventSource /events/). Precisa de
-   sessao dedicada mapeando os 9 pontos ANTES de qualquer patch no backend,
-   nao ajuste incremental em producao. (ver L-MASAUTH01)
+   sessão dedicada mapeando os 9 pontos antes de qualquer patch no backend,
+   não ajuste incremental em produção. (ver L-MASAUTH01)
 
-3. [x] **CTXHYGIENE01** -- Concluido parcialmente:
+3. [x] **CTXHYGIENE01** -- Concluído:
    - [x] `knowledge/agentes/` (pastas mortas, nomenclatura divergente dos 9
-     titulares reais, zero uso no codigo) arquivado em `_arquivados/`
-   - [x] Esclarecido: `blocosRoutes.cjs` "duplicado" e mount intencional do
-     Docker Compose (mesmo padrao do `providers.cjs`), nao e bug
-   - [ ] `ADMIN_PASSWORD` real no `.env` -- **decisao do usuario, adiada
-     de proposito**. Senha antiga (`OrquestrAI@2025`) continua ativa como
-     fallback ate a troca acontecer.
+     titulares reais, zero uso no código) arquivado em `_arquivados/`
+   - [x] Esclarecido: `blocosRoutes.cjs` "duplicado" é mount intencional do
+     Docker Compose (mesmo padrão do `providers.cjs`), não é bug
+   - [ ] `ADMIN_PASSWORD` real no `.env` -- **decisão do usuário, adiada de
+     propósito**. Senha antiga (`OrquestrAI@2025`) continua ativa como
+     fallback até a troca acontecer.
 
-4. [ ] **CTXCLOUDFLARE01** -- Turnstile na tela de login (widget discreto
-   abaixo do botao Entrar) ou proxy/WAF completo. Decisao de escopo
-   pendente (ver detalhe na secao Metas Futuras).
+4. [x] **CTXCLOUDFLARE01** -- Concluído. Widget Turnstile na tela de login,
+   tema escuro, horizontal, com legenda "protegido por Cloudflare". Backend
+   com validação fail-open (se o Cloudflare cair, login segue -- defesa
+   primária já é senha+2FA). Fluxo completo testado em produção.
 
-5. [ ] **CTXUNIFY01** -- Decisao de arquitetura: unificar os 2 modelos de
-   execucao (execBloco protegido vs oqterm root/interativo). Precisa de
-   voce presente pra decidir junto, nao so execucao. (ver detalhe completo
-   na secao Achados Pendentes)
+5. [ ] **CTXUNIFY01** -- Decisão de arquitetura: unificar os 2 modelos de
+   execução (execBloco protegido vs oqterm root/interativo). Precisa de
+   você presente pra decidir junto, não só execução. (ver detalhe completo
+   na seção Achados Pendentes)
 
-6. [ ] **CTXAGENTSCORE01** -- Score real por agente. Desbloqueado apos
+6. [ ] **CTXAGENTSCORE01** -- Score real por agente. Desbloqueado após o
    item 5 (hoje o endpoint `/api/agents/score` existe mas depende de dados
-   de `execucoes` que tem cobertura baixa/enviesada -- ver L-VITE02).
+   de `execucoes` com cobertura baixa/enviesada -- ver L-VITE02).
 
-7. [ ] **CTXVITE02 (fechar)** -- Integrar o componente `AgentPanel` (ja
-   pronto e testado isolado) no `dashboard.html` real de producao.
+7. [x] **CTXVITE02** -- Concluído. Componente `AgentPanel` (React) integrado
+   ao `dashboard.html` real via "React island" (montado fora do container
+   legado, sem substituí-lo). Dados SSE ao vivo confirmados em produção.
+   6 bugs encadeados resolvidos no processo (ver L-VITE02FINAL).
 
-8. [ ] **CTXCLEANURL01** -- URL sem `/dashboard.html`. Nasce naturalmente
-   apos o item 7 (SPA unificada via react-router-dom).
+8. [ ] **CTXCLEANURL01** -- URL sem `/dashboard.html`. Depende do item 5
+   (CTXUNIFY01) -- nasce naturalmente quando a SPA for unificada de vez.
 
 9. [ ] **CTXPIPELINE01** -- Pipeline MAS adaptativo: classificar tarefa
-   (simples/medio/complexo) e rodar 3/6/8 agentes -- reducao estimada de
+   (simples/médio/complexo) e rodar 3/6/8 agentes -- redução estimada de
    40-60% no custo de runs simples.
 
-10. [ ] **CTXRAG01** -- GitHub RAG basico, com sanitizacao anti-prompt-injection
-    desde o design (conteudo externo indexado e sempre dado, nunca instrucao).
+10. [ ] **CTXRAG01** -- GitHub RAG básico, com sanitização anti-prompt-injection
+    desde o design (conteúdo externo indexado é sempre dado, nunca instrução).
+
+---
+
+## 🎨 Sessão de Polish Visual (2026-07-01)
+
+Trabalho real, fora da contagem formal da Rodada 5 -- itens concluídos e
+testados em produção durante a mesma sessão do CTXVITE02/CTXCLOUDFLARE01:
+
+- [x] **Spotlight animado** nos cards de agente -- borda + pulso (`@keyframes`)
+  em ciano quando `status:running`, vermelho quando `status:error`. Intensidade
+  ajustada por pedido explícito (destaque mais forte que a versão inicial).
+- [x] **Scroll do painel de agentes corrigido** -- causa raiz: regra CSS
+  genérica (`main.grid > * { overflow:hidden }`) vencia por especificidade
+  a classe Tailwind `.overflow-y-auto`. Corrigido com seletor mais específico
+  (`main.grid > aside.panel`), sem alterar a regra genérica (que protege
+  outros painéis).
+- [x] **3 botões reorganizados na barra do terminal** -- ordem final: 📤
+  colar no chat → 🧹 clear (novo, usa `xterm.clear()`) → 🔒 conectar
+  (placeholder visualmente ativo, meta futura registrada abaixo). Duas
+  versões duplicadas do botão original (`b298` flutuante + `b305` solto
+  dentro do `.xterm`) identificadas e neutralizadas.
+- [x] **Card BLOCO LAVE reposicionado** -- número do bloco (`#101`) desceu
+  para linha própria abaixo do título; botão fechar (`x`) movido para o
+  canto superior direito, fixo, padrão universal de "fechar janela".
+- [x] **Favicon adicionado** (SVG leve, sem dependência externa) -- eliminava
+  404 constante no console.
+- [x] **Versão dinâmica na tela de login** -- texto fixo `v0.12.0` (nunca
+  atualizado em 10 releases) substituído por busca real em `/api/version`
+  (`CTXVER01`), com fallback silencioso se a chamada falhar.
+- [x] Badge "PT-BR" e botão duplicado no cabeçalho de agentes removidos
+  (não serão usados por decisão do usuário).
 
 ---
 
@@ -96,38 +134,38 @@ Rodada 3 ✅ 10/10 · Rodada 4 ✅ 10/10 (1 item parcial: CTXVITE02)
 Problemas reais descobertos durante o trabalho, fora do plano original,
 aguardando o momento certo de entrar numa rodada.
 
-### 🔴 CTXUNIFY01 -- Decisao de arquitetura (investigado 2026-07-01)
+### 🔴 CTXUNIFY01 -- Decisão de arquitetura (investigado 2026-07-01)
 
-Mapeamento completo feito -- sao 2 modelos DIFERENTES de execucao, nao so
-2 botoes pro mesmo lugar:
+Mapeamento completo feito -- são 2 modelos DIFERENTES de execução, não só
+2 botões pro mesmo lugar:
 
 1. **execBloco() / #bloco** -> `/api/blocos/preparar+executar` (container
    `orquestrai-api`): comando ISOLADO com sha256 anti-tampering,
-   autorizo+confirmacao+motivo obrigatorios, hash-chain (CTXAUDIT01),
-   timeout/ulimit, roda DENTRO do Docker. Pouco usado na pratica.
+   autorizo+confirmação+motivo obrigatórios, hash-chain (CTXAUDIT01),
+   timeout/ulimit, roda DENTRO do Docker. Pouco usado na prática.
 
 2. **Cards numerados (BLOCKS/cardHTML/oq71z-exec)** -> `/opt/oqterm/server.js`
    (porta 7654, FORA do docker-compose, roda direto no host como root,
-   processo solto desde 22/06): sessao de TERMINAL INTERATIVA real
+   processo solto desde 22/06): sessão de TERMINAL INTERATIVA real
    (`pty.spawn('/bin/login',['-f','root'])`), com estado entre comandos.
    Valida JWT (role=admin/super_admin ou sub na ALLOWED list), nega com 403
-   se nao autorizado, loga por usuario/dia -- protecao propria, mas
-   DIFERENTE do resto do sistema (fora do 2FA/cifra/hash-chain). **E o que
-   voce usa de fato no dia a dia.**
+   se não autorizado, loga por usuário/dia -- proteção própria, mas
+   DIFERENTE do resto do sistema (fora do 2FA/cifra/hash-chain). **É o que
+   você usa de fato no dia a dia.**
 
-**Decisao necessaria** (nao e patch simples, e escolha de arquitetura):
-- **Opcao A:** aceitar que sao 2 modelos legitimos p/ usos diferentes
-  (comando pontual auditado vs sessao interativa root) -- documentar
+**Decisão necessária** (não é patch simples, é escolha de arquitetura):
+- **Opção A:** aceitar que são 2 modelos legítimos p/ usos diferentes
+  (comando pontual auditado vs sessão interativa root) -- documentar
   claramente, sem tentar fundir.
-- **Opcao B:** fazer o terminal interativo tambem gravar em `execucoes`
-  (hash-chain cobre os 2), sem mudar o modelo de execucao em si.
-- **Opcao C:** migrar tudo pro modelo protegido (perderia a interatividade
-  de sessao).
+- **Opção B:** fazer o terminal interativo também gravar em `execucoes`
+  (hash-chain cobre os 2), sem mudar o modelo de execução em si.
+- **Opção C:** migrar tudo pro modelo protegido (perderia a interatividade
+  de sessão).
 
 Risco do `oqterm` em si (achado junto, fora do escopo do unify): root sem
-senha, fora de Docker, unico controle e a assinatura do `JWT_SECRET` -- se
+senha, fora de Docker, único controle é a assinatura do `JWT_SECRET` -- se
 vazar, acesso root total ao host. Considerar **CTXOQTERM01** (escopo de
-usuario limitado, nao root direto) como item separado, tambem exige decisao
+usuário limitado, não root direto) como item separado, também exige decisão
 de arquitetura com calma.
 
 ### 🟡 CTXMASAUTH01 -- Auth nas 7 rotas do MAS (escopo remapeado 2026-07-01)
@@ -137,12 +175,12 @@ Nenhuma das 7 rotas de `mas/routes.mjs` (`/run`, `/run/:id`, `/last`,
 `authMiddleware`. `/run` em especial dispara o pipeline MAS completo (custo
 real de API) sem exigir login.
 
-**Tentativa de hoje revertida** ao descobrir que o `dashboard.html` chama
-essas rotas em **9 pontos diferentes**, e só 1 já manda `Authorization`.
-Corrigir precisa de sessão dedicada mapeando todos os 9 pontos primeiro
-(não ajuste incremental em produção). `/events/:id` (SSE) já tem solução
-desenhada: auth via query param `?_t=`, já que `EventSource` nativo não
-manda header `Authorization`.
+**Tentativa revertida** ao descobrir que o `dashboard.html` chama essas
+rotas em **9 pontos diferentes**, e só 1 já manda `Authorization`. Corrigir
+precisa de sessão dedicada mapeando todos os 9 pontos primeiro (não ajuste
+incremental em produção). `/events/:id` (SSE) já tem solução desenhada:
+auth via query param `?_t=`, já que `EventSource` nativo não manda header
+`Authorization`.
 
 ---
 
@@ -151,19 +189,58 @@ manda header `Authorization`.
 Ideias e desejos registrados, sem timeline nem compromisso de execução até
 serem promovidos para uma rodada ativa.
 
-### CTXCLOUDFLARE01 -- Cloudflare na tela de login
-Turnstile (widget anti-bot, substitui CAPTCHA tradicional) ou proxy/WAF
-completo do Cloudflare. Posicionamento pedido: discreto, logo abaixo do
-botão "Entrar". Depende de decisão: Cloudflare como proxy DNS completo
-(protege toda a VPS, mascara IP real) vs só o widget Turnstile no
-formulário (mais simples, não muda infraestrutura).
-
 ### CTXCLEANURL01 -- URL sem sufixo de arquivo
-`orquestrai.cbini.com.br` sem `/dashboard.html`. Nasce naturalmente quando
-CTXVITE02 unificar login+dashboard numa SPA só, roteada por
-react-router-dom. Não fazer via hack de nginx antes disso -- JWT fica em
+`orquestrai.cbini.com.br` sem `/dashboard.html`. Depende da decisão do
+CTXUNIFY01 (item 5 da Rodada Ativa) -- nasce naturalmente quando a SPA for
+unificada de vez. Não fazer via hack de nginx antes disso -- JWT fica em
 localStorage (não cookie), então nginx não tem como decidir sozinho se
 mostra login ou dashboard no server-side.
+
+### Botão "Consultar agente" no card BLOCO LAVE
+Evoluída ao longo de 3 rodadas de discussão (2026-07-01). Ideia original:
+o agente Revisor comentaria automaticamente todo script gerado, linha a
+linha. Refinada para: **botão opt-in no próprio card** ("🔍 Explicar" ou
+similar, mesmo estilo de COPIAR/EXECUTAR), que só aciona a explicação
+quando o usuário clicar -- evita pagar o custo do modelo mais caro (Opus)
+em todo bloco, mesmo os triviais.
+
+**Versão final decidida:** o agente consultado não precisa ser sempre o
+Revisor -- o usuário **escolhe qual dos 9 agentes** quer ouvir sobre aquele
+bloco específico (Revisor comentando código, Detetive investigando uma
+dúvida, Auditor dando segunda opinião de segurança, etc), aproveitando o
+catálogo de especialidades já documentado nos `AGENT_CARD-*.md`
+(CTXSKILL01). É uma chamada **isolada e externa ao pipeline principal do
+MAS** -- não interrompe nem duplica o fluxo sequencial que já roda em todo
+run, evitando o problema que a primeira versão da ideia teria (2 scripts
+concorrendo pelo mesmo card).
+
+Design técnico esperado: novo botão no card LAVE + seletor dos 9 agentes
+(mostrando especialidade via AGENT_CARD) + endpoint isolado, algo como
+`POST /api/blocos/:id/consultar`. Resultado exibido expandido no próprio
+card ou em modal (decidir na implementação).
+
+### 2FA de terminal (segunda camada de autenticação antes do shell)
+Botão "🔒 conectar" já existe na UI (placeholder visualmente ativo, sem
+função ainda) na barra do terminal, pedindo usuário/senha PRÓPRIOS do
+terminal, além do login já existente do dashboard (senha+2FA). Defesa em
+profundidade -- separa "ver o painel" (risco baixo) de "ter shell root na
+VPS" (risco máximo), hoje protegidas pela MESMA camada de auth (JWT de
+sessão). Depende de: novo endpoint de auth dedicado ao terminal,
+possivelmente ligado ao mesmo sistema TOTP do CTXAUTH2FA01. Relacionado a
+CTXUNIFY01/CTXOQTERM01 (oqterm roda root sem senha hoje, fora do Docker).
+
+### Investigar/limpar badge "B94 direto"
+Indicador verde piscando no canto inferior direito ao carregar a página.
+Funcional, não quebra nada, mas precisa de investigação visual/limpeza --
+possivelmente debug info que deveria estar oculto ou redesenhado.
+
+### XMonex -- ambiente de teste futuro
+Projeto abandonado, sem uso ativo hoje. Um relato do agente Auditor mencionou
+o `.env` do XMonex como exposto -- não verificado, mesmo relato que já foi
+desmentido para `orquestrai/.env` (644 real vs 777 alegado, ver L-AUDITOR01).
+Só investigar se XMonex passar a representar risco real e concreto para o
+OrquestrAI. Futuro: usar como ambiente de teste/auditoria pelo próprio
+OrquestrAI.
 
 ### Dog-fooding: OrquestrAI melhorando o próprio OrquestrAI
 - [ ] Usar o MAS do OrquestrAI para propor e revisar patches do próprio
@@ -178,10 +255,10 @@ mostra login ou dashboard no server-side.
   via CTXSKILL01, 9/9 titulares completos
 - [ ] Agentes lerem o AGENT_CARD dos outros antes de delegar -- conhecimento
   mútuo do time
-- [ ] Tooltip de descrição nos cards da Mesh Network (lado direito) mostrando
-  especialidade do agente ao passar o mouse
+- [ ] Tooltip de descrição nos cards da Mesh Network mostrando especialidade
+  do agente ao passar o mouse
 
-### Polimento visual
+### Polimento visual (itens ainda não atacados)
 - [ ] Topbar mais compacta (fonte menor, ícones, info densa sem poluição)
 - [ ] Cards da Mesh Network com indicador de desempenho histórico
 - [ ] Animação suave ao trocar de aba no modal de Providers
@@ -202,7 +279,7 @@ mostra login ou dashboard no server-side.
 **Média:**
 - [ ] Tela de Agentes: reintroduzir configuração de providers/modelos,
   priorizando agentes gratuitos por padrão
-- [ ] Revisar tela de Lições Aprendidas (174+ itens hoje): formato, ordem,
+- [ ] Revisar tela de Lições Aprendidas (180+ itens hoje): formato, ordem,
   organização
 - [ ] Novo Projeto: opção de clonar repositório git via URL
 - [ ] Agente especializado em Design (UI/consistência visual) -- 9ª posição
@@ -252,6 +329,13 @@ mostra login ou dashboard no server-side.
   features (fundamentos primeiro).
 - **2026-07-01:** `CTXSCORE01` citado em documentação antiga como "backend
   pronto" nunca existiu de fato -- corrigido, ver `CTXAGENTSCORE01`.
+- **2026-07-01:** React integrado ao dashboard legado via padrão "React
+  island" (componente montado num container próprio, isolado, ao lado do
+  HTML legado escondido) em vez de reescrita completa da SPA -- reduz risco,
+  permite migração incremental peça por peça. Estado atual: híbrido por
+  decisão consciente (login 100% React; dashboard ainda 100% legado, exceto
+  o painel de agentes). Sem data definida para aposentar o legado por
+  completo -- acontece gradualmente conforme novas ilhas forem migradas.
 
 ---
 
@@ -259,7 +343,7 @@ mostra login ou dashboard no server-side.
 
 ### Escalação do Time de Agentes
 Inspiração: time de futebol. 11 titulares (posições fixas) + 15 reservas
-(especializações, convocados por tipo de tarefa) = 26 agentes no elenco completo.
+(especializações, convocadas por tipo de tarefa) = 26 agentes no elenco completo.
 
 **Titulares atuais (9/11):**
 1. BATEDOR (scout) -- varredura rápida inicial
@@ -318,9 +402,14 @@ CTXVER01, CTXSEC02, CTXSSE01)
 CTXDURATION01, CTXLITESTREAM01, CTXSPOT05, CTXFEEDBACK01, CTXREVISOR01,
 CTXHARNESS01
 
-**Rodada 4** -- 10/10 (1 parcial): CTXAUTH2FA01, CTXSECRETS01, CTXAUDIT01,
-CTXRATELIM01, CTXAGENTAUTH01, CTXRATELIM02, CTXVITE01, CTXVITE02 (parcial),
-CTXKBCURATOR01, CTXSKILL01
+**Rodada 4** -- 10/10: CTXAUTH2FA01, CTXSECRETS01, CTXAUDIT01,
+CTXRATELIM01, CTXAGENTAUTH01, CTXRATELIM02, CTXVITE01, CTXVITE02 (iniciado
+aqui, fechado na Rodada 5), CTXKBCURATOR01, CTXSKILL01
+
+**Rodada 5** -- 5/10 até o momento: CTXPROVBRIDGE01, CTXHYGIENE01,
+CTXCLOUDFLARE01, CTXVITE02 (fechado), + sessão de polish visual completa
+(ver seção dedicada acima). Restam: CTXMASAUTH01, CTXUNIFY01,
+CTXAGENTSCORE01, CTXCLEANURL01, CTXPIPELINE01, CTXRAG01.
 
 ---
 
@@ -350,33 +439,4 @@ DIFÍCIL: CTXVITE01, CTXVITE02, CTXLMEVAL01, CTXRESERVA01
 
 </details>
 
-### XMonex (pendencia baixa prioridade, 2026-07-01)
-Projeto abandonado, sem uso ativo hoje. Relato do Auditor (L-AUDITOR01)
-mencionou .env do XMonex tambem exposto -- nao verificado, mesmo relato
-que ja foi desmentido para orquestrai/.env (644 real vs 777 alegado).
-So investigar se XMonex passar a representar risco real e concreto para
-o OrquestrAI (ex: mesma rede, credenciais compartilhadas). Futuro: usar
-como ambiente de teste/auditoria pelo proprio OrquestrAI.
-
-### Meta: botao "colar no chat" alinhado a direita no cabecalho do terminal
-Usuario quer o botao no mesmo estilo dos botoes de bloco (COPIAR/EXECUTAR/X),
-alinhado a direita, dentro da barra "TERMINAL - conectado". Hoje o botao e
-inserido via JS dinamico (linha ~3498, script oq71z-xterm) buscando o texto
-na tela. Provavel fix simples de CSS (flex/position), nao logica. Baixa
-prioridade -- registrado para a rodada de polish visual apos CTXVITE02 estabilizar.
-
-### Meta: investigar/limpar badge "B94 direto" que aparece e some
-Usuario notou um indicador verde piscando no canto inferior direito ao
-carregar a pagina (badge tipo "B94v direto"). Funcional, nao quebra nada,
-mas precisa de investigacao visual/limpeza -- possivelmente debug info que
-deveria estar oculto ou redesenhado. Baixa prioridade, rodada de polish visual.
-
-### Meta: 2FA de terminal (segunda camada de autenticacao antes do shell)
-Usuario propos: botao "Conectar" na barra do terminal, pedindo usuario/senha
-PROPRIOS do terminal, alem do login ja existente do dashboard (senha+2FA).
-Defesa em profundidade -- separa "ver o painel" (risco baixo) de "ter shell
-root na VPS" (risco maximo), hoje protegidos pela MESMA camada de auth (JWT
-de sessao). Botao placeholder ja adicionado na UI (desabilitado). Depende de:
-novo endpoint de auth dedicado ao terminal, possivelmente ligado ao mesmo
-sistema TOTP do CTXAUTH2FA01. Relacionado a CTXUNIFY01/CTXOQTERM01 (oqterm
-roda root sem senha hoje, fora do Docker -- ver decisao de arquitetura pendente).
+<!-- teste watcher 2026-07-02T04:25:43-03:00 -->
