@@ -1,3 +1,7 @@
+## [0.19.0] - 2026-07-01
+### Mudado
+- Reorganizacao completa do roadmap.md: 3 categorias claras (Rodada Ativa/Achados Pendentes/Metas Futuras), status desatualizados corrigidos, secoes obsoletas arquivadas, 0 itens tecnicos perdidos (verificado por diff)
+
 ## [0.18.2] - 2026-07-01
 ### Mudado
 - Fix: ADMIN_PASSWORD placeholder literal removido (executado por engano), revertido para estado pendente real
