@@ -470,3 +470,7 @@ de conhecimento, regressão end-to-end).
 8. [ ] CTXKBABSORB01 -- Confirmar se agentes REALMENTE usam knowledge/licoes/ e SKILL.md nas respostas (não só que loadKB() existe)
 9. [ ] CTXMODELCOMP01 -- Comparativo de modelos por posição (dado real de agent_executions)
 10. [ ] CTXALERTFAIL01 -- Alerta automático de falhas consecutivas por agente (liga com CTXSSE03)
+
+## 🟢 RODADA 6 PLANEJADA (2026-07-02) — Refatoracao Dashboard React
+
+20 sprints em 6 blocos (fundacao -> vitoria visual -> hooks -> cards -> limpeza -> polish). Execucao: Opus 4.8. Detalhe completo em knowledge/metas/RODADA-6-PLANO.md. Principio: alicerce invisivel antes do acabamento visivel; cada sprint independentemente deployavel; cada card migrado apaga divida legada correspondente.

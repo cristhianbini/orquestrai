@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-02 19:05:42 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-02 19:41:20 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -4708,8 +4708,8 @@ window.oqNovag = {
   if(window.__BLOG_MAS__) return; window.__BLOG_MAS__=true;
   window.BLOG_MAS={msgs:[],tk:[],usd:[]};
   function log(msg){console.log('[BLOG_MAS]',msg);window.BLOG_MAS.msgs.push(msg);}
-  function logTk(ag,tk,fn,lat,err){window.BLOG_MAS.tk.push({ag,tk,fn,lat,err});console.log('[BLOG_MAS TK]',ag,'tk=',tk,'fn=',fn,'lat=',lat,'err=',err);}
-  function logUsd(ag,usd,isFree){window.BLOG_MAS.usd.push({ag,usd,isFree});console.log('[BLOG_MAS USD]',ag,'usd=',usd,'isFree=',isFree);}
+  function logTk(ag,tk,fn,lat,err){(window.BLOG_MAS.tk=window.BLOG_MAS.tk||[]).push({ag,tk,fn,lat,err});console.log('[BLOG_MAS TK]',ag,'tk=',tk,'fn=',fn,'lat=',lat,'err=',err);}
+  function logUsd(ag,usd,isFree){(window.BLOG_MAS.usd=window.BLOG_MAS.usd||[]).push({ag,usd,isFree});console.log('[BLOG_MAS USD]',ag,'usd=',usd,'isFree=',isFree);}
   // hook SSE
   var OES=window.EventSource;
   if(OES && !OES.__BLOG_MAS){

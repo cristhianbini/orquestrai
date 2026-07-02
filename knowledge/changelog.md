@@ -1,3 +1,7 @@
+## [0.26.0] - 2026-07-02
+### Mudado
+- Rodada 6 planejada: 20 sprints refatoracao dashboard React (fundacao->visual->hooks->cards->limpeza->polish). Plano em RODADA-6-PLANO.md
+
 ## [0.25.1] - 2026-07-02
 ### Mudado
 - Meta futura: estrategia de auditoria Fable 5 (analise critica + 4 artefatos + 2 modos). Nao executar ate acionar o Fable.
