@@ -1,7 +1,8 @@
-<!-- ATUALIZADO: 2026-07-02 00:23:53 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-02 01:25:15 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
+<head>
+<div id="oq-term2chat-b305" style="display:none" title="neutralizado por CTXPOLISH01 -- decoy que impede o B305 (botao flutuante antigo) de se recriar via MutationObserver"></div><meta http-equiv="Cache-Control" content="no-store, max-age=0"><meta http-equiv="Pragma" content="no-cache">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>OrquestrAI — Cockpit</title>
@@ -654,6 +655,7 @@ html, body { height: 100%; overflow: hidden; }
 main.grid { overflow: hidden; min-height: 0; }
 /* cada coluna do grid principal */
 main.grid > * { min-height: 0; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+main.grid > aside.panel { overflow-y: auto !important; overflow-x: hidden !important; } /* CTXPOLISH01: aside precisa rolar internamente, a regra generica acima bloqueava por especificidade CSS maior que .overflow-y-auto */
 /* listas internas que devem rolar */
 #chat { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
 #oq71k-card { min-height: 0; overflow: auto; }
@@ -1321,6 +1323,7 @@ button[onclick="send()"]:hover{
       else console.error('[CTXVITE02] AgentPanel island nao carregou');
     });
   </script>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 </head>
 <body class="h-screen overflow-hidden">
 
@@ -1379,8 +1382,8 @@ button[onclick="send()"]:hover{
   </section>
 
   <!-- COL 3: AGENTES / LIÇÕES / METAS -->
-  <aside class="panel border-l flex flex-col overflow-y-auto">
-    <div class="px-3 py-2 border-b border-[var(--line)] text-xs text-[var(--mute)] flex items-center justify-between"><span>▸ AGENTES MESH NETWORK</span><span style="display:flex;gap:6px;align-items:center"><span id="lic-chip" title="Lições aprendidas (clique para abrir)" style="cursor:pointer;font-size:10px;padding:2px 7px;border:1px solid #1d2a3a;border-radius:10px;color:#7CE7FF;background:rgba(124,231,255,.06);font-weight:700;display:none">📚 <span id="lic-chip-n">0</span></span><span class="oqag-badge">PT-BR</span></span></div>
+  <aside class="panel border-l flex flex-col overflow-y-auto min-h-0">
+    <div class="px-3 py-2 border-b border-[var(--line)] text-xs text-[var(--mute)] flex items-center justify-between"><span>▸ AGENTES MESH NETWORK</span><span style="display:flex;gap:6px;align-items:center"><span id="lic-chip" title="Lições aprendidas (clique para abrir)" style="cursor:pointer;font-size:10px;padding:2px 7px;border:1px solid #1d2a3a;border-radius:10px;color:#7CE7FF;background:rgba(124,231,255,.06);font-weight:700;display:none">📚 <span id="lic-chip-n">0</span></span></span></div>
 <div class="p-2 space-y-1 text-xs" id="agentes" style="display:none"></div>
 <div id="oq-agent-panel-island" class="p-2"></div>
 <div class="p-2 space-y-1 text-xs" id="agentes-legacy-unused" style="display:none">
@@ -2038,16 +2041,18 @@ function container(){
 
 function cardHTML(b){
   var num=("000"+b.n).slice(-3);
-  return '<div class="oq71z-card" data-bn="'+b.n+'" style="border:1px solid #1a2632;border-radius:6px;padding:8px;background:#0a0f14">'+
-    '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">'+
-      '<span class="oq71z-badge" style="background:#1e3a5f;color:#7dd3fc;font-size:10px;padding:2px 6px;border-radius:3px;font-weight:700">#'+num+'</span> '+
-      '<span style="color:var(--cyan);font-weight:700;font-size:12px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(b.t)+'</span>'+
-      '<span style="color:var(--mute);font-size:10px">'+esc(b.name||"BLOCO LAVE")+'</span>'+
+  return '<div class="oq71z-card" data-bn="'+b.n+'" style="position:relative;border:1px solid #1a2632;border-radius:6px;padding:8px;background:#0a0f14">'+
+    '<button class="oq71z-del" type="button" style="position:absolute;top:6px;right:6px;width:20px;height:20px;line-height:18px;text-align:center;padding:0;font-size:12px;border-radius:5px;background:#3a1818;color:#ff9090;border:1px solid #5b2323;cursor:pointer" title="Remover deste histórico">×</button>'+
+    '<div style="display:flex;flex-direction:column;gap:3px;margin-bottom:6px;padding-right:24px">'+
+      '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">'+
+        '<span style="color:var(--cyan);font-weight:700;font-size:12px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(b.t)+'</span>'+
+        '<span style="color:var(--mute);font-size:10px">'+esc(b.name||"BLOCO LAVE")+'</span>'+
+      '</div>'+
+      '<span class="oq71z-badge" style="align-self:flex-start;background:#1e3a5f;color:#7dd3fc;font-size:10px;padding:2px 6px;border-radius:3px;font-weight:700">#'+num+'</span>'+
     '</div>'+
     '<pre style="white-space:pre-wrap;word-break:break-word;background:#040608;color:var(--green);padding:8px;border-radius:4px;max-height:260px;overflow:auto;font-size:11px;margin:0">'+esc(b.raw)+'</pre>'+
     '<div style="margin-top:6px;display:flex;gap:6px">'+
       '<button class="oq71z-copy" type="button" style="font-size:10px;padding:3px 8px">COPIAR</button><button class="oq71z-exec" type="button" style="font-size:10px;padding:3px 8px;background:#0d3a1a;color:#7eff9c;font-weight:700" title="Enviar este bloco direto para o terminal abaixo">▶ EXECUTAR</button>'+
-      '<button class="oq71z-del" type="button" style="font-size:10px;padding:3px 8px;background:#3a1818;color:#ff9090" title="Remover deste histórico">x</button>'+
       '<button class="oq71z-approve" data-bn="'+b.n+'" type="button" style="font-size:11px;padding:3px 8px;background:#0d2e1a;color:#4ade80;border:1px solid #166534;border-radius:4px" title="Aprovado">👍</button>'+
       '<button class="oq71z-reject" data-bn="'+b.n+'" type="button" style="font-size:11px;padding:3px 8px;background:#2d1515;color:#f87171;border:1px solid #7f1d1d;border-radius:4px" title="Rejeitado">👎</button>'+
     '</div>'+
@@ -3491,13 +3496,19 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   // ---------- botão no header do terminal ----------
   function mountTermBtn(){
     if(document.getElementById('oq-term-to-chat-b298')) return;
-    var hdr=null;
-    document.querySelectorAll('*').forEach(function(n){
-      if(hdr) return;
-      var t=(n.textContent||'').trim();
-      if(/TERMINAL.*conectado/i.test(t) && n.children.length<5) hdr=n;
-    });
+    // CTXPOLISH01-FIX2: a busca antiga (querySelectorAll('*') + regex no
+    // textContent) sempre pegava o proprio <html>, porque ele e o primeiro
+    // elemento da lista e seu textContent (pagina inteira) contem o texto
+    // "TERMINAL...conectado" em algum lugar. Ancoragem direta e deterministica:
+    // o cabecalho do terminal e sempre o irmao anterior do <pre id="term">.
+    var termEl=document.getElementById('term');
+    var hdr=termEl?termEl.previousElementSibling:null;
     if(!hdr) return;
+    var grp=document.createElement('span');
+    grp.style.cssText='display:flex;gap:6px;align-items:center';
+
+    // CTXPOLISH01: botao "colar no chat" -- o mais usado, fica primeiro
+    // (mais perto do texto do cabecalho).
     var b=document.createElement('button');
     b.id='oq-term-to-chat-b298';
     b.type='button';
@@ -3508,7 +3519,37 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       if(!t){alert('Terminal vazio');return;}
       appendToChat('### 📤 Output do terminal\n```\n'+t+'\n```');
     };
-    hdr.appendChild(b);
+    grp.appendChild(b);
+
+    // CTXPOLISH01: botao Clear -- limpa so a TELA do terminal (xterm.js
+    // .clear() nativo), sem afetar o historico real do shell. Equivalente
+    // visual ao comando 'clear' digitado manualmente.
+    var bClear=document.createElement('button');
+    bClear.type='button';
+    bClear.textContent='🧹 clear';
+    bClear.title='Limpa a tela do terminal';
+    bClear.style.cssText='font-size:10px;padding:2px 8px;border-radius:6px;border:1px solid #1d2a3a;background:rgba(124,231,255,.06);color:#7CE7FF;cursor:pointer';
+    bClear.onclick=function(){
+      try{ if(window.oqRealTerm) window.oqRealTerm.clear(); }catch(e){}
+    };
+    grp.appendChild(bClear);
+
+    // CTXPOLISH01-FIX3: botao Conectar -- mesmo peso visual dos outros 2
+    // (nao mais acinzentado/desabilitado, por pedido explicito). Meta
+    // futura (2FA de terminal), clique mostra aviso curto em vez de
+    // fingir que a funcionalidade ja existe. Fica por ultimo -- menos
+    // usado, mais distante do texto do cabecalho.
+    var bConn=document.createElement('button');
+    bConn.type='button';
+    bConn.textContent='🔒 conectar';
+    bConn.title='Em breve: autenticacao dedicada do terminal (2FA de terminal)';
+    bConn.style.cssText='font-size:10px;padding:2px 8px;border-radius:6px;border:1px solid #1d2a3a;background:rgba(124,231,255,.06);color:#7CE7FF;cursor:pointer';
+    bConn.onclick=function(){
+      alert('🔒 Em breve: autenticacao dedicada do terminal (2FA de terminal).');
+    };
+    grp.appendChild(bConn);
+
+    hdr.appendChild(grp);
   }
 
   // ---------- exportar conversa em .md ----------

@@ -9,3 +9,17 @@ body { margin: 0; }
 
 @keyframes fadeUp { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 .fade-up { animation: fadeUp 0.35s ease-out forwards; }
+
+/* CTXPOLISH02: pulso de brilho para cards de agente em execucao/erro.
+   Diferente de so aumentar box-shadow -- anima de verdade, ciclo curto
+   (1.4s), sem ser cansativo visualmente. */
+@keyframes agent-pulse-cyan {
+  0%, 100% { box-shadow: 0 0 14px rgba(56,189,248,0.45); }
+  50%      { box-shadow: 0 0 30px rgba(56,189,248,0.85); }
+}
+@keyframes agent-pulse-err {
+  0%, 100% { box-shadow: 0 0 14px rgba(248,113,113,0.45); }
+  50%      { box-shadow: 0 0 30px rgba(248,113,113,0.85); }
+}
+.animate-agent-pulse-cyan { animation: agent-pulse-cyan 1.4s ease-in-out infinite; }
+.animate-agent-pulse-err  { animation: agent-pulse-err 1.4s ease-in-out infinite; }

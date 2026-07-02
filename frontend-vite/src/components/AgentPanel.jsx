@@ -108,8 +108,21 @@ function AgentCard({ agent, live }) {
   const hasCost = cost != null;
   const isFree = hasCost && cost <= 0;
 
+  // CTXPOLISH02: destaque mais forte, com animacao de pulso de verdade
+  // (@keyframes, nao so sombra estatica) -- pedido explicito, o valor
+  // anterior era sutil demais para chamar atencao num painel lateral
+  // estreito onde o olho passa rapido.
+  const spotlight =
+    status === "running" ? "border-cyan shadow-[0_0_22px_rgba(56,189,248,0.65)] scale-[1.035] animate-agent-pulse-cyan" :
+    status === "error"   ? "border-err shadow-[0_0_22px_rgba(248,113,113,0.65)] animate-agent-pulse-err" :
+    "border-line";
+
   return (
-    <div className="border border-line rounded-md p-3 bg-panel space-y-1.5">
+    <div
+      className={
+        "border rounded-md p-3 bg-panel space-y-1.5 transition-all duration-500 " + spotlight
+      }
+    >
       <div className="flex items-center gap-2 mb-1">
         <span className={"w-2 h-2 rounded-full " + agent.dot} />
         <span className="font-mono text-xs font-bold text-green">{agent.nome}</span>

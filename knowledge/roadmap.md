@@ -365,3 +365,13 @@ Usuario notou um indicador verde piscando no canto inferior direito ao
 carregar a pagina (badge tipo "B94v direto"). Funcional, nao quebra nada,
 mas precisa de investigacao visual/limpeza -- possivelmente debug info que
 deveria estar oculto ou redesenhado. Baixa prioridade, rodada de polish visual.
+
+### Meta: 2FA de terminal (segunda camada de autenticacao antes do shell)
+Usuario propos: botao "Conectar" na barra do terminal, pedindo usuario/senha
+PROPRIOS do terminal, alem do login ja existente do dashboard (senha+2FA).
+Defesa em profundidade -- separa "ver o painel" (risco baixo) de "ter shell
+root na VPS" (risco maximo), hoje protegidos pela MESMA camada de auth (JWT
+de sessao). Botao placeholder ja adicionado na UI (desabilitado). Depende de:
+novo endpoint de auth dedicado ao terminal, possivelmente ligado ao mesmo
+sistema TOTP do CTXAUTH2FA01. Relacionado a CTXUNIFY01/CTXOQTERM01 (oqterm
+roda root sem senha hoje, fora do Docker -- ver decisao de arquitetura pendente).
