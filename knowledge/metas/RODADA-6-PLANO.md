@@ -45,7 +45,7 @@ frontend-vite/src/
 - [x] R6-09  hooks/useMasRun.js: estado do run (preparado p/ multi-user)
 - [x] R6-10  Metricas no card (tokens/custo/modelo) -- CONSERTA o tk=null de hoje
              na fonte, nao com curativo
-- [ ] R6-11  Score/harness no card + animacoes de estado (idle->running->done)
+- [x] R6-11  Score/harness no card + animacoes de estado (idle->running->done)
 
 ## BLOCO E — Limpeza da divida (cada item apaga bug de hoje)
 - [ ] R6-12  Remover BLOG_MAS duplicado (2 declaracoes conflitantes)
@@ -78,3 +78,16 @@ frontend-vite/src/
 - CTXAGENTSCORE01 -- depende do hook + captura de outcome
 - CTXCLEANURL01 -- re-escopo (premissa mudou de C p/ B)
 - CTXPIPELINE01, CTXRAG01 -- sessoes dedicadas (nao sao frontend)
+
+---
+
+## PENDENCIA DE PRODUTO — Score por agente (levantada no R6-11, 2026-07-02)
+O ScoreMeter do AgentCard espera `live.score` POR AGENTE, mas essa fonte NAO
+existe. O backend so tem harness-score POR RUN (/api/mas/harness-score,
+formula 0.4*exec_success + 0.3*guardian_pass + 0.3*cost_score). Antes de
+virar codigo, precisa de DECISAO DE PRODUTO: o que e "score de um agente"?
+Taxa de sucesso das suas execucoes? Contribuicao pro resultado do run?
+Nao e so destravar o CTXAGENTSCORE01 -- e definir a metrica primeiro.
+Ideia do usuario (Rodada 5) a considerar: pontuar agente por features
+repetidas sem sucesso (nao "marcou gol" -> candidato a troca de modelo).
+Enquanto indefinido, ScoreMeter renderiza "sem dados" (honesto).

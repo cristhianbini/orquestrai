@@ -1,3 +1,7 @@
+## [0.30.0] - 2026-07-02
+### Mudado
+- R6-11: animacoes de estado validadas (ja no bundle) + pendencia de score por agente documentada. 11/20
+
 ## [0.29.0] - 2026-07-02
 ### Mudado
 - R6-08/09/10: AgentCard extraido + useMasRun (SSE+auth) + metricas no card. Bug das metricas vazias resolvido na fonte. 10/20
