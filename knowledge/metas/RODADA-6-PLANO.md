@@ -135,3 +135,9 @@ entre cada um. Nunca em lote.
 - [x] R6-13.4.2  hook origES removido (cards legados fantasma)
 - [x] R6-13.4.3  hook __B187_WRAP (L2990) -> alimenta paint(); confirmar se e React ou legado ANTES
 - [ ] R6-13.5.x  containers mortos: #agentes-legacy-unused, #masx-cards, #agentes+paintAg (migracao)
+
+### Ideia visual futura (Score) — sugerida 2026-07-03
+ScoreMeter hoje fica apagado (sem score por agente). Ideia do Bini: dar uma
+leve animacao/cor de repouso nas barrinhas mesmo sem dado (shimmer sutil ou
+gradiente estatico), pra nao parecer "morto". Fica pro polish visual (Bloco F)
+ou pra quando o score por agente existir (ver PENDENCIA DE PRODUTO).
