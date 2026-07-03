@@ -1,3 +1,7 @@
+## [0.32.3] - 2026-07-03
+### Mudado
+- R6-13.3.2: onCost orfa removida (75 scripts 0 erros, cards OK)
+
 ## [0.32.2] - 2026-07-03
 ### Mudado
 - R6-13.3.1: onEvt orfa removida (por conteudo, 75 scripts 0 erros, cards OK)

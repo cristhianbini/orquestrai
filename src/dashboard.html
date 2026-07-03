@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-03 00:05:54 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-03 00:07:28 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -802,15 +802,6 @@ button[onclick="send()"]:hover{
 <script id="B334_JS">
 (function(){
   function fmtUsd(v){v=+v||0;return v<0.001?'$'+v.toFixed(5):'$'+v.toFixed(3)}
-  function onCost(ag,cost){
-    var c=document.querySelector('.oq46y-card[data-agent="'+ag+'"]'); if(!c)return;
-    var usdWrap=c.querySelector('.usd'); if(!usdWrap)return;
-    // tira classe .free pra deixar regra dinamica decidir
-    usdWrap.classList.remove('free');
-    var b=usdWrap.querySelector('b'); if(!b)return;
-    if(cost==null||+cost===0){ b.setAttribute('data-real','free'); b.removeAttribute('data-usd'); }
-    else{ b.setAttribute('data-real','paid'); b.setAttribute('data-usd',fmtUsd(cost)); }
-  }
   // hook SSE: reaproveita o EventSource ja interceptado
   var OES=window.EventSource;
 })();
