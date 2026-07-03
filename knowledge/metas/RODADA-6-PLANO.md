@@ -129,3 +129,9 @@ entre cada um. Nunca em lote.
 - insertBefore NotFoundError em dashboard.html:1231 (funcao 'build'): erro
   PRE-EXISTENTE, confirmado independente do R6-13.2 (persiste apos SyntaxError
   resolvido). Investigar em sub-sprint futuro. favicon.ico 404 = cosmetico.
+
+### R6-13.4 progresso
+- [x] R6-13.4.1  hook __masxWrapped removido (.masx-card fantasma)
+- [x] R6-13.4.2  hook origES removido (cards legados fantasma)
+- [ ] R6-13.4.3  hook __B187_WRAP (L2990) -> alimenta paint(); confirmar se e React ou legado ANTES
+- [ ] R6-13.5.x  containers mortos: #agentes-legacy-unused, #masx-cards, #agentes+paintAg (migracao)
