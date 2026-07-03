@@ -1,3 +1,7 @@
+## [0.32.6] - 2026-07-03
+### Mudado
+- R6-13.4.3: hook __B187_WRAP removido. Todos os 3 wrappers de EventSource eliminados. 75 scripts 0 erros, cards OK
+
 ## [0.32.5] - 2026-07-03
 ### Mudado
 - R6-13.4.2: hook origES removido (alimentava cards legados fantasma). 75 scripts 0 erros, cards OK

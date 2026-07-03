@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-03 05:00:55 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-03 05:06:09 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -2953,24 +2953,10 @@ else{setTimeout(ensure,200);setTimeout(ensure,1500);}
       .catch(function(){});
   }
 
-  var NativeES = window.EventSource;
-  if(NativeES && !NativeES.__B187_WRAP__){
-    var WrappedES = function(url, cfg){
-      var es = new NativeES(url, cfg);
-      try{
-        if(String(url).indexOf('/api/mas/events/') >= 0){
-          es.addEventListener('message', function(msg){
-            try { paint(JSON.parse(msg.data)); } catch(_){}
-          });
-        }
-      }catch(_){}
-      return es;
-    };
-    WrappedES.prototype = NativeES.prototype;
-    Object.setPrototypeOf(WrappedES, NativeES);
-    WrappedES.__B187_WRAP__ = true;
-    window.EventSource = WrappedES;
-  }
+  // R6-13.4.3: hook __B187_WRAP removido (interceptava window.EventSource p/
+  // alimentar paint()->.oq46y-card/.masx-card, cards fantasma display:none,
+  // substituidos pelo React). paint/cardsFor/ensureLine ficam orfaos ate o
+  // R6-13.5 (saem junto com os containers).
 
   setTimeout(findLastRun, 700);
   setInterval(findLastRun, 2500);
