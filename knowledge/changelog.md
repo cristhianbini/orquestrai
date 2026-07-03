@@ -1,3 +1,7 @@
+## [0.32.2] - 2026-07-03
+### Mudado
+- R6-13.3.1: onEvt orfa removida (por conteudo, 75 scripts 0 erros, cards OK)
+
 ## [0.32.1] - 2026-07-02
 ### Mudado
 - R6-13.2 CORRIGIDO e VALIDADO: remocao por conteudo, SyntaxError da v0.32.0 eliminado (75 scripts, 0 erros), cards React OK no navegador. insertBefore L1231 confirmado pre-existente (nao relacionado).

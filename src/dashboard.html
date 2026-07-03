@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-02 20:12:06 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-03 00:05:54 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -757,22 +757,6 @@ button[onclick="send()"]:hover{
   }
   function ensureLive(){ if(liveTimer)return; liveTimer=setInterval(tickLive,200); }
   function stopLive(ag){ delete startMs[ag]; if(!Object.keys(startMs).length && liveTimer){clearInterval(liveTimer);liveTimer=null;} }
-  function onEvt(d){
-    if(!d||!d.agent)return;
-    var ag=d.agent, c=document.querySelector('.oq46y-card[data-agent="'+ag+'"]'); if(!c)return;
-    var tk=c.querySelector('.tk b'), usd=c.querySelector('.usd b'), mdl=c.querySelector('.mdl');
-    if(d.phase==='start'||d.phase==='working'){
-      startMs[ag]=Date.now(); ensureLive();
-      if(d.model && mdl){mdl.textContent=d.model; mdl.style.display='inline-block';}
-    }
-    if(d.phase==='done'){
-      stopLive(ag);
-      if(tk){tk.removeAttribute('data-fn');tk.removeAttribute('data-lat');tk.removeAttribute('data-err');if(d.tokens!=null)tk.setAttribute('data-tk',fmtK(d.tokens));}
-      if(usd && !c.querySelector('.usd.free')){if(d.cost!=null)usd.setAttribute('data-usd',fmtUsd(d.cost));}
-      if(d.model && mdl){mdl.textContent=d.model; mdl.style.display='inline-block';}
-    }
-    if(d.phase==='error'){ stopLive(ag); if(tk){tk.removeAttribute('data-fn');tk.removeAttribute('data-lat');tk.removeAttribute('data-tk');tk.setAttribute('data-err','1');} }
-  }
   // hook EventSource
   var OES=window.EventSource;
   // init idle labels
