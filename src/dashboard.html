@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-03 05:06:09 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-03 05:09:09 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1352,9 +1352,8 @@ button[onclick="send()"]:hover{
     <div class="px-3 py-2 border-b border-[var(--line)] text-xs text-[var(--mute)] flex items-center justify-between"><span>▸ AGENTES MESH NETWORK</span><span style="display:flex;gap:6px;align-items:center"><span id="lic-chip" title="Lições aprendidas (clique para abrir)" style="cursor:pointer;font-size:10px;padding:2px 7px;border:1px solid #1d2a3a;border-radius:10px;color:#7CE7FF;background:rgba(124,231,255,.06);font-weight:700;display:none">📚 <span id="lic-chip-n">0</span></span></span></div>
 <div class="p-2 space-y-1 text-xs" id="agentes" style="display:none"></div>
 <div id="oq-agent-panel-island" class="p-2"></div>
-<div class="p-2 space-y-1 text-xs" id="agentes-legacy-unused" style="display:none">
-<div class="masx" id="masx-cards" style="display:none"></div>
-</div>
+<!-- R6-13.5.1: containers mortos #agentes-legacy-unused + #masx-cards removidos
+     (display:none, sem alimentador apos remocao dos wrappers no R6-13.4). -->
 <!-- OQ50B-v1-END -->
       </div>
     <div class="px-3 py-2 border-b border-t border-[var(--line)] text-xs text-[var(--mute)] oq46y-licao-header-hide">▸ LIÇÕES RECENTES</div>

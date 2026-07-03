@@ -1,3 +1,7 @@
+## [0.32.7] - 2026-07-03
+### Mudado
+- R6-13.5.1: containers mortos #agentes-legacy-unused + #masx-cards removidos. Cards OK, 0 erros novos
+
 ## [0.32.6] - 2026-07-03
 ### Mudado
 - R6-13.4.3: hook __B187_WRAP removido. Todos os 3 wrappers de EventSource eliminados. 75 scripts 0 erros, cards OK
