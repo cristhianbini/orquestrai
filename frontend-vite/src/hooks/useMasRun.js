@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-02 19:53:59 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-03 17:39:17 -03:00 (auto, git pre-commit)
 // useMasRun.js — R6-09
 // Estado de um run do MAS: busca o run mais recente (com auth), conecta ao
 // SSE via useSSE, e mantem o estado por agente. Encapsula o que antes vivia
@@ -21,14 +21,26 @@ export function useMasRun() {
   // do fetch('/api/mas/last') SEM auth que o AgentPanel tinha.
   useEffect(() => {
     let vivo = true;
-    apiGet('/api/mas/last')
-      .then((j) => {
-        if (!vivo) return;
-        const id = j && (j.run_id || j.id || j.runId || (j.run && (j.run.id || j.run.run_id)));
-        if (id) setRunId(id);
-      })
-      .catch(() => { /* sem run ativo ou 401 ja tratado pelo api.js */ });
-    return () => { vivo = false; };
+    let lastSeenId = null;
+    const fetchLast = () => {
+      apiGet('/api/mas/last')
+        .then((j) => {
+          if (!vivo) return;
+          const id = j && (j.run_id || j.id || j.runId || (j.run && (j.run.id || j.run.run_id)));
+          if (id && id !== lastSeenId) {
+            lastSeenId = id;
+            setRunId(id);
+          }
+        })
+        .catch(() => { /* sem run ativo ou 401 ja tratado pelo api.js */ });
+    };
+    fetchLast();
+    // Poll 2s: pega runId de runs iniciadas DEPOIS do mount. O chat legado
+    // dispara a run e o React nao era avisado -- SSE sempre chegava tarde
+    // demais, preso no runId antigo do mount (provado: run_ids diferentes
+    // entre os dois sistemas SSE no mesmo disparo).
+    const iv = setInterval(fetchLast, 2000);
+    return () => { vivo = false; clearInterval(iv); };
   }, []);
 
   // Aplica cada evento SSE ao estado do agente correspondente. Estavel

@@ -7,14 +7,14 @@ import React from 'react';
 
 const STATUS_STYLE = {
   idle:    { label: 'aguardando', badge: 'text-muted border border-line' },
-  running: { label: 'executando', badge: 'text-cyan border border-cyan/50 bg-cyan/10 animate-pulse' },
-  done:    { label: 'concluido',  badge: 'text-green border border-green/40 bg-green/10' },
-  error:   { label: 'erro',       badge: 'text-white border border-err bg-err/80 animate-pulse font-bold' },
+  running: { label: 'executando', badge: 'text-cyan border border-cyan/70 bg-cyan/15 font-bold animate-agent-pulse-cyan' },
+  done:    { label: 'concluido',  badge: 'text-green border border-green/60 bg-green/15 font-bold animate-badge-flash' },
+  error:   { label: 'erro',       badge: 'text-white border border-err bg-err/80 font-bold animate-agent-pulse-err' },
 };
 
 function StatusBadge({ status }) {
   const style = STATUS_STYLE[status] || STATUS_STYLE.idle;
-  return <span className={'text-[10px] px-2 py-0.5 rounded-full shrink-0 ' + style.badge}>{style.label}</span>;
+  return <span className={'text-[11px] px-2.5 py-1 rounded-full shrink-0 transition-all ' + style.badge}>{style.label}</span>;
 }
 
 function fmtTokens(n) {
@@ -68,6 +68,7 @@ export default function AgentCard({ agent, live }) {
   const spotlight =
     status === 'running' ? 'border-cyan shadow-[0_0_22px_rgba(56,189,248,0.65)] scale-[1.035] animate-agent-pulse-cyan' :
     status === 'error'   ? 'border-err shadow-[0_0_22px_rgba(248,113,113,0.65)] animate-agent-pulse-err' :
+    status === 'done'    ? 'border-green shadow-[0_0_14px_rgba(124,255,178,0.45)]' :
     'border-line';
 
   return (

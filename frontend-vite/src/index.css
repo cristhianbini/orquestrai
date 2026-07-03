@@ -14,12 +14,19 @@ body { margin: 0; }
    Diferente de so aumentar box-shadow -- anima de verdade, ciclo curto
    (1.4s), sem ser cansativo visualmente. */
 @keyframes agent-pulse-cyan {
-  0%, 100% { box-shadow: 0 0 14px rgba(56,189,248,0.45); }
-  50%      { box-shadow: 0 0 30px rgba(56,189,248,0.85); }
+  0%,100% { box-shadow: 0 0 16px 2px rgba(56,189,248,0.55), inset 0 0 6px rgba(56,189,248,0.25); }
+  50%     { box-shadow: 0 0 40px 8px rgba(56,189,248,0.95), inset 0 0 12px rgba(56,189,248,0.45); }
 }
 @keyframes agent-pulse-err {
-  0%, 100% { box-shadow: 0 0 14px rgba(248,113,113,0.45); }
-  50%      { box-shadow: 0 0 30px rgba(248,113,113,0.85); }
+  0%,100% { box-shadow: 0 0 16px 2px rgba(248,113,113,0.55); }
+  50%     { box-shadow: 0 0 40px 8px rgba(248,113,113,0.95); }
 }
-.animate-agent-pulse-cyan { animation: agent-pulse-cyan 1.4s ease-in-out infinite; }
-.animate-agent-pulse-err  { animation: agent-pulse-err 1.4s ease-in-out infinite; }
+/* Flash curto ao mudar de estado (etiqueta) -- roda 2x e para, so p/ o olho pegar a troca */
+@keyframes badge-flash {
+  0%   { transform: scale(1);    filter: brightness(1); }
+  40%  { transform: scale(1.14); filter: brightness(1.6); }
+  100% { transform: scale(1);    filter: brightness(1); }
+}
+.animate-badge-flash { animation: badge-flash 0.5s ease-out 2; }
+.animate-agent-pulse-cyan { animation: agent-pulse-cyan 1.2s ease-in-out infinite; }
+.animate-agent-pulse-err  { animation: agent-pulse-err 1.2s ease-in-out infinite; }
