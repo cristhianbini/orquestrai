@@ -1,3 +1,7 @@
+## [0.32.8] - 2026-07-03
+### Mudado
+- R6-13.5.2: script b124e6-mas-js removido (MASX orfao). 74 scripts 0 erros, cards OK
+
 ## [0.32.7] - 2026-07-03
 ### Mudado
 - R6-13.5.1: containers mortos #agentes-legacy-unused + #masx-cards removidos. Cards OK, 0 erros novos
