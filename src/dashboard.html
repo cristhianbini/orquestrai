@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-03 00:07:28 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-03 00:19:08 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -2663,28 +2663,10 @@ try{var k='orquestrai_xterminal_notes';var a=JSON.parse(localStorage.getItem(k)|
   }
   function resetAll(){ document.querySelectorAll('.masx-card').forEach(function(c){ c.classList.remove('working','done','error','vetoed'); c.classList.add('idle'); var m=c.querySelector('.ms'); if(m) m.textContent=''; }); }
   window.MASX={setState:setState,resetAll:resetAll};
-  // wrap EventSource para capturar /api/mas/runs/*/events
-  var _ES=window.EventSource;
-  if(_ES && !_ES.__masxWrapped){
-    window.EventSource=function(url,opts){
-      var es=new _ES(url,opts);
-      if(/\/api\/mas\/runs\//.test(String(url))){
-        es.addEventListener('message',function(ev){
-          try{
-            var d=JSON.parse(ev.data||'{}');
-            if(d.type==='run.start') resetAll();
-            else if(d.type==='agent.start' && d.agent) setState(d.agent,'working');
-            else if(d.type==='agent.done' && d.agent) setState(d.agent,'done',{ms:d.latency_ms});
-            else if(d.type==='agent.error' && d.agent) setState(d.agent,'error',{err:d.error});
-            else if(d.type==='agent.vetoed' && d.agent) setState(d.agent,'vetoed');
-          }catch(e){}
-        });
-      }
-      return es;
-    };
-    window.EventSource.__masxWrapped=true;
-    for(var k in _ES) try{ window.EventSource[k]=_ES[k]; }catch(e){}
-  }
+  // R6-13.4.1: hook __masxWrapped removido (interceptava window.EventSource
+  // p/ alimentar .masx-card em #masx-cards, container display:none/fantasma,
+  // substituido pelo AgentPanel React). MASX/setState/resetAll preservados
+  // (estrutura, saem na migracao do container). Quarentena em _arquivados/.
 })();
 </script>
 

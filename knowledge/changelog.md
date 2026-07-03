@@ -1,3 +1,7 @@
+## [0.32.4] - 2026-07-03
+### Mudado
+- R6-13.4.1: hook __masxWrapped removido (alimentava .masx-card fantasma). 75 scripts 0 erros, cards OK
+
 ## [0.32.3] - 2026-07-03
 ### Mudado
 - R6-13.3.2: onCost orfa removida (75 scripts 0 erros, cards OK)
