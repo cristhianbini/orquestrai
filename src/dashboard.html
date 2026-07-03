@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-03 11:46:53 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-03 18:05:25 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -2023,6 +2023,27 @@ function cardHTML(b){
   '</div>';
 }
 
+// R6-15a/b (seguranca): portao unico de confirmacao p/ execucao no PTY root.
+// Centraliza o checkpoint humano usado pelos DOIS botoes EXECUTAR (oq71z-exec
+// L2038 e B94 sendDirect). Retorna true = liberado, false = abortar.
+// Preview do que vai rodar + toggle 'pular nesta sessao' (sessionStorage).
+// CTXUNIFY01/CTXEXEC01 (futuro): unificar tudo num unico execToTerminal().
+window.__b94Confirm = function(cmd){
+  try{
+    cmd = String(cmd||'');
+    if(sessionStorage.getItem('b94_skip_confirm')==='1') return true;
+    var linhas = cmd.split('\n').length;
+    var prev = cmd.split('\n').slice(0,6).join('\n');
+    if(linhas>6) prev += '\n... (+'+(linhas-6)+' linhas)';
+    var msg = 'EXECUTAR direto no terminal ROOT (sem sha256/auditoria).\n\n'
+            + 'Linhas: '+linhas+'\n----\n'+prev+'\n----\n\n'
+            + 'OK = executa agora. Cancelar = aborta.\n'
+            + '(Dica: oqB94NoConfirm() no console pula a confirmacao nesta sessao.)';
+    return !!window.confirm(msg);
+  }catch(e){ console.error('b94Confirm err:',e); return false; }
+};
+window.oqB94NoConfirm = function(){ try{ sessionStorage.setItem('b94_skip_confirm','1'); console.log('B94: confirmacao desligada nesta sessao'); }catch(e){} };
+window.oqB94Confirm   = function(){ try{ sessionStorage.removeItem('b94_skip_confirm'); console.log('B94: confirmacao religada'); }catch(e){} };
 function wireCard(el,b){
   var btC=el.querySelector(".oq71z-copy");
   if(btC) btC.onclick=function(){navigator.clipboard.writeText(b.raw);btC.textContent="COPIADO";setTimeout(function(){btC.textContent="COPIAR"},1200)};
@@ -2035,6 +2056,7 @@ function wireCard(el,b){
       setTimeout(function(){btE.textContent="▶ EXECUTAR";btE.style.background="#0d3a1a";btE.style.color="#7eff9c"},2000);
       return;
     }
+    if(!window.__b94Confirm(b.raw)){ btE.textContent="✗ CANCELADO"; setTimeout(function(){btE.textContent="▶ EXECUTAR"},1500); return; }
     try{ws.send(b.raw+"\n")}catch(e){}
     btE.textContent="✓ ENVIADO"; setTimeout(function(){btE.textContent="▶ EXECUTAR"},1500);
   };
@@ -2446,6 +2468,25 @@ window.OQ_BLOCKS={list:function(){return BLOCKS},clear:function(){BLOCKS=[];seen
   function sendDirect(cmd){
     cmd=String(cmd||'').replace(/\r\n/g,'\n').trim();
     if(!cmd){badge('B94: bloco vazio',true);return false;}
+    // R6-15a (seguranca): checkpoint humano antes de mandar pro PTY root.
+    // O B94 nao passa pelo execBloco (sha256+hash-chain), entao no minimo
+    // exige confirmacao consciente com preview do que vai rodar. Toggle
+    // 'pular nesta sessao' (sessionStorage, expira ao fechar aba) preserva a
+    // fluidez do uso intenso sem abrir mao da protecao por padrao.
+    // R6-15b (futuro/CTXUNIFY01-B): registrar hash na cadeia de auditoria.
+    try{
+      if(sessionStorage.getItem('b94_skip_confirm')!=='1'){
+        var _linhas=cmd.split('\n').length;
+        var _prev=cmd.split('\n').slice(0,6).join('\n');
+        if(_linhas>6)_prev+='\n... (+'+(_linhas-6)+' linhas)';
+        var _msg='EXECUTAR direto no terminal ROOT (sem sha256/auditoria).\n\n'
+                +'Linhas: '+_linhas+'\n----\n'+_prev+'\n----\n\n'
+                +'OK = executa agora. Cancelar = aborta.\n'
+                +'(Dica: rode oqB94NoConfirm() no console p/ pular confirmacao nesta sessao.)';
+        if(!window.confirm(_msg)){ badge('B94: execucao cancelada',true); return false; }
+      }
+    }catch(e){ /* se sessionStorage/confirm falhar, NAO executa sem checkpoint */ 
+      console.error('B94 confirm err:',e); badge('B94: confirmacao falhou',true); return false; }
     var ws=window.oqRealWs;
     if(ws&&ws.readyState===1){
       try{ if(window.oqRealTerm&&window.oqRealTerm.focus)window.oqRealTerm.focus(); }catch(e){}
@@ -2479,6 +2520,9 @@ window.OQ_BLOCKS={list:function(){return BLOCKS},clear:function(){BLOCKS=[];seen
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
   new MutationObserver(function(){try{tick();}catch(e){console.error('B94 tick:',e);}}).observe(document.body,{childList:true,subtree:true,characterData:true});
   setInterval(function(){try{tick();}catch(e){}},1000);
+  // R6-15a: atalho p/ pular a confirmacao nesta sessao (expira ao fechar a aba).
+  window.oqB94NoConfirm=function(){try{sessionStorage.setItem('b94_skip_confirm','1');console.log('B94: confirmacao desligada nesta sessao');}catch(e){}};
+  window.oqB94Confirm=function(){try{sessionStorage.removeItem('b94_skip_confirm');console.log('B94: confirmacao religada');}catch(e){}};
 })();
 </script><script id="b94note">
 try{var k='orquestrai_xterminal_notes';var a=JSON.parse(localStorage.getItem(k)||'[]');a.push({id:'B94-executar-direto-sem-confirmar',t:Date.now(),text:'B94: botão EXECUTAR do card BLOCO LAVE não chama execBloco/confirm; envia o script direto para window.oqRealWs com Enter. Sem modal. Se WS desconectado, só badge e copia fallback.',tag:'orquestrai'});localStorage.setItem(k,JSON.stringify(a).slice(-60000));}catch(e){}
