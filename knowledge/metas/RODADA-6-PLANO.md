@@ -124,3 +124,8 @@ entre cada um. Nunca em lote.
 - [ ] R6-13.3  Remover funcoes orfas onEvt/onCost/paintAg + avaliar __masxWrapped (L2693)
 - [ ] R6-13.4  Avaliar/remover __B187_WRAP (L3014)
 - [ ] R6-13.5  Avaliar/remover origES (L3702)
+
+### Achado pre-existente (nao bloqueia R6-13)
+- insertBefore NotFoundError em dashboard.html:1231 (funcao 'build'): erro
+  PRE-EXISTENTE, confirmado independente do R6-13.2 (persiste apos SyntaxError
+  resolvido). Investigar em sub-sprint futuro. favicon.ico 404 = cosmetico.
