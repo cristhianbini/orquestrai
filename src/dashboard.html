@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-03 05:13:25 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-03 11:46:53 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1482,7 +1482,6 @@ async function send(){
       return tryExtract(B124G5_BUF[ag]);
     }
     /* B124g2_MAS_HANDLER */
-    function masxCard(ag){ return document.querySelector('.masx-card[data-ag="'+ag+'"]'); }
 
 /* B124g5_PULSE */
 var B124G5_MAP={scout:'BATEDOR',auditor:'AUDITOR',detetive:'DETETIVE',smith:'ARQUITETO',guardian:'GUARDIAO',memorialista:'MEMORIALISTA',rel:'RELATOR',metrico:'METRICO'};
@@ -1504,15 +1503,15 @@ function b124g5Apply(ag,state){
   }
 }
 
+    // R6-13.5.3: masxSet reduzido ao caminho VIVO (b124g5Apply anima .oq46y-card).
+    // Tail .masx-card removido — container #masx-cards ja saiu em R6-13.5.x, era morto.
+    // Param 'msg' mantido so p/ compat de assinatura nos call-sites; nao usado hoje.
     function masxSet(ag, state, msg){
       b124g5Apply(ag,state);
-      var c=masxCard(ag); if(!c) return;
-      c.classList.remove('idle','working','ready','error');
-      c.classList.add(state);
-      if(state==='error' && msg){ var m=c.querySelector('.meta'); if(m) m.textContent=String(msg).slice(0,80); }
     }
     function masxResetAll(){
-      ['scout','auditor','smith','guardian','rel'].forEach(function(a){ masxSet(a,'idle'); var c=masxCard(a); if(c){ var m=c.querySelector('.meta'); if(m){ var def={scout:'varredura',auditor:'anomalias',smith:'patch',guardian:'validar',rel:'resumo'}; m.textContent=def[a]||''; } } });
+      // R6-13.5.3: tail .masx-card (def/meta) removido; reset vivo via masxSet->b124g5Apply.
+      ['scout','auditor','smith','guardian','rel'].forEach(function(a){ masxSet(a,'idle'); });
     }
     masxResetAll(); masxSet('scout','working');
     es.onmessage = function(ev){
