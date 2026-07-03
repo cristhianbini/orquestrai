@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-03 00:19:08 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-03 05:00:55 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -3656,23 +3656,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       first.classList.add('ag-waiting');
     }
   }
-  var origES=window.EventSource;
-  window.EventSource=function(url,opts){
-    var es=new origES(url,opts);
-    if(/\/api\/mas\/(events|run)/.test(url)){
-      // CTXSPOT01: markFirstWaiting() removida -- nunca avancava, deixava o card preso em amarelo
-      es.addEventListener('message',function(ev){
-        try{
-          var d=JSON.parse(ev.data);
-          if(d.agent && d.phase){
-            if(d.phase==='start'||d.phase==='running') setState(d.agent,'active');
-            else if(d.phase==='done') setState(d.agent,'done');
-          }
-        }catch(e){}
-      });
-    }
-    return es;
-  };
+  // R6-13.4.2: hook origES removido (interceptava window.EventSource p/
+  // alimentar setState de cards legados escondidos, substituidos pelo React).
   // CTXSPOT04: setTimeout(markFirstWaiting) removidos -- travavam BATEDOR em amarelo permanente na carga da pagina
 })();
 </script>
