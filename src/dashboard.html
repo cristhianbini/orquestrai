@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-04 14:06:33 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-04 14:14:52 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -2473,19 +2473,7 @@ window.OQ_BLOCKS={list:function(){return BLOCKS},clear:function(){BLOCKS=[];seen
     // 'pular nesta sessao' (sessionStorage, expira ao fechar aba) preserva a
     // fluidez do uso intenso sem abrir mao da protecao por padrao.
     // R6-15b (futuro/CTXUNIFY01-B): registrar hash na cadeia de auditoria.
-    try{
-      if(sessionStorage.getItem('b94_skip_confirm')!=='1'){
-        var _linhas=cmd.split('\n').length;
-        var _prev=cmd.split('\n').slice(0,6).join('\n');
-        if(_linhas>6)_prev+='\n... (+'+(_linhas-6)+' linhas)';
-        var _msg='EXECUTAR direto no terminal ROOT (sem sha256/auditoria).\n\n'
-                +'Linhas: '+_linhas+'\n----\n'+_prev+'\n----\n\n'
-                +'OK = executa agora. Cancelar = aborta.\n'
-                +'(Dica: rode oqB94NoConfirm() no console p/ pular confirmacao nesta sessao.)';
-        if(!window.confirm(_msg)){ badge('B94: execucao cancelada',true); return false; }
-      }
-    }catch(e){ /* se sessionStorage/confirm falhar, NAO executa sem checkpoint */ 
-      console.error('B94 confirm err:',e); badge('B94: confirmacao falhou',true); return false; }
+    if(!window.__b94Confirm(cmd)){ badge('B94: execucao cancelada',true); return false; }
     var ws=window.oqRealWs;
     if(ws&&ws.readyState===1){
       try{ if(window.oqRealTerm&&window.oqRealTerm.focus)window.oqRealTerm.focus(); }catch(e){}
