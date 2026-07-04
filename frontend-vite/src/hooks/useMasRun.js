@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-03 17:39:17 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-04 18:43:16 -03:00 (auto, git pre-commit)
 // useMasRun.js — R6-09
 // Estado de um run do MAS: busca o run mais recente (com auth), conecta ao
 // SSE via useSSE, e mantem o estado por agente. Encapsula o que antes vivia
@@ -30,6 +30,15 @@ export function useMasRun() {
           if (id && id !== lastSeenId) {
             lastSeenId = id;
             setRunId(id);
+            // CTXAGTSTATUS01 (bug achado em QA manual 2026-07-04): sem este
+            // reset, liveData da run anterior persistia intacto -- badges
+            // pulavam de "concluido" (residuo da run passada) direto pra
+            // "executando" (evento novo desta run), nunca passando por
+            // "aguardando". So funcionava certo no 1o load da pagina, onde
+            // liveData ja comeca vazio por natureza do useState({}) acima.
+            // Resetar aqui garante que toda run NOVA comece com os 9
+            // agentes em idle ate cada um receber seu proprio evento SSE.
+            setLiveData({});
           }
         })
         .catch(() => { /* sem run ativo ou 401 ja tratado pelo api.js */ });
