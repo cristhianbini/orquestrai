@@ -4,8 +4,8 @@
 > fechada. Se está desatualizado, os demais arquivos também podem estar — mas
 > este é o pulso.
 
-**Última atualização:** `2026-07-04 06:09`
-**Commit de referência:** `6a0a7ea`
+**Última atualização:** `2026-07-04 13:13`
+**Commit de referência:** `2b39bc9`
 
 ---
 
@@ -14,6 +14,7 @@
 - **Rodada 6** em andamento (~15 itens concluídos, ~13 pendentes).
 
 ## Fechado recentemente
+- **Sync dist-island** — artefato buildado (`agent-panel-island.js`, `style.css`) sincronizado com o source já commitado (polling 2s do run_id, estado visual `concluido`, badges animados). Verificado visualmente: 9 agentes em estado concluído. Commit `2b39bc9`.
 
 - **R6-16** — remoção de logs de debug e nota localStorage de produção
   (12 pontos de debug puro removidos; console limpo para auditoria).
@@ -41,11 +42,12 @@ Ordem de prioridade recomendada para o restante da Rodada 6:
 
 ## Pendência técnica aberta neste momento
 
-- `frontend-vite/dist-island/agent-panel-island.js` + `style.css` estão
-  **modificados e não commitados** — rebuild da ilha que já incorpora o polling
-  2s e as melhorias visuais de badge/estado `done`. O **source correspondente
-  já está commitado**; falta só verificar no browser (Ctrl+Shift+R) e commitar o
-  artefato para sincronizar. **Baixo risco**, mas está servido ao vivo.
+- `CTXR616GAP01` (novo, baixo risco) — durante a verificação visual do item
+  acima, observou-se no console que `B101: atalhos instalados` e
+  `[B288] ok. proj=...` ainda aparecem, apesar de listados como removidos no
+  R6-16. Hipótese: âncora não capturou essas ocorrências, ou são pontos
+  distintos dos 12 originais. Investigar antes da próxima rodada de limpeza
+  de debug.
 
 ## Cronograma
 
