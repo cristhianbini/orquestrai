@@ -471,6 +471,28 @@ de conhecimento, regressão end-to-end).
 9. [ ] CTXMODELCOMP01 -- Comparativo de modelos por posição (dado real de agent_executions)
 10. [ ] CTXALERTFAIL01 -- Alerta automático de falhas consecutivas por agente (liga com CTXSSE03)
 
+### Segurança (emergente, fora do plano original -- adicionado retroativamente 2026-07-04)
+
+Trabalho real desta sessão, priorizado sobre o plano de polimento visual por
+conta do prazo da auditoria externa. Não fazia parte do checklist original
+de 10 itens (que seguem 0/10, intactos acima):
+
+- [x] R6-15 -- confirmação humana (window.__b94Confirm) antes de executar
+      no PTY root, unificando os 2 portões (oq71z-exec + B94 sendDirect)
+- [x] R6-16 -- remoção de 12 pontos de debug puro do dashboard.html p/
+      console limpo de auditoria
+- [x] R6-16.1 / CTXR616GAP01 -- 3 dos 12 itens do R6-16 tinham sobrevivido
+      (grep bruto confundia menção com debug real); corrigido + lição
+      registrada em knowledge/licoes/
+- [x] CTXUNIFY01-B (auditoria) -- execuções via oqterm agora registram hash
+      na cadeia de auditoria (endpoint já existia no backend, estava órfão)
+- [x] CTXUNIFY01-B (dedup) -- sendDirect parou de duplicar a lógica de
+      confirmação, agora usa window.__b94Confirm centralizado
+
+Pendente (fora do escopo desta rodada de segurança, registrado p/ futuro):
+- [ ] CTXEXECMODAL01 -- modal customizado substituindo confirm() nativo
+- [ ] R6-14 -- remover MutationObserver pesado sobre document.body
+
 ## 🟢 RODADA 6 PLANEJADA (2026-07-02) — Refatoracao Dashboard React
 
 20 sprints em 6 blocos (fundacao -> vitoria visual -> hooks -> cards -> limpeza -> polish). Execucao: Opus 4.8. Detalhe completo em knowledge/metas/RODADA-6-PLANO.md. Principio: alicerce invisivel antes do acabamento visivel; cada sprint independentemente deployavel; cada card migrado apaga divida legada correspondente.
