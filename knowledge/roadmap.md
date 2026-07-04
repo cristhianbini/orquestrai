@@ -456,7 +456,7 @@ Foco: polimento visual + bateria de testes reais (MAS individual, absorção
 de conhecimento, regressão end-to-end).
 
 ### FÁCIL
-1. [ ] CTXTOPBAR01 -- Topbar mais compacta (fonte menor, ícones)
+1. [x] CTXTOPBAR01 -- Topbar mais compacta (fonte menor, ícones) -- entregue no commit d347b3b (misturado ao commit do CTXAGTSCROLL01 por `git add` amplo; ver knowledge/licoes/CTXGITADDSCOPE01-*.md)
 2. [ ] CTXPROVANIM01 -- Animação suave ao trocar de aba no modal Providers
 3. [ ] CTXMESHTIP01 -- Tooltip de especialidade nos cards Mesh Network (usa SKILL.md já existente)
 

@@ -44,7 +44,7 @@
 ## Em andamento / próximo (os 10 itens reais da Rodada 6)
 
 FÁCIL:
-1. [ ] CTXTOPBAR01 -- Topbar mais compacta
+1. [x] CTXTOPBAR01 -- Topbar mais compacta -- entregue no commit d347b3b (misturado ao CTXAGTSCROLL01 por escopo de `git add` amplo demais; documentado como licao de processo)
 2. [ ] CTXPROVANIM01 -- Animação suave ao trocar de aba (modal Providers)
 3. [ ] CTXMESHTIP01 -- Tooltip de especialidade nos cards Mesh Network
 
