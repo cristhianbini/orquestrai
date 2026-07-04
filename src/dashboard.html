@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-04 05:29:10 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-04 13:24:41 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -2660,8 +2660,6 @@ window.OQ_BLOCKS={list:function(){return BLOCKS},clear:function(){BLOCKS=[];seen
       localStorage.setItem('b101_hint_seen','1');
     }
   }catch(e){}
-  window.__B101={ok:true};
-  console.log('B101: atalhos instalados (Ctrl+Enter, Ctrl+Shift+E)');
 })();
 </script><style id="b119css">
 /* B119: rollback visual seguro — sem position:fixed/split automático. */
@@ -2725,7 +2723,7 @@ window.OQ_BLOCKS={list:function(){return BLOCKS},clear:function(){BLOCKS=[];seen
           }
         }catch(e){console.warn('[B163]',e);}
       };
-      es.onerror=function(){console.log('[B163] SSE end');try{es.close();}catch(_){}};
+      es.onerror=function(){try{es.close();}catch(_){}};
     }).catch(e=>console.warn('[B163] last err',e));
   }
         // CTXUSAR01: mini-modal inline -- substitui prompt/confirm/alert do browser
@@ -3311,7 +3309,6 @@ projs().forEach(function(n){var o=document.createElement('option');o.value=n;o.t
 sel.onchange=function(){s(KC,sel.value);location.reload();};
 w.appendChild(sel);
 if(pb&&pb.parentNode)pb.parentNode.insertBefore(w,pb);else hdr.appendChild(w);
-console.log('[B288] ok. proj=',cur(),'key=',ns());
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build);else build();
 })();</script><!-- B289-START -->
