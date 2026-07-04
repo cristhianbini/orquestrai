@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-04 14:14:52 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-04 18:28:25 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1289,6 +1289,41 @@ button[onclick="send()"]:hover{
       else console.error('[CTXVITE02] AgentPanel island nao carregou');
     });
   </script>
+  <script defer>
+    // CTXAGTSCROLL01: auto-scroll "inteligente" ate o card do agente ativo.
+    // O <aside> e compartilhado com LICOES/METAS (nao e so a lista de agentes),
+    // entao NAO grudamos no fim do scroll -- seguimos o card especifico que
+    // esta em estado "executando" (classe animate-agent-pulse-cyan, unica
+    // pro estado running no island). Respeita rolagem manual do usuario
+    // durante a execucao do agente atual; retoma quando o PROXIMO agente
+    // comeca (novo evento = assume que o usuario quer acompanhar de novo).
+    document.addEventListener('DOMContentLoaded', function(){
+      var container = document.getElementById('oq-agent-panel-island');
+      if(!container) return;
+      var aside = container.closest('aside');
+      if(!aside) return;
+      var userScrolledAway = false;
+      var programmatic = false;
+      var lastActiveEl = null;
+      aside.addEventListener('scroll', function(){
+        if(programmatic){ programmatic = false; return; }
+        userScrolledAway = true;
+      }, {passive:true});
+      function followActive(){
+        var badge = container.querySelector('.animate-agent-pulse-cyan');
+        if(!badge) return;
+        var card = badge.closest('.border.rounded-md') || badge;
+        if(card !== lastActiveEl){
+          lastActiveEl = card;
+          userScrolledAway = false;
+        }
+        if(userScrolledAway) return;
+        programmatic = true;
+        try{ card.scrollIntoView({block:'nearest', behavior:'smooth'}); }catch(e){}
+      }
+      new MutationObserver(followActive).observe(container, {subtree:true, attributes:true, attributeFilter:['class']});
+    });
+  </script>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 </head>
 <body class="h-screen overflow-hidden">
@@ -1763,7 +1798,7 @@ pushChat('sistema','👋 Oi! Sou o OrquestrAI. Me conta o que você precisa — 
 body :is(header,.header,.topbar,.navbar,.dashboard-header,.dash-header,.app-header){
   position:sticky!important;top:0!important;z-index:50!important;
   display:flex!important;align-items:center!important;gap:14px!important;
-  padding:10px 18px!important;min-height:56px!important;
+  padding:8px 14px!important;min-height:44px!important;
   background:linear-gradient(180deg,rgba(12,19,32,.92),rgba(7,11,18,.86))!important;
   backdrop-filter:saturate(140%) blur(10px)!important;-webkit-backdrop-filter:saturate(140%) blur(10px)!important;
   border-bottom:1px solid var(--oq16-line)!important;
@@ -1774,10 +1809,10 @@ body :is(header,.header,.topbar,.navbar,.dashboard-header,.dash-header,.app-head
   gap:8px!important;flex-wrap:wrap!important;margin-left:auto!important;min-width:0!important;
 }
 body :is(header,.header,.topbar,.navbar,.dashboard-header,.dash-header,.app-header) :is(button,a.button,a.btn,.btn,[role="button"]){
-  height:34px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  height:30px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;
   gap:8px!important;padding:0 12px!important;border:1px solid var(--oq16-line2)!important;border-radius:8px!important;
   background:linear-gradient(180deg,#0e1626,#0a111c)!important;color:var(--oq16-text)!important;
-  font:600 12px ui-monospace,SFMono-Regular,Menlo,monospace!important;letter-spacing:.2px!important;
+  font:600 11px ui-monospace,SFMono-Regular,Menlo,monospace!important;letter-spacing:.2px!important;
   cursor:pointer!important;text-decoration:none!important;white-space:nowrap!important;line-height:1!important;
   box-shadow:0 6px 16px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.04)!important;
   transition:border-color .15s,background .15s,color .15s,transform .05s!important;
