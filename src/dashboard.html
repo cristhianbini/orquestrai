@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-03 18:05:25 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-04 05:29:10 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1519,7 +1519,6 @@ function b124g5Apply(ag,state){
       if(!d) return;
       var ag = d.agent || d.role || '';
 /* B155_TOKENS_OQ46 */
-      try{console.log('[B162_DEBUG] SSE',JSON.stringify(d).slice(0,200));}catch(_){}
       if(ag && window.B124G5_MAP && B124G5_MAP[ag]){
         var __nm=B124G5_MAP[ag];
         var __cards=document.querySelectorAll('#agentes .oq46y-card');
@@ -2513,10 +2512,8 @@ window.OQ_BLOCKS={list:function(){return BLOCKS},clear:function(){BLOCKS=[];seen
       made++;
     });
     Array.from(document.querySelectorAll('header button,.panel-head button')).forEach(function(b){if(isRun(b))b.classList.add('b94-hide');});
-    window.__B94={cards:cards,exec:document.querySelectorAll('button['+MARK+']').length,ws:!!(window.oqRealWs&&window.oqRealWs.readyState===1)};
-    if(made)console.log('B94: EXECUTAR direto instalado',window.__B94);
   }
-  function start(){try{tick();badge('B94✓ direto');}catch(e){console.error('B94:',e);}}
+  function start(){try{tick();}catch(e){console.error('B94:',e);}}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
   new MutationObserver(function(){try{tick();}catch(e){console.error('B94 tick:',e);}}).observe(document.body,{childList:true,subtree:true,characterData:true});
   setInterval(function(){try{tick();}catch(e){}},1000);
@@ -2525,7 +2522,7 @@ window.OQ_BLOCKS={list:function(){return BLOCKS},clear:function(){BLOCKS=[];seen
   window.oqB94Confirm=function(){try{sessionStorage.removeItem('b94_skip_confirm');console.log('B94: confirmacao religada');}catch(e){}};
 })();
 </script><script id="b94note">
-try{var k='orquestrai_xterminal_notes';var a=JSON.parse(localStorage.getItem(k)||'[]');a.push({id:'B94-executar-direto-sem-confirmar',t:Date.now(),text:'B94: botão EXECUTAR do card BLOCO LAVE não chama execBloco/confirm; envia o script direto para window.oqRealWs com Enter. Sem modal. Se WS desconectado, só badge e copia fallback.',tag:'orquestrai'});localStorage.setItem(k,JSON.stringify(a).slice(-60000));}catch(e){}
+/* R6-16: nota de debug localStorage removida (producao) */
 </script><style id="b95css">.b95-hide{display:none!important;visibility:hidden!important;width:0!important;height:0!important;padding:0!important;margin:0!important;border:0!important}</style><script id="b95hide">
 (function(){
   function norm(s){return (s||'').replace(/\s+/g,' ').trim().toLowerCase();}
@@ -2599,7 +2596,7 @@ try{var k='orquestrai_xterminal_notes';var a=JSON.parse(localStorage.getItem(k)|
       var t=window.oqRealTerm; if(!t||t.__b100)return;
       if(t.onWriteParsed)t.onWriteParsed(function(){if(pinned){stick();if(Date.now()>until)pinned=false;}});
       else if(t.onRender)t.onRender(function(){if(pinned){stick();if(Date.now()>until)pinned=false;}});
-      t.__b100=true; console.log('B100: hook xterm ok');
+      t.__b100=true; 
     }catch(e){}
   }
   setInterval(function(){hookTerm(); if(pinned){stick(); if(Date.now()>until)pinned=false;}},200);
@@ -2614,7 +2611,7 @@ try{var k='orquestrai_xterminal_notes';var a=JSON.parse(localStorage.getItem(k)|
     }catch(e){}
   },600);
   window.__B100={ok:true};
-  console.log('B100: scroll contínuo instalado');
+  
 })();
 </script><style id="b101css">
 .b101-toast{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);background:#0b1410;color:#7cf09a;border:1px solid #27c93f;font:800 11px/1 ui-monospace,monospace;padding:7px 14px;border-radius:4px;box-shadow:0 0 16px #27c93f66;z-index:999999;letter-spacing:.5px}
@@ -2700,8 +2697,7 @@ try{var k='orquestrai_xterminal_notes';var a=JSON.parse(localStorage.getItem(k)|
 (function(){
   function open(){
     fetch('/api/mas/last',{cache:'no-store',headers:{'Authorization':'Bearer '+(localStorage.getItem('oq_token')||'')}}).then(r=>r.json()).then(j=>{ // CTXMASAUTH01
-      if(!j||!j.run_id){console.log('[B163] sem run');return;}
-      console.log('[B163] attach',j.run_id);
+      if(!j||!j.run_id){return;}
       if(window.__oqMasES){ try{window.__oqMasES.close();}catch(_){} } // CTXSSE02
       var es=window.__oqMasES=new EventSource('/api/mas/events/'+encodeURIComponent(j.run_id)+'?_t='+encodeURIComponent(localStorage.getItem('oq_token')||'')); // CTXMASAUTH01
       var MAP={scout:'Explorador',auditor:'Auditor',detetive:'Detetive',smith:'Codificador',guardian:'Guardião',memorialista:'Memorialista',rel:'Relator',metrico:'Métrico'};
@@ -3301,7 +3297,7 @@ function projs(){try{var v=JSON.parse(g(KL)||'null');if(Array.isArray(v)&&v.leng
 function cur(){var c=g(KC);if(!c){c='orquestrai';s(KC,c);}return c;}
 function ns(){return KB+'::'+cur();}
 var legacy=g(KB);
-if(legacy && !g(KB+'::orquestrai')){s(KB+'::orquestrai',legacy);r(KB);console.log('[B288] migrado legacy -> orquestrai');}
+if(legacy && !g(KB+'::orquestrai')){s(KB+'::orquestrai',legacy);r(KB);}
 SP.getItem=function(k){return k===KB?g(ns()):g(k);};
 SP.setItem=function(k,v){return k===KB?s(ns(),v):s(k,v);};
 SP.removeItem=function(k){return k===KB?r(ns()):r(k);};
@@ -3692,7 +3688,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const r=await fetch('/api/agents/cards');
     const j=await r.json();
     (j.cards||[]).forEach(c=>cards[c.slug]=c);
-    console.log('[B339] cards loaded:',Object.keys(cards).length);
+    
   }catch(e){console.warn('[B339] fetch fail',e);return;}
   function pos(ev){
     const x=Math.min(ev.clientX+16,window.innerWidth-360);
@@ -4388,7 +4384,7 @@ window.oqNovag = {
 
   setInterval(removeOq46yDots, 1000);
 
-  console.log('[B407] bolinha span.oq46y-dot removida');
+  
 })();
 </script>
 <!-- B407 END -->
