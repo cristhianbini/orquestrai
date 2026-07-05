@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-04 23:39:44 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-05 05:28:54 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -264,6 +264,9 @@ var RESERVAS=[
   {pos:25,nm:'tradutor',lbl:'TRADUTOR',col:'#fde68a',fn:'Traducao, localizacao, adaptacao cultural'}
 ]; // CTXRESERVA01: 15 reservas pre-configuradas
 var AGS=[ /*B181_AGS8*/ {nm:'scout',mdl:'claude-haiku-4-5',col:'#7ce7ff',st:'idle',lbl:'BATEDOR'},{nm:'auditor',mdl:'gpt-oss-120b',col:'#a78bfa',st:'idle',lbl:'AUDITOR'},{nm:'detetive',mdl:'claude-sonnet-4-5',col:'#22d3ee',st:'idle',lbl:'DETETIVE'},{nm:'smith',mdl:'claude-sonnet-4-5',col:'#fbbf24',st:'idle',lbl:'ARQUITETO'},{nm:'guardian',mdl:'claude-haiku-4-5',col:'#22c55e',st:'idle',lbl:'GUARDIAO'},{nm:'memorialista',mdl:'zai-glm-4.7',col:'#f472b6',st:'idle',lbl:'MEMORIALISTA'},{nm:'rel',mdl:'claude-haiku-4-5',col:'#60a5fa',st:'idle',lbl:'RELATOR'},{nm:'metrico',mdl:'gpt-oss-120b',col:'#94a3b8',st:'idle',lbl:'METRICO'}];
+/* CTXAGSWIN01: AGS/RESERVAS eram var locais do IIFE -> buildAgtPane lia
+   window.AGS/window.RESERVAS e achava [] (0/11, 0/15). Expor ao window. */
+try{ window.AGS=AGS; window.RESERVAS=RESERVAS; }catch(e){ console.warn('CTXAGSWIN01',e); }
 var AMB=[{nm:'prod',cor:'#22c55e'},{nm:'teste',cor:'#22c55e'},{nm:'release',cor:'#f59e0b'}];
 function paintAg(){var el=document.getElementById('agentes');if(!el)return;var FREE={detetive:1,memorialista:1,metrico:1};el.innerHTML=AGS.map((a,i)=>{var isFree=FREE[a.nm];return '<div class="oq46y-card" data-agent="'+a.nm+'" data-order="'+i+'" title="'+a.mdl+'" style="--ag-col:'+a.col+'"><span class="av" style="background:'+a.col+';box-shadow:0 0 8px '+a.col+'66"></span><span class="nm">'+(a.lbl||a.nm)+'</span><span class="mdl">'+a.mdl+'</span><span class="oq46y-dot '+a.st+'" title="'+a.st+'"></span><span class="tk"><span>tk</span><b>—</b></span>'+(isFree?'<span class="usd free"><span>$</span><b>FREE</b></span>':'<span class="usd"><span>$</span><b>—</b></span>')+'</div>';}).join('');}
 function paintAmb(){var els=document.querySelectorAll('aside .text-xs');els.forEach(function(el){if(el.children.length===2&&el.querySelector('.flex')){var box=el;var rows=box.querySelectorAll('.flex.justify-between');if(rows.length>=3&&rows[0].textContent.includes('prod')){box.innerHTML=AMB.map(a=>'<div class="oq46y-amb"><span><span class="dot" style="color:'+a.cor+';background:'+a.cor+'"></span>'+a.nm+'</span><span style="font-family:ui-monospace,monospace;font-size:9px;color:#5b6b80">live</span></div>').join('');}}});}
