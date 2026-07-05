@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-04 18:28:25 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-04 23:39:44 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -964,7 +964,18 @@ button[onclick="send()"]:hover{
   overflow-x: hidden !important;
   padding: 14px !important;
 }
-#oq10ProvModal .b341d-pane.active{ display:block !important; }
+#oq10ProvModal .b341d-pane.active{
+  display:block !important;
+  /* CTXPROVANIM01: fade-in suave ao trocar de aba. Usa @keyframes (nao
+     transition) de proposito -- transition exige 2 estados computados em
+     sequencia, impossivel de orquestrar limpo entre display:none/block
+     sem JS extra. Animation dispara sozinha no instante em que o elemento
+     passa a existir como block, sem tocar no handler de clique (linha
+     ~3946) nem no layout flex do .oq10-shell (que dependia do
+     display:none remover a pane inativa do calculo de flex). */
+  animation: b341dFadeIn .18s ease !important;
+}
+@keyframes b341dFadeIn{ from{ opacity:0; } to{ opacity:1; } }
 
 /* Pane MODELOS: cabeçalho fixo (filtro/status) + lista rolável */
 #oq10ProvModal .b341d-pane[data-pane="mod"]{
