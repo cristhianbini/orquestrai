@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-05 04:02:02 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-05 04:16:15 -03:00 (auto, git pre-commit)
 // mas/kb.cjs -- CTXKBSHARE01 (2026-07-05)
 // Modulo compartilhado entre mas/agents.mjs (MAS, 9 agentes) e
 // api/providers.cjs (chat individual). Antes, cada caminho tinha sua
@@ -37,7 +37,7 @@ function loadKB(meta){
       return {
         f,
         score: kws.reduce((a, k) => a + (t.includes(k) ? 1 : 0), 0),
-        body: fs.readFileSync(path.join(licDir, f), 'utf8').slice(0, 400),
+        body: fs.readFileSync(path.join(licDir, f), 'utf8').slice(0, 1500),
       };
     }).sort((a, b) => b.score - a.score).slice(0, 5).filter(x => x.score > 0);
     const top = scored.map(x => `### ${x.f}\n${x.body}`).join('\n\n');
