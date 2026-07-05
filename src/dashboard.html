@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-05 06:01:07 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-05 06:25:50 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -3874,7 +3874,40 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script>
 window.__oqOpenNewAgent=function(){if(window.oqNovag)window.oqNovag.open();}; // CTXFIX01
 /* CTXAGTEDIT01 Frac1: stub -- Frac2 liga o pre-preenchimento */
-window.__oqEditAgent=function(slug){alert('editar: '+slug+' (stub Frac1 -- logica na Frac2)');};
+// CTXAGTEDIT01 Frac2: carrega o card real via /api/agents/cards e pre-preenche o form.
+// PORQUE via API e nao via window.AGS: AGS so tem nm/mdl/col/lbl -- os textareas
+// (bom_em/prompt/etc) vivem no AGENT_CARD-<slug>.md. Sem carregar do backend,
+// salvar apagaria esses campos. O slug fica READ-ONLY (e a chave: muda-lo criaria
+// outro agente). _editing sinaliza p/ a Frac3 mandar overwrite:true no save.
+window.__oqEditAgent=function(slug){
+  var TK=localStorage.getItem('oq_token')||localStorage.getItem('token')||'';
+  fetch('/api/agents/cards',{headers:{Authorization:'Bearer '+TK}})
+    .then(function(r){return r.json();})
+    .then(function(j){
+      var card=(j.cards||[]).find(function(c){return c.slug===slug;});
+      if(!card){ alert('agente nao encontrado: '+slug); return; }
+      var m=card.meta||{};
+      var set=function(id,val){var el=document.getElementById(id); if(el) el.value=(val||'');};
+      set('oqn-slug', card.slug);
+      set('oqn-label', m.label_pt);
+      set('oqn-emoji', m.emoji);
+      set('oqn-cor', m.cor||'#ec4899');
+      set('oqn-model', m.modelo);
+      set('oqn-ordem', m.ordem);
+      set('oqn-bom', card.bom_em);
+      set('oqn-ruim', card.ruim_em);
+      set('oqn-quando', card.quando);
+      set('oqn-nao', card.nao_chame);
+      set('oqn-entrega', card.entrega);
+      set('oqn-prompt', card.system_prompt);
+      // slug read-only em modo edicao (e a chave do agente)
+      var sl=document.getElementById('oqn-slug'); if(sl){ sl.readOnly=true; sl.style.opacity='0.6'; }
+      // flag p/ a Frac3: modo edicao -> save mandara overwrite:true
+      if(window.oqNovag) window.oqNovag._editing=slug;
+      if(window.oqNovag) window.oqNovag.open();
+    })
+    .catch(function(e){ alert('erro ao carregar agente: '+(e.message||e)); });
+};
 window.oqNovag = {
   open(){ document.getElementById('oqNovagModal').style.display='flex'; },
   close(){ document.getElementById('oqNovagModal').style.display='none'; document.getElementById('oqn-msg').innerHTML=''; },
