@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-05 06:25:50 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-05 06:31:00 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -3910,16 +3910,29 @@ window.__oqEditAgent=function(slug){
 };
 window.oqNovag = {
   open(){ document.getElementById('oqNovagModal').style.display='flex'; },
-  close(){ document.getElementById('oqNovagModal').style.display='none'; document.getElementById('oqn-msg').innerHTML=''; },
+  close(){ document.getElementById('oqNovagModal').style.display='none'; document.getElementById('oqn-msg').innerHTML=''; this._editing=null; var sl=document.getElementById('oqn-slug'); if(sl){sl.readOnly=false;sl.style.opacity='1';} },  // CTXAGTEDIT01 Frac3: reseta modo edicao
   async save(){
     const v = id => document.getElementById(id).value.trim();
-    const payload = {
-      slug: v('oqn-slug'), label_pt: v('oqn-label'), emoji: v('oqn-emoji')||'🤖',
-      cor: v('oqn-cor'), modelo: v('oqn-model'), ordem: parseInt(v('oqn-ordem'))||99,
-      bom_em: v('oqn-bom'), ruim_em: v('oqn-ruim'),
-      quando: v('oqn-quando'), nao_chame: v('oqn-nao'), entrega: v('oqn-entrega'),
-      system_prompt: v('oqn-prompt')
-    };
+    // CTXAGTEDIT01 Frac3: save seguro em modo edicao.
+    // _editing (setado pelo lapis) sinaliza update -> manda overwrite:true.
+    // Campos VAZIOS sao OMITIDOS do payload (nao enviados): assim o backend
+    // NAO sobrescreve com vazio o que ja existe no card (ex: prompt que vive
+    // em agents.mjs, nao no .md). Evita sujar o card com placeholder.
+    const editing = !!(window.oqNovag && window.oqNovag._editing);
+    const payload = { slug: v('oqn-slug') };
+    var _put=function(k,val){ if(val!=='' && val!=null) payload[k]=val; };
+    _put('label_pt', v('oqn-label'));
+    _put('emoji', v('oqn-emoji'));
+    _put('cor', v('oqn-cor'));
+    _put('modelo', v('oqn-model'));
+    var _ord=parseInt(v('oqn-ordem')); if(!isNaN(_ord)) payload.ordem=_ord;
+    _put('bom_em', v('oqn-bom'));
+    _put('ruim_em', v('oqn-ruim'));
+    _put('quando', v('oqn-quando'));
+    _put('nao_chame', v('oqn-nao'));
+    _put('entrega', v('oqn-entrega'));
+    _put('system_prompt', v('oqn-prompt'));
+    if (editing) payload.overwrite = true;
     const msg = document.getElementById('oqn-msg');
     if (!payload.slug){ msg.innerHTML='<div class="oq-novag-msg err">slug é obrigatório</div>'; return; }
     try {
