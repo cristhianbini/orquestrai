@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-05 14:17:40 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-05 15:05:28 -03:00 (auto, git pre-commit)
 
 // [B220-LOG]
 import { appendFileSync as _appB220 } from "node:fs";
@@ -66,13 +66,25 @@ import { readFileSync, readdirSync, existsSync } from 'fs';
 // -> zero regressao nesta fracao. So passa a ter efeito quando um card for
 // editado/treinado/seed com a secao '## Prompt do sistema'.
 const AGENT_CARDS_DIR = '/app/knowledge/agents';
-function loadAgentCardPrompt(slug){
+function loadAgentCardPrompt(slug, runId){
+  // CTXAGTUNIFY01 Frac2d: instrumentacao p/ PROVAR (nao inferir) que o
+  // pipeline real esta lendo do card. Log so dispara quando ha match --
+  // silencioso no fallback, nao polui runs normais.
+  // CTXAGTUNIFY01 Frac2e: placeholders do formulario ("(role do agente)",
+  // "(preencher)" -- gravados quando o campo chega vazio no save) NAO contam
+  // como prompt real. Sem isso, o auditor rodou em PRODUCAO com o texto
+  // placeholder no lugar do papel de verdade (achado Chat6, causa raiz:
+  // server.js/create regenera o card do zero, sem merge -- ver CTXAGTCARDMERGE01).
   try{
     const file = AGENT_CARDS_DIR + '/AGENT_CARD-' + slug + '.md';
     if(!existsSync(file)) return '';
     const raw = readFileSync(file, 'utf8');
     const m = raw.match(/## Prompt do sistema\n([\s\S]*?)(?=\n## |\n---|$)/);
-    return m ? m[1].trim() : '';
+    if(!m) return '';
+    const content = m[1].trim();
+    if(!content || /^\(.*\)$/.test(content)) return '';
+    if(runId) _log220(runId, slug, 'card-prompt-used', 'chars='+content.length);
+    return content;
   } catch(e){ return ''; }
 }
 import { join } from 'path';
@@ -274,7 +286,7 @@ function buildMemorialistaContext(runResults){
         } catch(eG){ console.error('[B387_GUARDIAN_ERR]', eG && eG.stack || eG); const dE=db(); dE.prepare('INSERT INTO mas_event(run_id,agent,phase,model,tokens_in,tokens_out,latency_ms,cost_usd,output,ts,duration_ms) VALUES(?,?,?,?,?,?,?,?,?,?,?)').run(runId,'guardian','error','regex',0,0,0,0,'[GUARDIAN_CRASH] '+String(eG&&eG.message||eG).slice(0,400),Date.now(),0); dE.close(); bus.emit(runId,{type:'agent.error',run_id:runId,agent:'guardian',error:String(eG&&eG.message||eG),ts:Date.now()}); }
         const agStart=Date.now(); const model=MODEL_BY_AGENT[ag.id]||HAIKU;
         bus.emit(runId,{type:'agent.start',run_id:runId,agent:ag.id,model,ts:Date.now()});
-        /* B124e8_AGENT_ERROR */ let out; try { out=await callLLM(ctx+'\n\n[VOCE E '+ag.id.toUpperCase()+'] '+(loadAgentCardPrompt(ag.id)||ag.role), ag.id, ctx); } catch(eAg){ const errMsg='[AGENT_ERROR] '+ag.id+': '+String(eAg&&eAg.message||eAg).slice(0,300); const dErr=db(); dErr.prepare('INSERT INTO mas_event(run_id,agent,phase,model,tokens_in,tokens_out,latency_ms,cost_usd,output,ts,duration_ms) VALUES(?,?,?,?,?,?,?,?,?,?,?)').run(runId,ag.id,'error',(MODEL_BY_AGENT&&MODEL_BY_AGENT[ag.id])||'unknown',0,0,0,0,errMsg,Date.now(),Date.now()-agStart); dErr.close(); bus.emit(runId,{type:'agent.error',run_id:runId,agent:ag.id,error:errMsg,ts:Date.now()}); out={text:errMsg,model:(MODEL_BY_AGENT&&MODEL_BY_AGENT[ag.id])||'error',tokens_in:0,tokens_out:0,latency_ms:0,cost_usd:0}; }
+        /* B124e8_AGENT_ERROR */ let out; try { out=await callLLM(ctx+'\n\n[VOCE E '+ag.id.toUpperCase()+'] '+(loadAgentCardPrompt(ag.id,runId)||ag.role), ag.id, ctx); } catch(eAg){ const errMsg='[AGENT_ERROR] '+ag.id+': '+String(eAg&&eAg.message||eAg).slice(0,300); const dErr=db(); dErr.prepare('INSERT INTO mas_event(run_id,agent,phase,model,tokens_in,tokens_out,latency_ms,cost_usd,output,ts,duration_ms) VALUES(?,?,?,?,?,?,?,?,?,?,?)').run(runId,ag.id,'error',(MODEL_BY_AGENT&&MODEL_BY_AGENT[ag.id])||'unknown',0,0,0,0,errMsg,Date.now(),Date.now()-agStart); dErr.close(); bus.emit(runId,{type:'agent.error',run_id:runId,agent:ag.id,error:errMsg,ts:Date.now()}); out={text:errMsg,model:(MODEL_BY_AGENT&&MODEL_BY_AGENT[ag.id])||'error',tokens_in:0,tokens_out:0,latency_ms:0,cost_usd:0}; }
         const d2=db();
         d2.prepare('INSERT INTO mas_event(run_id,agent,phase,model,tokens_in,tokens_out,latency_ms,cost_usd,output,ts,duration_ms) VALUES(?,?,?,?,?,?,?,?,?,?,?)')
           .run(runId,ag.id,'done',out.model,out.tokens_in,out.tokens_out,out.latency_ms,out.cost_usd,out.text,Date.now(),Date.now()-agStart);
