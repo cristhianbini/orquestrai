@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-01 22:01:26 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-05 05:38:24 -03:00 (auto, git pre-commit)
 // OQ46Z-v1
 import { createRequire as _oqReq } from "module";
 const _oqRequire = _oqReq(import.meta.url);
@@ -412,7 +412,10 @@ app.get('/api/agents/cards', (req, res) => {
       return { slug, meta,
         bom_em: sec('Bom em'), ruim_em: sec('Ruim em'),
         quando: sec('Quando me chamar'), nao_chame: sec('Não me chame para'),
-        entrega: sec('Entrega típica') };
+        entrega: sec('Entrega típica'),
+        // CTXAGTEDIT01: prompt incluido p/ o lapis carregar o card completo
+        // e nao apagar o system_prompt no overwrite (ver dashboard __oqEditAgent)
+        system_prompt: sec('Prompt do sistema') };
     });
     res.json({ ok: true, count: cards.length, cards });
   } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
