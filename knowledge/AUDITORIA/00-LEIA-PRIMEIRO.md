@@ -31,6 +31,7 @@ cirúrgico por vez, **sem quebrar produção**.
 | `04-STATUS.md` | ★ **VIVO** — estado atual, atualizado a cada tarefa fechada | muda toda hora |
 | `05-PENDENCIAS.md` | Follow-ups catalogados (para o auditor não "descobrir" o que já sabemos) | evolui |
 | `06-COMO-VALIDAR.md` | Passos concretos para o auditor **reproduzir** o que afirmamos | estável |
+| `07-FEEDBACK-AUDITOR/` | Onde colar seus relatórios (nunca edite roadmap/plano direto) | vivo |
 
 ---
 
