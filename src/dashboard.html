@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-05 05:28:54 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-05 06:01:07 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1090,6 +1090,8 @@ button[onclick="send()"]:hover{
         html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">';
         html+='<span style="width:18px;height:18px;border-radius:50%;background:'+a.col+';display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:bold;color:#000;flex-shrink:0">'+(i+1)+'</span>';
         html+='<span style="color:'+a.col+';font:11px ui-monospace,monospace;font-weight:bold">'+a.lbl+'</span>';
+        /* CTXAGTEDIT01 Frac1: lapis de editar (stub) */
+        html+='<button title="Editar" data-slug="'+a.nm+'" onclick="event.stopPropagation();window.__oqEditAgent(this.dataset.slug)" style="margin-left:auto;background:none;border:0;cursor:pointer;color:#6b7280;font-size:12px;padding:0 2px">✏️</button>';
         html+='</div><span style="display:block;color:#6b7280;font:10px ui-monospace,monospace;word-break:break-all">'+a.mdl+'</span></div>';
       });
       for(var v=ags.length;v<slots;v++){
@@ -1134,7 +1136,7 @@ button[onclick="send()"]:hover{
             '<button id="oqMSort" style="padding:3px 10px;border-radius:20px;border:1px solid #3b82f6;background:#1e3a5f;color:#93c5fd;font:11px ui-monospace,monospace;cursor:pointer">ctx ↓</button>'+
           '</div>'+
           '<div id="oqMSt" style="color:#9ca3af;font:11px ui-monospace,monospace"></div>'+
-          '<div id="oqMGr" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px;overflow-y:auto;flex:1"></div>'+
+          '<div id="oqMGr" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px;overflow-y:auto;flex:1"></div>'+
         '</div>';
         var bar=document.getElementById('oqMBar');
         var provs=['groq','openrouter','cerebras','gemini','anthropic','openai'];
@@ -1144,6 +1146,9 @@ button[onclick="send()"]:hover{
         var st={p:'groq',all:[],freeOnly:false,sortCtx:true,q:''};
         function pill(p,act){var b=document.createElement('button');b.textContent=p;b.dataset.p=p;b.style.cssText='padding:3px 10px;border-radius:20px;border:1px solid '+(act?'#7c3aed':'#374151')+';background:'+(act?'#312e81':'#1f2937')+';color:'+(act?'#c4b5fd':'#9ca3af')+';font:11px ui-monospace,monospace;cursor:pointer';b.onclick=function(){bar.querySelectorAll('button').forEach(function(x){x.style.background='#1f2937';x.style.color='#9ca3af';x.style.borderColor='#374151';});b.style.background='#312e81';b.style.color='#c4b5fd';b.style.borderColor='#7c3aed';st.p=p;loadM(p);};return b;}
         function render(){
+          // CTXMODCARD01 Frac2b: cor por provider (identidade visual, igual cards de agente)
+          var PCOL={groq:'#7ce7ff',openrouter:'#a78bfa',cerebras:'#fbbf24',gemini:'#60a5fa',anthropic:'#f472b6',openai:'#22c55e'};
+          var pc=PCOL[st.p]||'#64748b';
           var list=st.all.slice();
           if(st.freeOnly)list=list.filter(function(m){return m.free;});
           if(st.q)list=list.filter(function(m){return m.id.toLowerCase().indexOf(st.q)>=0;});
@@ -1152,12 +1157,15 @@ button[onclick="send()"]:hover{
           var tot=st.all.length,free=st.all.filter(function(m){return m.free;}).length;
           if(el)el.textContent=st.p+' - '+list.length+'/'+tot+' | '+free+' gratuitos';
           if(gr)gr.innerHTML=list.map(function(m){
-            var brd=m.free?'#064e3b':'#1f2937';
+            var brd=m.free?'#10b981':pc;  // CTXMODCARD01 Frac2b: free=verde, resto=cor do provider
             var tags=(m.free?'<span style="font-size:10px;padding:1px 4px;border-radius:3px;background:#064e3b;color:#6ee7b7;border:1px solid #10b981;margin-right:2px">FREE</span>':'')+
               (m.ctx?'<span style="font-size:10px;padding:1px 4px;border-radius:3px;background:#1e3a5f;color:#93c5fd;border:1px solid #3b82f6">'+(m.ctx>=1000?Math.round(m.ctx/1000)+'k':m.ctx)+'</span>':'');
             var _ep=encodeURIComponent(st.p),_em=encodeURIComponent(m.id);
             return '<div style="background:#111827;border:1px solid '+brd+';border-radius:6px;padding:8px;cursor:default">'+
-              '<span style="display:block;color:#e5e7eb;font:11px ui-monospace,monospace;word-break:break-all;margin-bottom:4px">'+m.id+'</span>'+
+              /* CTXMODCARD01 Frac1: nome em 1 linha com ellipsis + title (nome completo
+   no hover). Antes: word-break:break-all quebrava feio no meio da palavra
+   e o grid estreito (180px) cortava. Agora: elegante e nome inteiro no tooltip. */
+              '<span title="'+m.id+'" style="display:block;color:'+pc+';font:11px ui-monospace,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px">'+m.id+'</span>'+
               '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">'+tags+
               '<button data-p="'+_ep+'" data-m="'+_em+'" onclick="window.__oqUsar(decodeURIComponent(this.dataset.p),decodeURIComponent(this.dataset.m))" '+
               'style="margin-left:auto;padding:2px 7px;font:10px ui-monospace,monospace;border:1px solid #374151;background:#1f2937;color:#9ca3af;border-radius:4px;cursor:pointer">usar</button>'+
@@ -3865,6 +3873,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </div>
 <script>
 window.__oqOpenNewAgent=function(){if(window.oqNovag)window.oqNovag.open();}; // CTXFIX01
+/* CTXAGTEDIT01 Frac1: stub -- Frac2 liga o pre-preenchimento */
+window.__oqEditAgent=function(slug){alert('editar: '+slug+' (stub Frac1 -- logica na Frac2)');};
 window.oqNovag = {
   open(){ document.getElementById('oqNovagModal').style.display='flex'; },
   close(){ document.getElementById('oqNovagModal').style.display='none'; document.getElementById('oqn-msg').innerHTML=''; },
