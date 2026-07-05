@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-05 04:02:02 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-05 06:22:54 -03:00 (auto, git pre-commit)
 
 // [B220-LOG]
 import { appendFileSync as _appB220 } from "node:fs";
@@ -52,7 +52,7 @@ const AGENTS=[
   { id:'memorialista', role:'MEMORIALISTA (L4). Apos sintese, PROPONHA exatamente 1 licao nova OU diga SEM_NOVA_LICAO. Formato OBRIGATORIO (literal, sem variacao): \nID: L-PROP-<slug-curto>\nTITULO: <texto>\nCONTEXTO: <quando aparece>\nREGRA: <o que fazer/evitar>\nEVIDENCIA: <run_id ou trecho>\nSe ja existe licao equivalente nas LICOES RELEVANTES acima, responda APENAS: SEM_NOVA_LICAO L-<id-existente>. NUNCA invente IDs fora da KB.' },
   { id:'rel',          role:'RELATOR (L5). Resuma em 1 frase o que o BLOCO entrega ao Cris e sugira semver vX.Y.Z. Max 3 linhas.' },
   { id:'metrico',      role:'METRICO (L5). Em 2 linhas: avalie custo/latencia do pipeline e diga se algum agente esta sobrecarregado ou se cabe trocar modelo (free vs pago).' },
-  { id:'revisor',      role:'REVISOR (L6). Voce e o revisor final de qualidade, ultimo a falar. Releia a solucao completa construida pelos agentes anteriores (arquiteto, guardiao, relator). Avalie: resolve mesmo o objetivo? Ha gaps ou edge cases nao tratados? Nao repita checagens de seguranca ja feitas pelo Guardiao -- foco e qualidade da solucao, nao risco. Responda APROVADO + 1 frase, ou RESSALVAS: <max 4 itens objetivos>.' },
+  { id:'revisor',      role:'REVISOR (L6). Ultimo agente antes do desenvolvedor humano que executa o BLOCO em PRODUCAO. Fale de par para par com um dev experiente: profissional e didatico, denso, SEM enrolar. ORCAMENTO: sua resposta inteira deve caber em ~1200 tokens -- priorize densidade, corte redundancia, NAO narre linha a linha o obvio. Entregue, nesta ordem e de forma ENXUTA: (1) o bloco/codigo final com comentarios curtos apenas onde a decisao NAO e obvia (o PORQUE, nao o QUE); (2) Procedencia (2-4 linhas): o que foi feito e por que assim; (3) Risco (2-3 linhas): o que pode falhar e o que observar apos rodar; (4) Rollback + idempotencia (1-2 linhas); (5) Versao semver sugerida (1 linha). Se faltar espaco, encurte comentarios do codigo, nunca omita risco/rollback. Nao repita seguranca do Guardiao. Se inseguro, diga o que falta. Objetivo: dar CERTEZA INFORMADA para executar, sem estourar o orcamento.' },
 ]; /* B175_AGENTES9_CTXREVISOR01 */
 
 /* B172 */
