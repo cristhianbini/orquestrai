@@ -23,7 +23,7 @@ O OrquestrAI é um cockpit de inteligência artificial **self-hosted**, desenvol
 | Funcionalidade | Status |
 |---|---|
 | Chat individual com memória persistente | ✅ v0.3.0 |
-| Modo MAS (Multi-Agent System) — 8 agentes colaborando | ✅ v0.3.0 |
+| Modo MAS (Multi-Agent System) — 9 agentes colaborando | ✅ v0.3.0 |
 | Memória entre sessões e entre runs do MAS | ✅ v0.3.0 |
 | Terminal web integrado à VPS | ✅ |
 | Protocolo LAVE (Ler → Avaliar → Verificar → Executar) | ✅ |
@@ -59,6 +59,21 @@ O OrquestrAI é um cockpit de inteligência artificial **self-hosted**, desenvol
 │  Dados: /var/www/orquestrai/data/*.sqlite            │
 │  Knowledge: /var/www/orquestrai/knowledge/           │
 └─────────────────────────────────────────────────────┘
+
+> ⚠️ **oqterm** roda FORA do Docker (systemd direto no host, porta 7654) -- terminal PTY root usado pela UI para colar/executar BLOCOs. Nao e gerenciado pelo Compose.
+---
+
+## 🔧 Stack tecnológica
+
+| Camada | Tecnologia |
+|---|---|
+| Backend | Node.js 22 + Express 5 |
+| Banco de dados | SQLite (better-sqlite3) |
+| Frontend | HTML + Tailwind CSS (vanilla JS) |
+| Infraestrutura | Docker Compose + nginx + Let's Encrypt |
+| Versionamento | Git + SemVer (bump-version.sh) |
+| Providers | Anthropic, OpenAI, Google Gemini, Groq, DeepSeek, ZAI, Cerebras, OpenRouter |
+
 ---
 
 ## 🤖 Time de Agentes (MAS)
@@ -112,19 +127,6 @@ docker compose up -d
 ```
 
 Acesse: `https://seu-dominio.com.br`
-
----
-
-## 🔧 Stack tecnológica
-
-| Camada | Tecnologia |
-|---|---|
-| Backend | Node.js 22 + Express 5 |
-| Banco de dados | SQLite (better-sqlite3) |
-| Frontend | HTML + Tailwind CSS (vanilla JS) |
-| Infraestrutura | Docker Compose + nginx + Let's Encrypt |
-| Versionamento | Git + SemVer (bump-version.sh) |
-| Providers | Anthropic, OpenAI, Google Gemini, Groq, DeepSeek, ZAI, Cerebras, OpenRouter |
 
 ---
 
