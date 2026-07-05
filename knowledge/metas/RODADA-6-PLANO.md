@@ -101,7 +101,20 @@ fundido aqui porque R6-20 ja citava CTXMASTEST01/CTXKBABSORB01 como
 - [ ] CTXAGTDASH01    Dashboard de metricas por agente
 - [ ] CTXQAFULL01     Regressao end-to-end (login+2FA, MAS run, verify-chain)
 - [ ] CTXMASTEST01    3-5 cenarios fixos MAS vs. chat individual (= R6-20)
-- [ ] CTXKBABSORB01   Confirmar uso real de KB pelos agentes (= R6-20)
+- [~] CTXKBABSORB01   Confirmar uso real de KB pelos agentes (= R6-20).
+                       PARCIAL 2026-07-05: causa-raiz corrigida E confirmada
+                       em producao, mas absorcao NAO confirmada por run (o
+                       item pede "confirmar uso", nao "corrigir causa").
+                       Causa: mas/kb.cjs:40 truncava o CORPO de cada licao
+                       em 400 chars antes de injetar no prompt (top-5 por
+                       score) -- KB chegava mutilada aos agentes. Corrigido
+                       p/ 1500 (commit 548cde8, via CTXKBSHARE01 que extraiu
+                       loadKB/STACK_CTX/loadManifesto p/ modulo compartilhado,
+                       commit 18ad7f6). Em producao: StartedAt do container
+                       58s apos o commit (timing verificado).
+                       FECHA COMO [x] QUANDO: 1 run de evidencia mostrar um
+                       agente citando conteudo de licao alem dos 400 chars
+                       antigos. Ver knowledge/licoes/L-CTXHANDOFFVERIFY01.md.
 - [ ] CTXMODELCOMP01  Comparativo de modelos por posicao
 - [ ] CTXALERTFAIL01  Alerta de falhas consecutivas por agente
 
