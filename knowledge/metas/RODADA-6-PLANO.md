@@ -120,6 +120,17 @@ fundido aqui porque R6-20 ja citava CTXMASTEST01/CTXKBABSORB01 como
 
 ---
 
+## Backlog estrategico (Metas) -- vive em knowledge/metas/, fora do escopo da R6
+Meta = pedido NOVO fora do sprint atual (taxonomia do Escopo v6.0); so vira
+Pendencia quando entra num sprint. NAO copiadas aqui de proposito -- duplicar
+a lista criaria fonte dupla que desincroniza (mesma divida que fez o
+roadmap.md virar indice). Cada META-*.md em knowledge/metas/ e uma meta.
+Fonte da verdade para enumerar o backlog atual:
+    ls -1 knowledge/metas/META-*.md
+Nota: knowledge/metas/ NAO e vigiado pelo roadmap-autosync -- criar/editar
+uma meta exige git add/commit manual (o autosync cobre licoes/, roadmap.md,
+changelog.md, nao metas/).
+
 ## Criterio de fechamento por sprint
 1. Codigo comentado explicando o PORQUE (nao so o que)
 2. build-island.sh rodado + hash dist == src confirmado
