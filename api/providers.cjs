@@ -1,6 +1,11 @@
-// ATUALIZADO: 2026-07-05 04:02:02 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-05 05:50:09 -03:00 (auto, git pre-commit)
 const fs = require('fs');
-const { loadKB, loadManifesto, STACK_CTX } = require('./mas/kb.cjs');
+// CTXKBREQFIX02: path ABSOLUTO. Este arquivo e require-ado de DOIS contextos
+// (server.js:24 da raiz E server.js:481 como ./api/providers.cjs), fazendo
+// './mas' resolver certo no boot mas ERRADO no handler (500 na aba MODELOS).
+// '../mas' inverte o problema (derruba o boot -> 502). Absoluto resolve nos
+// dois. Dano colateral do CTXKBSHARE01. NAO trocar por relativo.
+const { loadKB, loadManifesto, STACK_CTX } = require('/app/mas/kb.cjs');
 const crypto = require('crypto');
 const FILE = '/var/www/orquestrai/data/providers.json';
 
