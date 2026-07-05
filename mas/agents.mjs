@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-01 11:49:50 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-05 04:02:02 -03:00 (auto, git pre-commit)
 
 // [B220-LOG]
 import { appendFileSync as _appB220 } from "node:fs";
@@ -8,11 +8,7 @@ function _log220(runId,agent,phase,extra=""){
   try{_appB220(_LOG_B220,line);}catch{}
   console.log("[MAS]",line.trim());
 }
-function loadManifesto(){
-  try { return require("node:fs").readFileSync("/app/knowledge/_manifesto/MISSAO.md","utf8"); }
-  catch { return ""; }
-}
-
+import { loadKB, loadManifesto, STACK_CTX } from './kb.cjs';
 import Database from 'better-sqlite3';
 import crypto from 'crypto';
 import { EventEmitter } from 'events';
@@ -45,23 +41,7 @@ const PRICE={
 /* B124g9_LAVE */
 
 /* B124g10_STACK */
-const XMONEX_STACK = `
-CONTEXTO OBRIGATÓRIO — XMonex roda numa VPS Ubuntu 24.04 (host cbini):
-- Stack: Next.js 14 (frontend) + Express 5 ESM (backend) + MySQL 8 + PM2 + Nginx.
-- NÃO É Java, NÃO É Maven, NÃO É Spring, NÃO É Docker/Dockerfile. Não invente esses caminhos.
-- 3 ambientes em paralelo:
-  • PROD    -> /var/www/xmonex/         (xmonex.cbini.com.br)
-  • TESTE   -> /var/www/xmonex_teste/   (teste.xmonex.cbini.com.br)
-  • RELEASE -> /var/www/xmonex_release/ (release.xmonex.cbini.com.br)
-- Pipeline de promoção: /var/www/atualiza/ (Node scripts, último job 19/04, parado há 50d).
-- Backend em /var/www/xmonex*/backend/ com app.js, server.js, routes/, controllers/, models/ (Sequelize), middlewares/.
-- Frontend em /var/www/xmonex*/frontend/ (Next.js, src/app/, src/components/).
-- Banco MySQL: credenciais em backend/.env como DATABASE_HOST, DATABASE_USERNAME, DATABASE_PASSWORD, DATABASE_NAME.
-- Cabeçalho padrão dos .js: bloco "HISTORICO:" (não @version). Parsers em backend/middlewares/Sistema.js.
-- Comandos READ-ONLY típicos: ls, stat, sha256sum, diff, grep -rn, find -mtime, cat, wc -l, sqlite3/mysql -e SELECT, pm2 list.
-PROIBIDO em BLOCO: rm, mv, > (redirect criando arquivo fora /tmp), git push/commit, npm install, systemctl restart, kill, docker.
-TODA variável usada em bash DEVE estar definida no próprio bloco (ex: REPORT=/tmp/audit_$(date +%s).txt antes de usar).
-`;
+
 
 const AGENTS=[
   { id:'scout', role:'EXPLORADOR (L1). Leia OBJETIVO + LICOES RELEVANTES acima. Liste 3 hipoteses concretas (caminhos, comandos, tabelas). Se alguma licao da KB se aplica, cite o ID (ex: L-B70). Max 6 linhas. Sem bash.' },
@@ -79,21 +59,8 @@ const AGENTS=[
 
 import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
-const KB_ROOT=process.env.KB_ROOT||'/app/knowledge';
-function loadKB(meta){
-  try{
-    const idx=existsSync(join(KB_ROOT,'INDEX.md'))?readFileSync(join(KB_ROOT,'INDEX.md'),'utf8').slice(0,2500):'';
-    // top-5 lições por keyword match
-    const kws=(meta||'').toLowerCase().split(/\s+/).filter(w=>w.length>3);
-    const lic=readdirSync(join(KB_ROOT,'licoes')).filter(f=>f.endsWith('.md'));
-    const scored=lic.map(f=>{
-      const t=readFileSync(join(KB_ROOT,'licoes',f),'utf8').toLowerCase();
-      return {f,score:kws.reduce((a,k)=>a+(t.includes(k)?1:0),0),body:readFileSync(join(KB_ROOT,'licoes',f),'utf8').slice(0,400)};
-    }).sort((a,b)=>b.score-a.score).slice(0,5).filter(x=>x.score>0);
-    const top=scored.map(x=>`### ${x.f}\n${x.body}`).join('\n\n');
-    return `\n\n--- KB INDEX (resumo) ---\n${idx}\n\n--- LIÇÕES RELEVANTES ---\n${top||'(nenhuma match)'}`;
-  }catch(e){return '';}
-}
+// STACK_CTX/loadKB/loadManifesto extraidos para mas/kb.cjs (modulo
+// compartilhado com api/providers.cjs -- CTXKBSHARE01, 2026-07-05).
 
 export const bus=new EventEmitter(); bus.setMaxListeners(0);
 function db(){ const d=new Database(DB_PATH); d.pragma('journal_mode=WAL'); return d; }
@@ -201,7 +168,7 @@ async function _callLLM_inner(prompt, agentId='scout', meta=''){
   const __kb = loadManifesto() + "\n\n---\n\n" + loadKB((meta||'')+' '+(prompt||''));
   const rr = await __b124c_P.chat({
     model: fullModel,
-    messages: [{ role: 'system', content: __kb+'\n\n'+XMONEX_STACK }, { role: 'user', content: prompt }],
+    messages: [{ role: 'system', content: __kb+'\n\n'+STACK_CTX }, { role: 'user', content: prompt }],
   });
   const dt = Date.now() - t0;
   const text = String((rr && (rr.content || rr.text || rr.output)) || '').trim();
@@ -219,7 +186,7 @@ async function callClaude(prompt, model, agentId='', meta=''){
   const r=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
     headers:{'x-api-key':key,'anthropic-version':'2023-06-01','content-type':'application/json'},
-    body:JSON.stringify({model,max_tokens:1400,system:`${loadManifesto() + "\n\n---\n\n" + loadKB((meta||'')+' '+(prompt||''))}\n\n${XMONEX_STACK}
+    body:JSON.stringify({model,max_tokens:1400,system:`${loadManifesto() + "\n\n---\n\n" + loadKB((meta||'')+' '+(prompt||''))}\n\n${STACK_CTX}
 Voce e um agente do OrquestrAI no protocolo LAVE (Ler, Avaliar, Verificar, Executar). Responda em PT-BR, tecnico, direto. Siga ESTRITAMENTE o papel do agente. Quando pedirem bash, gere bash real read-only, nunca npm/yarn genericos.`,messages:[{role:'user',content:prompt}]})
   });
   const dt=Date.now()-t0;

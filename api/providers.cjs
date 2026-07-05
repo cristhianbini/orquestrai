@@ -1,5 +1,6 @@
-// ATUALIZADO: 2026-07-01 12:47:48 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-05 04:02:02 -03:00 (auto, git pre-commit)
 const fs = require('fs');
+const { loadKB, loadManifesto, STACK_CTX } = require('./mas/kb.cjs');
 const crypto = require('crypto');
 const FILE = '/var/www/orquestrai/data/providers.json';
 
@@ -36,7 +37,7 @@ function decryptKey(stored){
 }
 
 // OQ-71i SYSTEM LAVE
-const OQ71I_SYS = { role: 'system', content: 'Voce e o OrquestrAI, cockpit de auditoria da VPS cbini (XMonex + servicos). Quando a pergunta pedir comando shell, diagnostico, listagem, correcao, deploy ou qualquer acao executavel na VPS, voce DEVE responder com UM bloco fenceado triple-backtick lave (NAO bash, NAO sh) contendo o comando pronto pra rodar. Formato OBRIGATORIO: tres-crases lave + newline + comandos + newline + tres-crases. O parser do OrquestrAI captura blocos lave e cria card no painel BLOCO LAVE — bash/sh vai para o chat e nao executa. Para explicacao curta use texto normal antes do fence. Sem fence lave = comando perdido.' };
+const OQ71I_SYS = { role: 'system', content: 'Voce e o OrquestrAI, cockpit de auditoria desta VPS. Quando a pergunta pedir comando shell, diagnostico, listagem, correcao, deploy ou qualquer acao executavel na VPS, voce DEVE responder com UM bloco fenceado triple-backtick lave (NAO bash, NAO sh) contendo o comando pronto pra rodar. Formato OBRIGATORIO: tres-crases lave + newline + comandos + newline + tres-crases. O parser do OrquestrAI captura blocos lave e cria card no painel BLOCO LAVE — bash/sh vai para o chat e nao executa. Para explicacao curta use texto normal antes do fence. Sem fence lave = comando perdido.' };
 
 // OQ-71k gemini helper
 function oq71kGeminiBody(messages){ const all = oq71iEnsureSys(messages); const sysTxt = all.filter(m=>m.role==='system').map(m=>m.content).join('\n'); const rest = all.filter(m=>m.role!=='system'); const body = { contents: rest.map(m => ({ role: m.role==='assistant'?'model':'user', parts:[{text:String(m.content||'')}] })) }; if(sysTxt) body.systemInstruction = { parts:[{text: sysTxt}] }; return body; }
@@ -95,7 +96,9 @@ async function chat({ model, messages }){
 
   if(provider === 'anthropic'){ /*OQ46S B53FIX*/
     const sysParts = messages.filter(m=>m.role==='system').map(m=>m.content);
-    const sys = [OQ71I_SYS.content, ...sysParts].filter(Boolean).join('\n') || undefined;
+    const lastUser = [...messages].reverse().find(m=>m.role==='user');
+    const kbBlock = loadManifesto() + "\n\n---\n\n" + loadKB(String((lastUser&&lastUser.content)||'')) + '\n\n' + STACK_CTX;
+    const sys = [OQ71I_SYS.content, kbBlock, ...sysParts].filter(Boolean).join('\n') || undefined;
     const msgs = messages.filter(m=>m.role!=='system').map(m=>({role:m.role==='assistant'?'assistant':'user',content:String(m.content||'')}));
     if(!msgs.length) msgs.push({role:'user',content:'ping'});
     const r = await fetch(ENDPOINTS.anthropic,{ method:'POST', headers:{'Content-Type':'application/json','x-api-key':cfg.key,'anthropic-version':'2023-06-01'}, body: JSON.stringify({model:modelId,max_tokens:1024,system:sys,messages:msgs}) });
