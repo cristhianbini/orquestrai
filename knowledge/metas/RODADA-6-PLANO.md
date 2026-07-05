@@ -95,7 +95,17 @@ fundido aqui porque R6-20 ja citava CTXMASTEST01/CTXKBABSORB01 como
 - [x] CTXTOPBAR01     Topbar mais compacta (CSS, nao confundir com R6-04
                        acima). Commit d347b3b.
 - [ ] CTXPROVANIM01   Animacao suave ao trocar de aba no modal Providers
-- [ ] CTXMESHTIP01    Tooltip de especialidade nos cards Mesh Network
+- [x] CTXMESHTIP01    OBSOLETO 2026-07-05: NAO implementar -- seria redundante.
+                       O card da Mesh JA exibe "Funcao:" por agente (BATEDOR
+                       "Varredura rapida e inicial", GUARDIAO "Protecao e
+                       validacao" etc.), confirmado em producao via screenshot.
+                       A Meta foi escrita antes do campo Funcao existir no card.
+                       Descoberta pela investigacao (grep nao revelava; so o
+                       sistema rodando mostrou) -- ver L-CTXHANDOFFVERIFY01
+                       (fonte da verdade e o sistema em producao, nao a
+                       descricao dele). Tooltip com conteudo NOVO (bom em /
+                       ruim em / quando convocar) fica como possivel Meta
+                       futura quando SKILL.md por agente existir (CTXAGENTTRAIN01).
 - [ ] CTXMESHPERF01   Cards Mesh Network com indicador de desempenho
                        historico (taxa de acerto, ultimas runs)
 - [ ] CTXAGTDASH01    Dashboard de metricas por agente
