@@ -31,7 +31,11 @@ frontend-vite/src/
              em 9 lugares no dashboard)
 
 ## BLOCO B — Primeira vitoria visual (voce VE resultado)
-- [ ] R6-04  Topbar em React (compacta, versao dinamica) -- 1a parede visivel
+- [ ] R6-04  Topbar em React (compacta, versao dinamica) -- 1a parede visivel.
+             NAO CONFUNDIR com CTXTOPBAR01 (feito 2026-07-04, commit
+             d347b3b): aquele foi so CSS compactando o header legado
+             (OQ16_PREMIUM); R6-04 continua pendente -- pede migracao real
+             pra componente React, parte do strangler fig.
 - [ ] R6-05  styles/tokens.css: design tokens centralizados (cores/espacos premium)
 
 ## BLOCO C — Hooks compartilhados (preparam multi-user do futuro)
@@ -51,17 +55,55 @@ frontend-vite/src/
 - [x] R6-12  Remover BLOG_MAS duplicado (2 declaracoes conflitantes)
 - [~] R6-13 (em progresso: .2 de 5 sub-sprints)  Remover wrappers de EventSource empilhados
 - [ ] R6-14  Remover MutationObserver pesado (observe document.body inteiro)
-- [ ] R6-15  Tratar B94 (executar-sem-confirmar): decisao de seguranca --
-             remover ou proteger (fura o modelo do CTXUNIFY01 hoje)
+- [x] R6-15  Tratar B94 (executar-sem-confirmar): decisao de seguranca --
+             remover ou proteger (fura o modelo do CTXUNIFY01 hoje).
+             RESOLVIDO 2026-07-04: confirmacao humana centralizada
+             (window.__b94Confirm) nos 2 portoes (oq71z-exec + B94
+             sendDirect). Commit 160ebde.
 
 ## BLOCO F — Polish + robustez (acabamento sobre base limpa)
-- [ ] R6-16  Remover badges de debug e notas localStorage de producao
+- [x] R6-16  Remover badges de debug e notas localStorage de producao.
+             RESOLVIDO 2026-07-04: 12 pontos removidos (commit 6a0a7ea);
+             3 sobreviventes corrigidos como R6-16.1/CTXR616GAP01 (commits
+             1b02515, eb66d96 -- licao sobre contagem bruta de string vs.
+             deteccao real de debug).
+- [x] R6-16.2 (CTXUNIFY01-B)  Auditoria hash-chain conectada ao oqterm
+             (endpoint ja existia, orfao) + dedup de sendDirect usando
+             window.__b94Confirm centralizado. Commits db1d76e, 86428a4.
+- [x] R6-16.3 (CTXAGTSCROLL01)  Auto-scroll inteligente ate o agente ativo
+             no painel (stick-to-active, respeita rolagem manual). Commit
+             d347b3b (nota: mesmo commit incluiu CTXTOPBAR01 por escopo
+             amplo de git add; ver CTXGITADDSCOPE01 em knowledge/licoes/).
+- [x] R6-16.4 (CTXAGTSTATUS01)  Reset de liveData ao detectar run nova do
+             MAS -- corrige badges presos em "concluido" da run anterior.
+             Commit 54f0f99.
 - [ ] R6-17  Responsividade dos cards
 - [ ] R6-18  Acessibilidade (foco, contraste, teclado)
 - [ ] R6-19  Fundacao multi-user: estrutura de sessao/permissao PREPARADA
              (nao ativada) -- alicerce p/ o futuro de equipes
 - [ ] R6-20  Bateria de testes E2E: MAS vs individual, absorcao de KB
              (o CTXMASTEST01/CTXKBABSORB01 ja desejados)
+
+---
+
+## BLOCO G -- Polimento visual + testes (fundido de roadmap.md em 2026-07-04)
+Escrito originalmente como lista separada em roadmap.md (2026-07-02);
+fundido aqui porque R6-20 ja citava CTXMASTEST01/CTXKBABSORB01 como
+"ja desejados" -- eram o mesmo escopo, documentado em dois lugares
+(ver knowledge/licoes/ para o registro do erro de reconciliacao e correcao).
+
+- [x] CTXTOPBAR01     Topbar mais compacta (CSS, nao confundir com R6-04
+                       acima). Commit d347b3b.
+- [ ] CTXPROVANIM01   Animacao suave ao trocar de aba no modal Providers
+- [ ] CTXMESHTIP01    Tooltip de especialidade nos cards Mesh Network
+- [ ] CTXMESHPERF01   Cards Mesh Network com indicador de desempenho
+                       historico (taxa de acerto, ultimas runs)
+- [ ] CTXAGTDASH01    Dashboard de metricas por agente
+- [ ] CTXQAFULL01     Regressao end-to-end (login+2FA, MAS run, verify-chain)
+- [ ] CTXMASTEST01    3-5 cenarios fixos MAS vs. chat individual (= R6-20)
+- [ ] CTXKBABSORB01   Confirmar uso real de KB pelos agentes (= R6-20)
+- [ ] CTXMODELCOMP01  Comparativo de modelos por posicao
+- [ ] CTXALERTFAIL01  Alerta de falhas consecutivas por agente
 
 ---
 

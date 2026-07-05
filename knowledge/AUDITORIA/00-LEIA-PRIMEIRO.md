@@ -34,6 +34,22 @@ cirúrgico por vez, **sem quebrar produção**.
 
 ---
 
+## Acesso ao repositório
+
+Você tem acesso de leitura **completo ao repositório inteiro** (todo o
+histórico git, `knowledge/licoes/`, `knowledge/metas/`), não só a esta
+pasta. Pontos de entrada úteis:
+
+- `git log --oneline` -- histórico real, incluindo erros e correções (não
+  escondemos retrabalho; é evidência de processo real).
+- `knowledge/licoes/` -- bugs encontrados e corrigidos, causa raiz
+  documentada.
+- `knowledge/metas/RODADA-6-PLANO.md` -- fonte única de verdade do plano
+  técnico da rodada atual (este dossiê resume; aquele é o detalhe
+  granular).
+
+---
+
 ## Filosofia deste dossiê
 
 Preferimos **admitir dívida técnica a escondê-la**. Um sistema "aparentemente

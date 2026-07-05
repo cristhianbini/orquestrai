@@ -452,46 +452,14 @@ do primeiro patch, sessão fresca dedicada.
 
 ## 🟢 Rodada 6 (planejada 2026-07-02, inicia ao fechar Rodada 5 10/10)
 
-Foco: polimento visual + bateria de testes reais (MAS individual, absorção
-de conhecimento, regressão end-to-end).
+Plano tecnico detalhado (blocos A-G, sub-sprints, investigacoes) vive em
+`knowledge/metas/RODADA-6-PLANO.md` -- fonte unica de verdade desta rodada,
+para nao divergir deste indice (ja aconteceu uma vez: ver
+knowledge/licoes/CTXGITADDSCOPE01-*.md e o commit de correcao subsequente).
 
-### FÁCIL
-1. [x] CTXTOPBAR01 -- Topbar mais compacta (fonte menor, ícones) -- entregue no commit d347b3b (misturado ao commit do CTXAGTSCROLL01 por `git add` amplo; ver knowledge/licoes/CTXGITADDSCOPE01-*.md)
-2. [ ] CTXPROVANIM01 -- Animação suave ao trocar de aba no modal Providers
-3. [ ] CTXMESHTIP01 -- Tooltip de especialidade nos cards Mesh Network (usa SKILL.md já existente)
-
-### MÉDIO
-4. [ ] CTXMESHPERF01 -- Cards Mesh Network com indicador de desempenho histórico (taxa de acerto, últimas runs)
-5. [ ] CTXAGTDASH01 -- Dashboard de métricas por agente (runs, sucesso, custo, tempo médio)
-6. [ ] CTXQAFULL01 -- Regressão end-to-end: login+2FA, MAS run completo, verify-chain, cadastro provider
-7. [ ] CTXMASTEST01 -- 3-5 cenários fixos rodados via MAS E via chat individual, resultado gravado em agent_executions p/ comparação
-
-### DIFÍCIL
-8. [ ] CTXKBABSORB01 -- Confirmar se agentes REALMENTE usam knowledge/licoes/ e SKILL.md nas respostas (não só que loadKB() existe)
-9. [ ] CTXMODELCOMP01 -- Comparativo de modelos por posição (dado real de agent_executions)
-10. [ ] CTXALERTFAIL01 -- Alerta automático de falhas consecutivas por agente (liga com CTXSSE03)
-
-### Segurança (emergente, fora do plano original -- adicionado retroativamente 2026-07-04)
-
-Trabalho real desta sessão, priorizado sobre o plano de polimento visual por
-conta do prazo da auditoria externa. Não fazia parte do checklist original
-de 10 itens (que seguem 0/10, intactos acima):
-
-- [x] R6-15 -- confirmação humana (window.__b94Confirm) antes de executar
-      no PTY root, unificando os 2 portões (oq71z-exec + B94 sendDirect)
-- [x] R6-16 -- remoção de 12 pontos de debug puro do dashboard.html p/
-      console limpo de auditoria
-- [x] R6-16.1 / CTXR616GAP01 -- 3 dos 12 itens do R6-16 tinham sobrevivido
-      (grep bruto confundia menção com debug real); corrigido + lição
-      registrada em knowledge/licoes/
-- [x] CTXUNIFY01-B (auditoria) -- execuções via oqterm agora registram hash
-      na cadeia de auditoria (endpoint já existia no backend, estava órfão)
-- [x] CTXUNIFY01-B (dedup) -- sendDirect parou de duplicar a lógica de
-      confirmação, agora usa window.__b94Confirm centralizado
-
-Pendente (fora do escopo desta rodada de segurança, registrado p/ futuro):
-- [ ] CTXEXECMODAL01 -- modal customizado substituindo confirm() nativo
-- [ ] R6-14 -- remover MutationObserver pesado sobre document.body
+Resumo: React island (dashboard.html -> componentes), seguranca de
+execucao no PTY root, limpeza de divida/debug, polimento visual + testes.
+Progresso item-a-item: ver o plano.
 
 ## 🟢 RODADA 6 PLANEJADA (2026-07-02) — Refatoracao Dashboard React
 
