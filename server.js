@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-05 05:38:24 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-06 18:40:06 -03:00 (auto, git pre-commit)
 // OQ46Z-v1
 import { createRequire as _oqReq } from "module";
 const _oqRequire = _oqReq(import.meta.url);
@@ -431,44 +431,105 @@ app.post('/api/agents/create', kbLimiter, authMiddleware, express.json(), (req, 
     const slug = String(b.slug||'').trim().toLowerCase().replace(/[^a-z0-9_-]/g,'');
     if (!slug) return res.status(400).json({ok:false,error:'slug obrigatório'});
     const file = path.join(dir, `AGENT_CARD-${slug}.md`);
-    if (fs.existsSync(file) && !b.overwrite) return res.status(409).json({ok:false,error:'slug já existe (use overwrite:true)'});
+    const exists = fs.existsSync(file);
+    if (exists && !b.overwrite) return res.status(409).json({ok:false,error:'slug já existe (use overwrite:true)'});
+
+    // CTXAGTCARDMERGE01: EDICAO (overwrite:true, arquivo ja existia) reescrevia
+    // o card do ZERO, apagando telemetria real e a secao "Telemetria historica"
+    // (campos que nao vem do form). Achado em producao (Chat6): editar so o
+    // label do AUDITOR apagou 114 amostras. Agora le o card ANTIGO antes de
+    // escrever e preserva esses campos + a secao.
+    let preserved = {};
+    let telemetrySection = '';
+    if (exists) {
+      try {
+        const oldRaw = fs.readFileSync(file, 'utf8');
+        const fm = oldRaw.match(/^---\n([\s\S]*?)\n---/);
+        // CTXAGTCARDMERGE01 Frac4: renomeado de TELEMETRY_FM_KEYS -- escopo ampliado
+        // p/ tambem preservar emoji/cor (identidade visual). Achado (Chat6):
+        // teste via console confirmou que resetavam pro default sem o form.
+        const PRESERVE_FM_KEYS = ['custo_medio_usd','latencia_media_s','tokens_medio','free','versao_card','fonte','emoji','cor'];
+        if (fm) {
+          fm[1].split('\n').forEach(line => {
+            const m = line.match(/^(\w+):\s*"?([^"]*)"?$/);
+            if (m && PRESERVE_FM_KEYS.includes(m[1])) preserved[m[1]] = m[2];
+          });
+          if (!b.modelo) {
+            const mm = fm[1].match(/^modelo_atual:\s*(.*)$/m);
+            if (mm) preserved.modelo_atual = mm[1];
+          }
+        }
+        const tm = oldRaw.match(/## Telemetria histórica\n[\s\S]*$/);
+        if (tm) telemetrySection = '\n' + tm[0].trim() + '\n';
+
+        // CTXAGTCARDMERGE01 Frac2: mesmo principio p/ o Prompt do sistema --
+        // se o card ja tem prompt REAL (nao placeholder) e o form nao manda
+        // um novo, preserva. Achado (Chat6): o form nunca carrega esse campo
+        // corretamente em todos os casos -- editar qualquer campo apagaria
+        // prompts escritos a mao (ex: REVISOR, 883 chars, ja em producao).
+        const pm = oldRaw.match(/## Prompt do sistema\n([\s\S]*?)(?=\n## |\n---|$)/);
+        if (pm) {
+          const oldPrompt = pm[1].trim();
+          if (oldPrompt && !/^\(.*\)$/.test(oldPrompt)) preserved.system_prompt = oldPrompt;
+        }
+
+        // CTXAGTCARDMERGE01 Frac3: mesma protecao para os 5 campos de conteudo.
+        // Achado (Chat6): um teste manual via console (payload minimo, sem
+        // esses campos) provou que o endpoint apagava Bom em/Ruim em/etc pra
+        // "(preencher)" quando o chamador nao manda o campo -- ate agora so
+        // funcionava pq o lapis (frontend) sempre carrega tudo antes de salvar.
+        // Segurança nao deve depender do comportamento correto do cliente.
+        const CONTENT_SECTIONS = {
+          bom_em: 'Bom em', ruim_em: 'Ruim em', quando: 'Quando me chamar',
+          nao_chame: 'Não me chame para', entrega: 'Entrega típica'
+        };
+        for (const [key, header] of Object.entries(CONTENT_SECTIONS)) {
+          const re = new RegExp('## ' + header + '\\n([\\s\\S]*?)(?=\\n## |\\n---|$)');
+          const cm = oldRaw.match(re);
+          if (cm) {
+            const oldVal = cm[1].trim();
+            if (oldVal && oldVal !== '(preencher)' && oldVal !== '- (preencher)') preserved[key] = oldVal;
+          }
+        }
+      } catch(eRead) { console.warn('[CTXAGTCARDMERGE01] falha ao ler card antigo:', eRead.message); }
+    }
     const md = `---
 slug: ${slug}
 label_pt: ${b.label_pt||slug.toUpperCase()}
-emoji: ${b.emoji||'🤖'}
-cor: "${b.cor||'#3b82f6'}"
-modelo_atual: ${b.modelo||'claude-haiku-4-5'}
-custo_medio_usd: 0
-latencia_media_s: 0
-tokens_medio: 0
-free: false
-versao_card: 1.0
+emoji: ${b.emoji||preserved.emoji||'🤖'}
+cor: "${b.cor||preserved.cor||'#3b82f6'}"
+modelo_atual: ${preserved.modelo_atual||b.modelo||'claude-haiku-4-5'}
+custo_medio_usd: ${preserved.custo_medio_usd!==undefined?preserved.custo_medio_usd:0}
+latencia_media_s: ${preserved.latencia_media_s!==undefined?preserved.latencia_media_s:0}
+tokens_medio: ${preserved.tokens_medio!==undefined?preserved.tokens_medio:0}
+free: ${preserved.free!==undefined?preserved.free:false}
+versao_card: ${preserved.versao_card||'1.0'}
 gerado_em: ${new Date().toISOString()}
-fonte: BLOCO-340 (wizard)
+fonte: ${preserved.fonte||'BLOCO-340 (wizard)'}
 ordem_mesh: ${b.ordem||99}
 enabled: ${b.enabled!==false}
 ---
 
-# ${b.emoji||'🤖'} ${b.label_pt||slug.toUpperCase()}
+# ${b.emoji||preserved.emoji||'🤖'} ${b.label_pt||slug.toUpperCase()}
 
 ## Bom em
-${b.bom_em||'- (preencher)'}
+${b.bom_em||preserved.bom_em||'- (preencher)'}
 
 ## Ruim em
-${b.ruim_em||'- (preencher)'}
+${b.ruim_em||preserved.ruim_em||'- (preencher)'}
 
 ## Quando me chamar
-${b.quando||'(preencher)'}
+${b.quando||preserved.quando||'(preencher)'}
 
 ## Não me chame para
-${b.nao_chame||'(preencher)'}
+${b.nao_chame||preserved.nao_chame||'(preencher)'}
 
 ## Entrega típica
-${b.entrega||'(preencher)'}
+${b.entrega||preserved.entrega||'(preencher)'}
 
 ## Prompt do sistema
-${b.system_prompt||'(role do agente)'}
-`;
+${b.system_prompt||preserved.system_prompt||'(role do agente)'}
+${telemetrySection}`;
     fs.writeFileSync(file, md);
     res.json({ok:true, slug, file: file.replace('/app','')});
   } catch (e) { res.status(500).json({ok:false,error:e.message}); }
