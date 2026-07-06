@@ -36,9 +36,6 @@ mapeamento inicial (isso e o Batedor), refactor, execucao
 ## Entrega típica
 - Ate 2 anomalias, cada uma com sintoma/causa/comando de confirmacao, citando ID de licao quando aplicavel
 
-## Prompt do sistema
-(role do agente)
-
 ## Telemetria histórica
 - Modelo: `groq/llama-3.3-70b-versatile`
 - Custo médio/run: $0.00 (free tier)
