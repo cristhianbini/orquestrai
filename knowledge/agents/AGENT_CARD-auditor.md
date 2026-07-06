@@ -9,8 +9,10 @@ latencia_media_s: null
 tokens_medio: 581.0
 free: true
 versao_card: 1.0
-gerado_em: 20260701-193000
+gerado_em: 2026-07-05T18:29:30.700Z
 fonte: CTXSKILL01 (mas/agents.mjs role + telemetria mas_event)
+ordem_mesh: 99
+enabled: true
 ---
 
 # 🔎 AUDITOR
@@ -33,6 +35,9 @@ mapeamento inicial (isso e o Batedor), refactor, execucao
 
 ## Entrega típica
 - Ate 2 anomalias, cada uma com sintoma/causa/comando de confirmacao, citando ID de licao quando aplicavel
+
+## Prompt do sistema
+(role do agente)
 
 ## Telemetria histórica
 - Modelo: `groq/llama-3.3-70b-versatile`
