@@ -97,6 +97,67 @@ os creditos, com contexto ja destilado esperando.
 
 ---
 
+## Visao de Longo Prazo -- Arquitetura de Projetos e Deploy (recebida 2026-07-07)
+
+**Origem:** documento do Bini, "nao prioridade imediata, mas visao de
+evolucao que deve orientar decisoes arquiteturais tomadas AGORA".
+
+### Resumo da visao
+- Criacao de projeto: origem = branco OU clone GitHub (auto-conecta conta,
+  lista repos, clona, analisa stack/framework/docker/deps automaticamente).
+- Todo projeto NASCE containerizado (Dockerfile, compose, .env, rede,
+  volumes, proxy reverso) -- nunca adicionado depois.
+- Acoes simples sem terminal: Criar/Executar/Parar/Reiniciar/Atualizar/Excluir.
+- **Deployment Targets** desacoplados da infra: VPS local, Hostinger, GCP
+  Cloud Run/GKE/Compute, Docker Hub, GHCR, ECS, K8s, Azure, Oracle,
+  DigitalOcean, registry privado -- MESMO projeto publicavel em qualquer um.
+- Build automatizado: 1 botao "Publicar" -> valida/testa/builda/versiona/
+  push/deploy/healthcheck/rollback automatico.
+- Integracoes conectadas 1x (GitHub, GCP, Docker Hub, AWS, Azure, etc.),
+  reutilizadas sempre.
+- Filosofia: "usuario decide, OrquestrAI executa a complexidade" --
+  minimizar terminal ao maximo.
+
+### Analise critica do Claude (contraponto, nao validacao -- mesmo espirito
+### adversarial do parecer_consultivo_orquestrai_v2.md)
+
+**Pontos fortes (concordo):**
+- Import GitHub + analise automatica tem sinergia real e imediata com
+  `CTXRAG01` (GitHub RAG), ja no roadmap. Fazer JUNTO, nao do zero.
+- Desacoplar "onde roda" de "onde publica" e o principio arquitetural
+  certo -- evita reescrever tudo quando o Bini quiser migrar pra GCP.
+
+**Riscos que a visao nao nomeia:**
+- **Multi-cloud e meta, nao requisito hoje** (mesmo padrao ja identificado
+  no parecer v2 sobre "100 IAs"): existe 1 VPS em producao. Construir
+  abstracao pra 10 destinos antes de validar com 2 reais e abstrair sobre
+  hipotese, nao sobre uso -- risco de errar a interface e refatorar de
+  qualquer jeito depois.
+- **Containerizar todo projeto novo por padrao inverte a prioridade
+  "dogfood primeiro"** (principio ja adotado no projeto): o proprio
+  OrquestrAI ainda nao segue esse padrao pra si mesmo (roda direto na VPS,
+  nao em container isolado por projeto). Provar no proprio produto antes
+  de oferecer a clientes/usuarios.
+- **Tensao real com o trabalho de HOJE**: a visao pede "minimizar terminal
+  ao maximo"; esta sessao investiu em melhorar UX do terminal (botoes
+  padronizados, cores). Nao e contradicao, mas precisa de decisao
+  consciente: terminal continua sendo ferramenta core pro operador tecnico
+  (Bini), enquanto GUI cresce pra acoes simples do usuario final? Ou o
+  terminal e um "modo avancado" a ser progressivamente escondido?
+
+**Decisoes de arquitetura a tomar AGORA (fundacao, sem implementar tudo):**
+1. Definir uma interface `DeploymentTarget` (deploy/stop/status/logs) com
+   UMA UNICA implementacao real (VPS atual via Docker Compose) -- padrao
+   Adapter. Adicionar GCP/K8s depois vira extensao, nao reescrita.
+2. Padronizar scaffold de projeto novo pra SEMPRE gerar Dockerfile +
+   docker-compose.yml + .env.example desde o dia 1 (baixo esforco agora,
+   caro de retrofitar depois).
+3. Import GitHub: esperar/juntar com `CTXRAG01` (mesmo escopo, nao duplicar).
+4. NAO construir o pipeline "1 botao Publicar" ate existirem >=2 destinos
+   reais -- validar a abstracao contra 1 alvo so arrisca abstrair errado.
+5. Registrar a tensao terminal-vs-GUI como decisao consciente pendente,
+   nao ignorar.
+
 ## Pendente do Bini
-O Bini vai enviar ideias adicionais de atuacao do Fable na auditoria.
-Incorporar aqui quando chegarem, antes de acionar o modelo.
+Demais ideias trocadas com outra IA, a incorporar aqui conforme chegarem,
+antes de acionar o modelo.
