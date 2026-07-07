@@ -13,9 +13,9 @@
 - [x] 5. Lições cross-projeto (Baileys/XMonex/Next) -> _arquivados/licoes-xmonex/
       (commit 70ef5f4) + L-B109 generalizado p/ Vite/JSX, contexto corrigido
       (commit 4c3aa74)
-- [ ] 6. Dedup L-B235 (2 arquivos, mesma lição) + frontmatter `projeto: orquestrai`
+- [x] 6. Dedup L-B235 (2 arquivos, mesma lição) + frontmatter `projeto: orquestrai`
       em cada lição restante de knowledge/licoes/
-- [ ] 7. loadKB() (mas/kb.cjs) filtra por `projeto:` quando o campo existir +
+- [x] 7. loadKB() (mas/kb.cjs) filtra por `projeto:` quando o campo existir +
       corrige leitura dupla do arquivo (ler 1x, derivar score e body)
 
 **PENDENTE (não bloqueia o resto):** rodar 1 run MAS de fumaça no dashboard
