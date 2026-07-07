@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-07 15:31:11 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-07 15:45:01 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1167,8 +1167,8 @@ button[onclick="send()"]:hover{
         html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span style="width:8px;height:8px;border-radius:50%;background:'+r.col+';flex-shrink:0;display:inline-block"></span>';
         // Badge R# -- numeracao tatica visivel (analogia futebol: escalacao do banco)
         html+='<span style="background:'+r.col+'22;color:'+r.col+';font:9px ui-monospace,monospace;font-weight:bold;border-radius:3px;padding:0 4px;flex-shrink:0">R'+(r.r||'?')+'</span>';
-        html+='<span style="color:'+r.col+';font:11px ui-monospace,monospace;font-weight:bold">'+r.lbl+'</span>';
-        html+='<button title="Promover p/ titular" onclick="event.stopPropagation();window.__oqUsar(\'anthropic\',\'claude-haiku-4-5\',\''+r.lbl+'\')" style="margin-left:auto;background:none;border:1px solid #22c55e55;border-radius:4px;cursor:pointer;color:#22c55e;font:9px ui-monospace,monospace;padding:1px 6px">usar</button>';
+        html+='<span style="color:'+r.col+';font:11px ui-monospace,monospace;font-weight:bold;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r.lbl+'</span>';
+        html+='<button title="Promover p/ titular" onclick="event.stopPropagation();window.__oqUsar(\'anthropic\',\'claude-haiku-4-5\',\''+r.lbl+'\')" style="margin-left:auto;flex-shrink:0;background:none;border:1px solid #22c55e55;border-radius:4px;cursor:pointer;color:#22c55e;font:9px ui-monospace,monospace;padding:1px 6px">usar</button>';
         html+='</div>';
         html+='<span style="display:block;color:#4b5563;font:10px ui-monospace,monospace;line-height:1.3">'+r.fn+'</span></div>';
       });

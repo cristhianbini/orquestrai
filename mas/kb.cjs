@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-07 09:20:24 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-07 15:45:01 -03:00 (auto, git pre-commit)
 // mas/kb.cjs -- CTXKBSHARE01 (2026-07-05)
 // Modulo compartilhado entre mas/agents.mjs (MAS, 9 agentes) e
 // api/providers.cjs (chat individual). Antes, cada caminho tinha sua
@@ -25,7 +25,13 @@ function loadManifesto(){
   catch { return ''; }
 }
 
-function loadKB(meta){
+// CTXMEMKB01 (2026-07-07): opts opcionais {topN, bodyCap} -- o system de
+// 11.6k chars (KB 9.2k dominava) estourava o free tier do cerebras p/ o
+// memorialista (400 'reduce the length', persistiu apos CTXMEMCTX01 provar
+// que o runContext era so ~10% do volume). Agentes que PRODUZEM licao
+// (memorialista) precisam de MENOS KB que agentes que CONSOMEM (detetive).
+// Sem opts = comportamento identico ao anterior (zero regressao).
+function loadKB(meta, opts){
   try{
     const idxPath = path.join(KB_ROOT, 'INDEX.md');
     const idx = fs.existsSync(idxPath) ? fs.readFileSync(idxPath, 'utf8').slice(0, 2500) : '';
@@ -45,9 +51,9 @@ function loadKB(meta){
       return {
         f,
         score: kws.reduce((a, k) => a + (t.includes(k) ? 1 : 0), 0),
-        body: raw.slice(0, 1500),
+        body: raw.slice(0, (opts&&opts.bodyCap)||1500),
       };
-    }).filter(Boolean).sort((a, b) => b.score - a.score).slice(0, 5).filter(x => x.score > 0);
+    }).filter(Boolean).sort((a, b) => b.score - a.score).slice(0, (opts&&opts.topN)||5).filter(x => x.score > 0);
     const top = scored.map(x => `### ${x.f}\n${x.body}`).join('\n\n');
     return `\n\n--- KB INDEX (resumo) ---\n${idx}\n\n--- LICOES RELEVANTES ---\n${top || '(nenhuma match)'}`;
   } catch (e) { return ''; }

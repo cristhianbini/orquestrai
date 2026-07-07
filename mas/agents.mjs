@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-05 15:05:28 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-07 15:45:01 -03:00 (auto, git pre-commit)
 
 // [B220-LOG]
 import { appendFileSync as _appB220 } from "node:fs";
@@ -194,7 +194,11 @@ async function _callLLM_inner(prompt, agentId='scout', meta=''){
   }
   const t0 = Date.now();
   const fullModel = route.provider + '/' + route.model;
-  const __kb = loadManifesto() + "\n\n---\n\n" + loadKB((meta||'')+' '+(prompt||''));
+  // CTXMEMKB01: memorialista PRODUZ licao (nao consome KB extensa) e roda em
+  // free tier com limite curto -- recebe top-2 licoes de 600 chars (~1.5k)
+  // em vez de top-5 de 1500 (~9k). Demais agentes: KB completa (inalterado).
+  const __kbOpts = (agentId === 'memorialista') ? { topN: 2, bodyCap: 600 } : undefined;
+  const __kb = loadManifesto() + "\n\n---\n\n" + loadKB((meta||'')+' '+(prompt||''), __kbOpts);
   const rr = await __b124c_P.chat({
     model: fullModel,
     messages: [{ role: 'system', content: __kb+'\n\n'+STACK_CTX }, { role: 'user', content: prompt }],
@@ -240,11 +244,19 @@ export async function runMas(goal){
       console.log('[B236] AGENTS len=', AGENTS.length, 'ids=', AGENTS.map(a=>a.id));
   
 // B238_MEM_CTX — enriquece prompt do memorialista com run summary
+// CTXMEMCTX01 (2026-07-07): 1500 chars/agente x 8 agentes (~12k) + KB (7.5k)
+// + STACK_CTX estourava o limite de input do zai-glm no free tier do cerebras
+// (erro 400 'reduce the length', 3 runs no mesmo dia). O memorialista NAO
+// precisa reler o run inteiro -- o papel dele e' destilar 1 licao. Recebe:
+// 300 chars/agente (o suficiente p/ identificar acerto/erro/padrao) + o
+// veredito integral do guardian (a informacao mais densa p/ licao).
 function buildMemorialistaContext(runResults){
-  const lines = ['=== RUN COMPLETO (todos agentes) ===\n'];
+  const lines = ['=== RESUMO DO RUN (destilado p/ licao) ===\n'];
   for(const r of runResults){
     const head = `--- ${r.agent} (${r.model||'?'}) ---`;
-    const body = (r.output||'').slice(0, 1500);
+    // guardian integral (ate 800): vetos/aprovacoes sao a materia-prima da licao
+    const cap = r.agent === 'guardian' ? 800 : 300;
+    const body = (r.output||'').slice(0, cap);
     lines.push(head + '\n' + body + '\n');
   }
   return lines.join('\n');
