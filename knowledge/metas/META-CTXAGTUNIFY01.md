@@ -1,7 +1,7 @@
 # META-CTXAGTUNIFY01 — Fonte unica do agente (card .md alimenta tudo)
 
 **Registrado:** 2026-07-05 (Chat6)
-**Prioridade:** ALTA — bloqueia seed, treinar e escalar-reserva
+**Prioridade:** ~~ALTA~~ CONCLUIDA 2026-07-05/07 (cadeia fechada no commit 62dac7e; ver git log CTXAGTUNIFY01 F1-F4)
 **Depende de:** nada (e a fundacao, deve vir antes das 3 ideias abaixo)
 
 ## Problema (fonte dupla que desincroniza)
