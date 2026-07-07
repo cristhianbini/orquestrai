@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-06 18:40:06 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-06 23:53:45 -03:00 (auto, git pre-commit)
 // OQ46Z-v1
 import { createRequire as _oqReq } from "module";
 const _oqRequire = _oqReq(import.meta.url);
@@ -535,6 +535,34 @@ ${telemetrySection}`;
   } catch (e) { res.status(500).json({ok:false,error:e.message}); }
 });
 
+// CTXAGTTRAIN01: usa Opus p/ sugerir melhoria dos campos de um agente.
+// NUNCA salva sozinho -- devolve sugestao pro form, humano revisa e clica
+// Cadastrar (reaproveita o fluxo ja protegido do lapis/CTXAGTCARDMERGE01).
+app.post('/api/agents/train', kbLimiter, authMiddleware, express.json(), async (req, res) => {
+  const fs = require('fs'), path = require('path');
+  try {
+    const slug = String((req.body||{}).slug||'').trim().toLowerCase();
+    if(!slug) return res.status(400).json({ok:false,error:'slug obrigatorio'});
+    const file = path.join('/app/knowledge/agents', `AGENT_CARD-${slug}.md`);
+    if(!fs.existsSync(file)) return res.status(404).json({ok:false,error:'card nao encontrado: '+slug});
+    const raw = fs.readFileSync(file,'utf8');
+    const sec = (title) => { const m = raw.match(new RegExp('## '+title+'\\n([\\s\\S]*?)(?=\\n## |\\n---|$)')); return m?m[1].trim():''; };
+    const current = {
+      bom_em: sec('Bom em'), ruim_em: sec('Ruim em'), quando: sec('Quando me chamar'),
+      nao_chame: sec('Não me chame para'), entrega: sec('Entrega típica'),
+      system_prompt: sec('Prompt do sistema'),
+    };
+    const instructions = "Voce e um engenheiro senior melhorando a definicao de um agente de IA num pipeline multi-agente (OrquestrAI). Abaixo esta a definicao ATUAL do agente '"+slug+"'. Melhore CADA campo mantendo a INTENCAO original -- nao invente funcao nova, refine clareza/objetividade/completude. Responda APENAS com JSON valido, sem markdown, com EXATAMENTE estas chaves: bom_em, ruim_em, quando, nao_chame, entrega, system_prompt. bom_em/ruim_em em bullets '- texto' (1 por linha). Demais campos, texto corrido curto.";
+    const out = await Providers.chat({ model:'anthropic/claude-opus-4-8', max_tokens:3000, messages:[
+      {role:'system', content: instructions},
+      {role:'user', content: JSON.stringify(current, null, 2)}
+    ]});
+    let text = String(out&&out.content||'').trim().replace(/^```\w*\s*/,'').replace(/```\s*$/,'').trim();
+    let parsed;
+    try{ parsed = JSON.parse(text); } catch(eJ){ return res.status(502).json({ok:false,error:'resposta do modelo nao eh JSON valido', raw:text.slice(0,500)}); }
+    res.json({ok:true, slug, current, suggestion:parsed});
+  } catch(e){ res.status(500).json({ok:false,error:e.message}); }
+});
 
 // B342b-MODELS-START
 app.get("/api/providers/:id/models", authMiddleware, async (req,res)=>{

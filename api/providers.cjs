@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-05 05:50:09 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-06 23:53:45 -03:00 (auto, git pre-commit)
 const fs = require('fs');
 // CTXKBREQFIX02: path ABSOLUTO. Este arquivo e require-ado de DOIS contextos
 // (server.js:24 da raiz E server.js:481 como ./api/providers.cjs), fazendo
@@ -90,7 +90,7 @@ const ENDPOINTS = {
   gemini:     'https://generativelanguage.googleapis.com/v1beta'
 };/*OQ46Y*/
 
-async function chat({ model, messages }){
+async function chat({ model, messages, max_tokens }){
   const d = load();
   const [provider, ...rest] = String(model||'').split('/');
   const modelId = rest.join('/');
@@ -106,7 +106,7 @@ async function chat({ model, messages }){
     const sys = [OQ71I_SYS.content, kbBlock, ...sysParts].filter(Boolean).join('\n') || undefined;
     const msgs = messages.filter(m=>m.role!=='system').map(m=>({role:m.role==='assistant'?'assistant':'user',content:String(m.content||'')}));
     if(!msgs.length) msgs.push({role:'user',content:'ping'});
-    const r = await fetch(ENDPOINTS.anthropic,{ method:'POST', headers:{'Content-Type':'application/json','x-api-key':cfg.key,'anthropic-version':'2023-06-01'}, body: JSON.stringify({model:modelId,max_tokens:1024,system:sys,messages:msgs}) });
+    const r = await fetch(ENDPOINTS.anthropic,{ method:'POST', headers:{'Content-Type':'application/json','x-api-key':cfg.key,'anthropic-version':'2023-06-01'}, body: JSON.stringify({model:modelId,max_tokens:(max_tokens||1024),system:sys,messages:msgs}) });
     if(!r.ok) throw new Error('anthropic '+r.status+': '+(await r.text()).slice(0,300));
     const j = await r.json();
     return { content: (j && j.content && j.content.map(c=>c.text).join('')) || '' };
