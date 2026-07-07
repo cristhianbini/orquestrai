@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-06 23:18:36 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-06 23:26:25 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -229,23 +229,25 @@ aside .panel,aside.panel{background:linear-gradient(180deg,#070b12,#0a1119)}
 /*OQ46Y2-END*/</style>
 <script>/*OQ46Y2-START*/ /*OQ46Y2-v1*/
 (function(){
-// CTXAGT03: sobrescreve AGS com posicoes salvas no banco ao carregar
-(function(){
+// CTXAGT03/CTXUSARFIX01: aplica posicoes salvas no banco sobre o AGS.
+// Virou funcao nomeada (era IIFE auto-executada) p/ rodar DEPOIS da hidratacao
+// de cards (F2) -- antes havia race: quem terminava por ultimo vencia.
+// Tambem corrige: idx>=AGS.length era ignorado (reserva p/ slot #10/#11
+// nunca aparecia). Cor do REVISOR corrigida p/ bater com o card real (#c084fc).
+window.applyPositionOverrides = function(){
   var tk=localStorage.getItem('oq_token')||localStorage.getItem('token')||'';
-  if(!tk) return;
-  fetch('/api/agents/positions',{headers:{Authorization:'Bearer '+tk}}).then(function(r){return r.json();}).then(function(d){
+  if(!tk) return Promise.resolve();
+  return fetch('/api/agents/positions',{headers:{Authorization:'Bearer '+tk}}).then(function(r){return r.json();}).then(function(d){
     if(!d.ok||!d.positions||!d.positions.length) return;
-    var map={'BATEDOR':'#7ce7ff','AUDITOR':'#a78bfa','DETETIVE':'#22d3ee','ARQUITETO':'#fbbf24','GUARDIAO':'#22c55e','MEMORIALISTA':'#f472b6','RELATOR':'#60a5fa','METRICO':'#94a3b8','REVISOR':'#f87171','#10':'#6b7280','#11':'#6b7280'};
-    var nm_map={'BATEDOR':'scout','AUDITOR':'auditor','DETETIVE':'detetive','ARQUITETO':'smith','GUARDIAO':'guardian','MEMORIALISTA':'memorialista','RELATOR':'rel','METRICO':'metrico','REVISOR':'revisor','#10':'pos10','#11':'pos11'};
+    var map={'BATEDOR':'#7ce7ff','AUDITOR':'#a78bfa','DETETIVE':'#22d3ee','ARQUITETO':'#fbbf24','GUARDIAO':'#22c55e','MEMORIALISTA':'#f472b6','RELATOR':'#60a5fa','METRICO':'#94a3b8','REVISOR':'#c084fc','#10':'#6b7280','#11':'#6b7280'};
     d.positions.forEach(function(row){
-      var idx=row.position;
-      if(idx>=0 && idx<window.AGS.length){
-        window.AGS[idx].mdl = (row.provider && row.provider!=='' ? row.provider+'/' : '') + row.model;
-        if(row.label && map[row.label]) window.AGS[idx].col=map[row.label];
-      }
+      var idx=row.position; if(idx<0) return;
+      while(window.AGS.length<=idx){ window.AGS.push({nm:'pos'+window.AGS.length,mdl:'—',col:'#6b7280',st:'idle',lbl:'#'+(window.AGS.length+1)}); }
+      window.AGS[idx].mdl=(row.provider&&row.provider!==''?row.provider+'/':'')+row.model;
+      if(row.label){ window.AGS[idx].lbl=row.label; if(map[row.label]) window.AGS[idx].col=map[row.label]; }
     });
   }).catch(function(){});
-})();
+};
 var RESERVAS=[
   {pos:11,nm:'pesquisador',lbl:'PESQUISADOR',col:'#34d399',fn:'Busca RAG em fontes externas, GitHub, docs'},
   {pos:12,nm:'designer',lbl:'DESIGNER',col:'#fb923c',fn:'UI/UX, visual consistency, paleta, tipografia'},
@@ -299,12 +301,14 @@ function paintAmb(){var els=document.querySelectorAll('aside .text-xs');els.forE
 function paintLic(items){var el=document.getElementById('licoes');if(!el)return;if(!items||!items.length){el.innerHTML='<li class="oq46y-licao" style="opacity:.6"><span class="lid">--</span><span class="ltx">sem licoes ainda em /knowledge/licoes</span></li>';return;}el.innerHTML=items.slice(0,10).map(it=>'<li class="oq46y-licao" title="'+(it.file||'')+'"><span class="lid">'+(it.id||'·')+'</span><span class="ltx">'+(it.title||it.file)+'</span></li>').join('');}
 async function loadLic(){try{var t=localStorage.getItem('token');var r=await fetch('/api/knowledge/licoes',{headers:t?{'Authorization':'Bearer '+t}:{}});if(!r.ok)throw 0;var j=await r.json();paintLic(j.items||[]);}catch(e){/*fallback hardcoded*/}}
 function boot(){paintAg();paintAmb();loadLic();
-  /* CTXAGTUNIFY01 F2: liga hidratacao ao boot. paintAg() acima ja renderizou
-     SINCRONO com AGS hardcoded (sem tela vazia). Aqui busca dados frescos dos
-     cards e re-renderiza. Fallback: se falhar, mantem o hardcoded. */
-  if(window.hydrateAGSFromCards){ window.hydrateAGSFromCards().then(function(r){
-    if(r&&r.ok&&r.ags&&r.ags.length){ try{ window.AGS.length=0; r.ags.forEach(function(a){window.AGS.push(a);}); paintAg(); var ap=document.getElementById('agtPane'); }catch(e){ console.warn('CTXAGTUNIFY01 F2 hydrate falhou, mantendo hardcoded',e); } }
-  }); }
+  /* CTXAGTUNIFY01 F2+CTXUSARFIX01: ordem determinista -- hidrata cards,
+     DEPOIS aplica overrides de posicao (reserva promovida), SO ENTAO repinta.
+     Antes: CTXAGT03 rodava em paralelo (race) e o F2 nunca repintava agtPane. */
+  var _p = window.hydrateAGSFromCards ? window.hydrateAGSFromCards().then(function(r){
+    if(r&&r.ok&&r.ags&&r.ags.length){ try{ window.AGS.length=0; r.ags.forEach(function(a){window.AGS.push(a);}); }catch(e){ console.warn('CTXAGTUNIFY01 F2 hydrate falhou',e); } }
+  }) : Promise.resolve();
+  _p.then(function(){ return window.applyPositionOverrides ? window.applyPositionOverrides() : null; })
+    .then(function(){ paintAg(); var ap=document.getElementById('agtPane'); if(ap) ap.innerHTML=buildAgtPane(); });
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 window.OQ46Y={refresh:boot};
