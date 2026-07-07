@@ -54,6 +54,38 @@ Este é o gotcha arquitetural mais importante para quem for mexer no frontend:
 > `#oq-agent-panel-island` (React), **não** `#agentes` (legado, oculto).
 > Confundir os dois já causou múltiplos desvios de diagnóstico.
 
+### Um TERCEIRO sistema, distinto dos dois acima (adicionado 2026-07-07)
+
+Os dois sistemas acima tratam de **visualização de execução** (o card que
+aparece rodando/concluído durante uma run MAS). Existe um sistema **separado
+e ATIVO**, com propósito diferente: **configuração** dos agentes (não
+execução) -- ainda dentro do `dashboard.html` monolítico, NÃO migrado, mas
+plenamente funcional em produção.
+
+- **Onde:** modal "Provedores de IA" → aba "AGENTES" → `agtPane`
+  (`buildAgtPane()` em `dashboard.html`).
+- **O que faz:** lista TITULAR (9/11 hoje) + RESERVA (15/15), lápis de
+  edição (`__oqEditAgent`), botão "usar" para promover reserva→titular,
+  botão "Treinar" (chama Opus via `/api/agents/train`).
+- **Fonte de dados real:** `AGENT_CARD-<slug>.md` em `knowledge/agents/`
+  (frontmatter + seções markdown), servidos por `/api/agents/cards` e
+  gravados por `/api/agents/create` (`server.js`).
+- **Por que importa para o auditor:** todo o trabalho de unificação de
+  fonte (CTXAGTUNIFY01), proteção contra perda de dados na edição
+  (CTXAGTCARDMERGE01), seed de prompts reais nos 9 agentes, e os botões
+  Treinar/Usar aconteceram **aqui**, não no React island. Auditar
+  "o painel de agentes" sem saber que existem estes dois sistemas
+  paralelos (config vs. execução) leva a conclusões erradas sobre o que
+  já foi resolvido.
+
+**Resumo dos TRÊS sistemas:**
+
+| Sistema | Propósito | Estado | Onde |
+|---|---|---|---|
+| `#agentes`/`#masx-cards` | (histórico) execução | morto, `display:none` | dashboard.html legado |
+| `#oq-agent-panel-island` | execução ao vivo (SSE) | migrado, React | frontend-vite/ |
+| `agtPane` (aba AGENTES) | **configuração** de agentes | ativo, legado (não migrado) | dashboard.html |
+
 ---
 
 ## Fluxo SSE (Server-Sent Events) — eventos ao vivo do MAS
