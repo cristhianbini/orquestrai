@@ -1,4 +1,5 @@
 # L-RATELIM02 — mas/routes.mjs: rate limit aplicado, achado novo de auth
+PROJETO: orquestrai
 
 **Data:** 2026-07-01
 **Contexto:** CTXRATELIM02

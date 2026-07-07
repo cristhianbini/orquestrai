@@ -1,4 +1,5 @@
 # L-AUDITOR01 — Agente Auditor relatou vulnerabilidade que nao existia
+PROJETO: orquestrai
 
 **Data:** 2026-07-01
 **Contexto:** achado ao vivo durante debug do CTXVITE02

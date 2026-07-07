@@ -1,4 +1,5 @@
 ID: L-LAVE-protocolo
+PROJETO: orquestrai
 TITULO: Protocolo LAVE humano sempre executa
 CONTEXTO: Blocos read-only no chat; humano copia e roda na VPS.
 REGRA: Bloco LAVE NUNCA roda automatico - sempre revisar (L), avaliar (A), verificar (V), executar (E).

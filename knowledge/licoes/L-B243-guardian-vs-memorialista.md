@@ -1,4 +1,5 @@
 ID: L-B243-guardian-vs-memorialista
+PROJETO: orquestrai
 TITULO: Guardian valida codigo, Memorialista valida conhecimento — papeis ortogonais
 CONTEXTO: B243 desacoplou promocao de licao do veredito do Guardian: ele rejeita execucao de comando, mas isso nao invalida a licao destilada.
 REGRA: Auto-promote de L-PROP-* roda mesmo se Guardian rejeitar run. Licao bem-formada que nao existe na KB e sempre util.

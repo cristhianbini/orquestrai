@@ -1,4 +1,5 @@
 # L-WATCHER01 — Watcher de auto-sync precisa cobrir close_write E moved_to
+PROJETO: orquestrai
 
 **Data:** 2026-07-02
 **Contexto:** automacao de sincronizacao do roadmap.md com Git

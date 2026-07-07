@@ -1,4 +1,5 @@
 ID: L-B199-kb-root-container-path
+PROJETO: orquestrai
 TITULO: KB_ROOT no codigo deve refletir path DO CONTAINER, nao do host
 CONTEXTO: B198 funcionou em dev local mas B199 revelou que dentro do container KB_ROOT=/app/knowledge, nao /var/www/orquestrai/knowledge.
 REGRA: Toda referencia de filesystem em codigo que roda em container deve usar path do container (geralmente /app/*).

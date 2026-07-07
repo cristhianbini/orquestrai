@@ -1,4 +1,5 @@
 # L-LITESTREAM01 — Padrao de sucesso: Litestream em VPS Ubuntu 24.04
+PROJETO: orquestrai
 
 **Data:** 2026-07-01
 **Contexto:** CTXLITESTREAM01 — backup continuo SQLite

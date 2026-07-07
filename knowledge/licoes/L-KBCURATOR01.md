@@ -1,4 +1,5 @@
 # L-KBCURATOR01 — Fila humana adicionada ao pipeline de auto-promocao de licoes
+PROJETO: orquestrai
 
 **Data:** 2026-07-01
 **Contexto:** CTXKBCURATOR01

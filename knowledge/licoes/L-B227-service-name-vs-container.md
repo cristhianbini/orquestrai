@@ -1,4 +1,5 @@
 ID: L-B227-service-name-vs-container
+PROJETO: orquestrai
 TITULO: Service name no compose != container name
 CONTEXTO: B227 falhou recreate porque chamou 'orquestrai-api' (container) ao inves de 'api' (service).
 REGRA: docker compose comandos usam SERVICE name (do yml). docker run/exec/inspect usam CONTAINER name.

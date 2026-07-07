@@ -1,4 +1,5 @@
 # L-DURATION02 — Nunca silenciar stderr em migrations SQLite
+PROJETO: orquestrai
 
 **Data:** 2026-07-01
 **Contexto:** CTXDURATION01

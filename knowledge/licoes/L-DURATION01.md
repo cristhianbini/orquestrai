@@ -1,4 +1,5 @@
 # L-DURATION01 — Banco correto do MAS é blackboard.db
+PROJETO: orquestrai
 
 **Data:** 2026-07-01
 **Contexto:** CTXDURATION01 — migration de duration_ms em mas_event

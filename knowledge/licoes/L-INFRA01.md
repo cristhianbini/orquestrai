@@ -1,4 +1,5 @@
 # L-INFRA01 — docker restart NAO rele .env; precisa recreate
+PROJETO: orquestrai
 
 **Data:** 2026-07-01
 **Contexto:** CTXSECRETS01 -- migracao de chave falhou silenciosamente na 1a tentativa

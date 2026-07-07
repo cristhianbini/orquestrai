@@ -1,4 +1,5 @@
 # L-DURATION03 — Heredoc bash quebra com backtick no conteudo
+PROJETO: orquestrai
 
 **Data:** 2026-07-01
 **Contexto:** Escrita de licoes via heredoc

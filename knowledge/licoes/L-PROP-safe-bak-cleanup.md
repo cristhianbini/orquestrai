@@ -1,4 +1,5 @@
 # L-PROP-safe-bak-cleanup
+PROJETO: orquestrai
 
 _Auto-promovida por Guardian em 2026-06-27T06:34:11.209Z_
 

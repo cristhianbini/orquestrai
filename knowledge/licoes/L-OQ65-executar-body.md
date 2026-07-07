@@ -1,4 +1,5 @@
 # L-OQ65 — /api/blocos/executar exige body completo
+PROJETO: orquestrai
 Data: 2026-06-21
 
 Sintoma: cockpit mostra 'ERR executar HTTP 409: sha256 nao bate (anti-tampering)'.

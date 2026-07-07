@@ -1,4 +1,5 @@
 # L-HYGIENE02 — Exemplo de comando com placeholder foi executado literalmente
+PROJETO: orquestrai
 
 **Data:** 2026-07-01
 **Contexto:** CTXHYGIENE01

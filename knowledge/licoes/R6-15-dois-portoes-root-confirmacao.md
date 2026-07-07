@@ -1,4 +1,5 @@
 # Licao R6-15 — Dois portoes para o root: confirmacao no B94/oqterm
+PROJETO: orquestrai
 
 ## Problema
 O botao "EXECUTAR" do card BLOCO LAVE mandava o script direto pro PTY **root**

@@ -1,4 +1,5 @@
 # L-PORTTEST01 — Testar exposição de porta DE DENTRO do host gera falso positivo
+PROJETO: orquestrai
 
 **Data:** 2026-07-07
 **Contexto:** Auditoria Fable rodada 1, achado A1 (oqterm 0.0.0.0:7654).

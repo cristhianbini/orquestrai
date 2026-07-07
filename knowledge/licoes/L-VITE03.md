@@ -1,4 +1,5 @@
 # L-VITE03 — Incidente de login: 3 causas encadeadas, resolvido em producao
+PROJETO: orquestrai
 
 **Data:** 2026-07-01
 **Contexto:** CTXVITE01, apos "siga proxima sprint" pular a limpeza pendente

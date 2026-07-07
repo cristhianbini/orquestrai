@@ -1,4 +1,5 @@
 # L-VITE02 — ScoreMeter visual pronto, mas dado real bloqueado por CTXUNIFY01
+PROJETO: orquestrai
 
 **Data:** 2026-07-01
 **Contexto:** CTXVITE02

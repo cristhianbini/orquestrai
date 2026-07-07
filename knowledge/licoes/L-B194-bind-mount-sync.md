@@ -1,4 +1,5 @@
 ID: L-B194-bind-mount-sync
+PROJETO: orquestrai
 TITULO: Arquivo bind-mounted no container nao reflete edicoes do host sem restart
 CONTEXTO: Editar mas/agents.mjs no host nao atualiza container ate docker restart. Para .env precisa force-recreate.
 REGRA: Apos editar arquivo bind-mounted: docker restart <container>. Apos editar .env ou env_file: docker compose up -d --force-recreate <service>.

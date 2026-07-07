@@ -1,4 +1,5 @@
 # L-PROP-vaguepath-scout
+PROJETO: orquestrai
 
 _Auto-promovida por Guardian em 2026-06-27T19:45:00.215Z_
 

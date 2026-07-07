@@ -1,4 +1,5 @@
 # L-VITE01 — Sempre pedir SCP em vez de sed/grep picado pra arquivos que serao editados 2+ vezes
+PROJETO: orquestrai
 
 **Data:** 2026-07-01
 **Contexto:** CTXVITE01 -- bug do 'loginDone' persistiu por 2 rodadas de patch

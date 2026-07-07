@@ -1,4 +1,5 @@
 # L-RATELIM01 — Rate limit global pode ter excecoes que anulam a protecao
+PROJETO: orquestrai
 
 **Data:** 2026-07-01
 **Contexto:** CTXRATELIM01

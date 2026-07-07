@@ -1,4 +1,5 @@
 # L-CTXDBPATH01 — DB_PATH real e /app/data/blackboard.db, NAO /app/mas/
+PROJETO: orquestrai
 
 **Data:** 2026-07-05
 **Contexto:** Checagens de "run MAS ativa" antes de restart usaram

@@ -1,4 +1,5 @@
 # L-SPOT06 — Mesmo padrao de bug null innerHTML, elemento diferente
+PROJETO: orquestrai
 
 **Data:** 2026-07-01
 **Contexto:** CTXSPOT06 (achado durante teste de 2FA)

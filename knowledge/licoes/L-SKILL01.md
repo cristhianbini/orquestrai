@@ -1,4 +1,5 @@
 # L-SKILL01 — AGENT_CARD ja existia, faltava so completar os titulares
+PROJETO: orquestrai
 
 **Data:** 2026-07-01
 **Contexto:** CTXSKILL01

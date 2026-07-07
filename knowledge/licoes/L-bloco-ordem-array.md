@@ -1,4 +1,5 @@
 ID: L-bloco-ordem-array
+PROJETO: orquestrai
 TITULO: Blocos append-only no array BLOCKS
 CONTEXTO: Inserir bloco no meio faz usuario copiar bloco errado.
 REGRA: Append-only - nunca insert in middle, nunca reordenar.

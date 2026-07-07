@@ -1,4 +1,5 @@
 # L-PROP-ui-first-removal
+PROJETO: orquestrai
 
 _Auto-promovida por Guardian em 2026-06-29T05:11:34.283Z_
 

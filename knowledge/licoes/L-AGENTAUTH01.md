@@ -1,4 +1,5 @@
 # L-AGENTAUTH01 — Endpoint sem auth encontrado durante CTXRATELIM01, corrigido
+PROJETO: orquestrai
 
 **Data:** 2026-07-01
 **Contexto:** CTXAGENTAUTH01

@@ -1,4 +1,5 @@
 # L-SPOT05 — node --check não funciona em arquivos .html
+PROJETO: orquestrai
 
 **Data:** 2026-07-01
 

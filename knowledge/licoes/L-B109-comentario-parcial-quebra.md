@@ -1,4 +1,5 @@
 ID: L-B109-comentario-parcial-quebra
+PROJETO: orquestrai
 TITULO: Comentar parcialmente JSX deixa tags orfas e quebra build
 CONTEXTO: Padrao generico de JSX (exemplo historico original era de outro stack Next.js/TSX -- regra vale igual para o Vite/JSX do OrquestrAI).
 REGRA: Para desabilitar bloco JSX, comente do { ate } completo, ou envolva tudo em {/* ... */}.

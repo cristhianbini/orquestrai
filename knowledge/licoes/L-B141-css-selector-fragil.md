@@ -1,4 +1,5 @@
 ID: L-B141-css-selector-fragil
+PROJETO: orquestrai
 TITULO: Selector CSS errado quebra MutationObserver inteiro
 CONTEXTO: B141 tentou hookar .agent-card mas DOM real era .masx-card[data-ag], silenciosamente nao casou.
 REGRA: Antes de escrever selector, INSPECIONAR DOM real (querySelectorAll no console) e validar count>0.

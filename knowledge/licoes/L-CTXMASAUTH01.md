@@ -1,4 +1,5 @@
 # L-CTXMASAUTH01 — Auth nas rotas do MAS (2026-07-02)
+PROJETO: orquestrai
 
 ## Problema
 `app.use('/api/mas', masRoutes)` estava SEM authMiddleware. As 10 rotas do

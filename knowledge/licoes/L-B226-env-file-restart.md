@@ -1,4 +1,5 @@
 ID: L-B226-env-file-restart
+PROJETO: orquestrai
 TITULO: .env nao recarrega com docker restart, exige force-recreate
 CONTEXTO: B226 atualizou chaves API no .env do host mas container via 0 chars ate force-recreate.
 REGRA: env_file e injetado na criacao do container. docker restart NAO relê. Use 'docker compose up -d --force-recreate <service>'.

@@ -1,4 +1,5 @@
 # L-CTXHANDOFFVERIFY01 — Handoff herdado e HIPOTESE, nao verdade
+PROJETO: orquestrai
 
 **Data:** 2026-07-05
 **Contexto:** Chat6 (continuidade Chat5->Chat6). Primeira tarefa: reconciliar

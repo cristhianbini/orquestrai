@@ -1,4 +1,5 @@
 # L-HYGIENE01 — blocosRoutes.cjs "duplicado" e mount intencional
+PROJETO: orquestrai
 
 **Data:** 2026-07-01
 **Contexto:** CTXHYGIENE01

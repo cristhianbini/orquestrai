@@ -1,4 +1,5 @@
 ID: L-OQ58-alpine-bash
+PROJETO: orquestrai
 TITULO: Container Alpine nao tem bash por padrao, scripts shebang #!/bin/bash falham
 CONTEXTO: OQ58 LAVE backend quebrou em Alpine: /bin/bash not found.
 REGRA: Em Alpine: usar #!/bin/sh OU instalar bash via apk add bash no Dockerfile.

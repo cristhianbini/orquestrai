@@ -1,4 +1,5 @@
 # L-CTXUNIFY01 — Investigacao completa + tentativa de auditoria do oqterm (2026-07-02)
+PROJETO: orquestrai
 
 ## Contexto
 CTXUNIFY01: dois modelos de execucao coexistem — execBloco (protegido,

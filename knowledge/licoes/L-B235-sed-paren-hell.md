@@ -1,4 +1,5 @@
 ---
+projeto: orquestrai
 id: L-B235
 titulo: sed com console.log e parênceses escapados quebra Node silenciosamente
 data: 2026-06-27
@@ -19,7 +20,7 @@ API devolveu 502 / upstream temporariamente indisponivel.
 - Contar paränteses dentro de sed com \(\) é receita de erro.
 
 ## Regras
-1. NUNCA injectar JS multi-paren via sed. Use Python pathlib read_text/write_text com replace literal.
+1. NUNCA injectar JS multi-paren via sed. Use Python pathlib read_text/write_text com replace literal, OU heredoc com EOF (unico ponto que a versao duplicada L-B235-sed-parenteses acrescentava; fundida aqui em 2026-07-07, CTXKBCLEAN01).
 2. SEMPRE rodar node --check depois de patch em .mjs ou .js.
 3. Se restart falhar: docker logs --tail 50 <container> 2>&1 | grep SyntaxError.
 

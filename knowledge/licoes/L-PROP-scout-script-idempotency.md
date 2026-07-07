@@ -1,4 +1,5 @@
 # L-PROP-scout-script-idempotency
+PROJETO: orquestrai
 
 _Auto-promovida por Guardian em 2026-06-27T19:43:41.581Z_
 

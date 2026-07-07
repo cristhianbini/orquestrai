@@ -1,4 +1,5 @@
 ID: L-B244-sqlite-wal-flush
+PROJETO: orquestrai
 TITULO: Hook que le sqlite imediatamente apos write pode pegar 0 rows (WAL nao flushado)
 CONTEXTO: B244 hook leu mas_event 400ms depois de runMas e viu 0 eventos, mesmo com 8 inseridos.
 REGRA: Apos write em sqlite WAL, leitor em conexao separada pode ver dados defasados. Use retry loop (5-8x com 800ms) ate count atingir esperado.

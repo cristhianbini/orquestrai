@@ -1,4 +1,5 @@
 # L-OQ66 — EventSource nao manda Bearer header
+PROJETO: orquestrai
 Data: 2026-06-21
 
 Sintoma: '[LAVE] stream desconectado' logo apos disparar EXECUTAR.
