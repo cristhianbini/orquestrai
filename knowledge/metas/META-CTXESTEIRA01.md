@@ -22,6 +22,21 @@ ANTES de entrar na reserva. E o mecanismo de entrada do CTXTEAMROSTER01 +
 CTXMODELCOMP01 (S7): peneira gera dados comparativos -> promocao por merito.
 Implementar quando S7 chegar; UI = 3o bloco no agtPane.
 
+## Escalacao da RESERVA (R1-R15, por proximidade da esteira)
+Ordenados por "quem entra primeiro se um titular cair" (cobertura tatica):
+R1 CRITICO (cobre REVISOR) | R2 VALIDADOR (GUARDIAO) | R3 ANALISTA (METRICO)
+R4 PESQUISADOR (DETETIVE) | R5 DOCUMENTADOR (MEMORIALISTA/RELATOR)
+R6 SINTETIZADOR (RELATOR) | R7 CONSULTOR (ARQUITETO) | R8 PLANEJADOR
+R9 OTIMIZADOR | R10 MONITOR | R11 INTEGRADOR | R12 DESIGNER
+R13 TREINADOR | R14 DESCOBRIDOR | R15 TRADUTOR
+Especialistas sem cobertura direta no fim da fila.
+
+## UI da PENEIRA (proxima sessao, fracao 1)
+Secao visual abaixo da RESERVA no agtPane: titulo + placeholder vazio +
+numeracao R1-R15 visivel nos cards da reserva. SO apresentacao (~15 linhas
+HTML/CSS); logica de promocao/avaliacao vem no S7 (CTXTEAMROSTER01) --
+nao construir logica nova no painel legado (strangler fig).
+
 ## Pre-requisito de qualidade
 Slot #10 atual (llama-3.2-3b free) entrou sem peneira -- avaliar em 1 run
 dedicada antes de considerar titular real.
