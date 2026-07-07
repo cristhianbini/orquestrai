@@ -34,10 +34,26 @@ Progresso item-a-item: ver `knowledge/metas/RODADA-6-PLANO.md`.
 - UX: painel de agentes com auto-scroll inteligente e reset correto de
   estado entre execuções.
 - Topbar desktop ~20% mais compacta.
+- Fonte única de agentes (CTXAGTUNIFY01): UI, ordem e cor/modelo derivados
+  dos cards reais, não mais hardcoded dessincronizado.
+- Proteção contra perda de dados (CTXAGTCARDMERGE01): editar um agente não
+  apaga mais telemetria/prompt/conteúdo fora do form.
+- Botões Treinar (Opus sugere) e Usar (reserva→titular) funcionais.
+- Padronização visual: nav, terminal e lic-card no mesmo padrão do
+  COPIAR/EXECUTAR (fonte, borda, hover).
 
 ## Pendências abertas (alto nível -- detalhe no plano)
 
 - CTXEXECMODAL01, R6-14, R6-13 (sub-sprints restantes), Bloco F/G completo.
+- CTXAGENTTRAIN01: infraestrutura pronta, falta rodada de curadoria real
+  (usar Treinar em cada um dos 9 agentes, 1 por vez, aprovar mudanças).
+- CTXTEAMROSTER01: escalação por custo+qualidade+qualidade-da-KB, ainda
+  não iniciada (só a Meta registrada).
+- Provider MiniMax: não configurado em providers.cjs (pré-requisito antes
+  de comprar créditos e rotear algum agente pra lá).
+- Visão de longo prazo (deploy multi-cloud, containerização automática,
+  import GitHub) recebida do Bini, ainda não incorporada ao
+  META-AUDITORIA-FABLE.md com análise crítica ao lado.
 - Nota de transparência: cadeia hash-chain começa do GENESIS a partir do
   commit db1d76e; execuções anteriores (origem=individual) não têm
   prev_hash retroativo (schema evoluiu depois).
