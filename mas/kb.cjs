@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-05 04:16:15 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-07 09:20:24 -03:00 (auto, git pre-commit)
 // mas/kb.cjs -- CTXKBSHARE01 (2026-07-05)
 // Modulo compartilhado entre mas/agents.mjs (MAS, 9 agentes) e
 // api/providers.cjs (chat individual). Antes, cada caminho tinha sua
@@ -32,14 +32,22 @@ function loadKB(meta){
     const kws = (meta || '').toLowerCase().split(/\s+/).filter(w => w.length > 3);
     const licDir = path.join(KB_ROOT, 'licoes');
     const lic = fs.readdirSync(licDir).filter(f => f.endsWith('.md'));
+    // CTXKBCLEAN01 F3 (2026-07-07): (a) le o arquivo UMA vez (antes lia 2x:
+    // uma p/ score, outra p/ body -- ~3.800 leituras redundantes por run);
+    // (b) filtra por PROJETO: -- licao marcada com outro projeto nao entra
+    // no prompt (mesma classe de bug do XMONEX_STACK, fechada na porta da KB).
+    // Retrocompativel: licao SEM marca de projeto continua incluida.
     const scored = lic.map(f => {
-      const t = fs.readFileSync(path.join(licDir, f), 'utf8').toLowerCase();
+      const raw = fs.readFileSync(path.join(licDir, f), 'utf8');
+      const m = raw.match(/^\s*projeto:\s*(\S+)/im);
+      if (m && m[1].toLowerCase() !== 'orquestrai') return null;
+      const t = raw.toLowerCase();
       return {
         f,
         score: kws.reduce((a, k) => a + (t.includes(k) ? 1 : 0), 0),
-        body: fs.readFileSync(path.join(licDir, f), 'utf8').slice(0, 1500),
+        body: raw.slice(0, 1500),
       };
-    }).sort((a, b) => b.score - a.score).slice(0, 5).filter(x => x.score > 0);
+    }).filter(Boolean).sort((a, b) => b.score - a.score).slice(0, 5).filter(x => x.score > 0);
     const top = scored.map(x => `### ${x.f}\n${x.body}`).join('\n\n');
     return `\n\n--- KB INDEX (resumo) ---\n${idx}\n\n--- LICOES RELEVANTES ---\n${top || '(nenhuma match)'}`;
   } catch (e) { return ''; }
