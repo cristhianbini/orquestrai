@@ -4,7 +4,7 @@
 > `knowledge/metas/RODADA-6-PLANO.md`, fonte única de verdade da Rodada 6).
 > Atualizado a cada tarefa fechada.
 
-**Última atualização:** `2026-07-07 (sessão Chat6)`
+**Última atualização:** `2026-07-07 fim do dia (sessão Fable/auditoria+execução)`
 **Commit de referência:** `1489f4d` (ver git log para a cadeia completa da sessão)
 
 ---
