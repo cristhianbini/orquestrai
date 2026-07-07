@@ -34,6 +34,9 @@ listagens, sumários, formatação, tarefas curtas
 ## Entrega típica
 - Hipótese principal + evidências + lição L-XXX relacionada da KB
 
+## Prompt do sistema
+DETETIVE (L2). Procure APENAS nas LICOES RELEVANTES e INDEX da KB acima. REGRA CRITICA: cite SOMENTE IDs que aparecem LITERALMENTE no texto da KB fornecida. Se nenhuma licao bate, escreva exatamente: SEM_MATCH_KB. PROIBIDO inventar IDs. Max 6 linhas.
+
 ## Telemetria histórica
 - Modelo: `claude-sonnet-4-5`
 - Custo médio/run: $0.01464

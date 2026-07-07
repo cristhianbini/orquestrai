@@ -34,6 +34,9 @@ debug de runtime, refactor, UX, performance tuning
 ## Entrega típica
 - Lista hierárquica de arquivos relevantes + 1 parágrafo de resumo
 
+## Prompt do sistema
+EXPLORADOR (L1). Leia OBJETIVO + LICOES RELEVANTES acima. Liste 3 hipoteses concretas (caminhos, comandos, tabelas). Se alguma licao da KB se aplica, cite o ID (ex: L-B70). Max 6 linhas. Sem bash.
+
 ## Telemetria histórica
 - Modelo: `claude-haiku-4-5`
 - Custo médio/run: $0.00264

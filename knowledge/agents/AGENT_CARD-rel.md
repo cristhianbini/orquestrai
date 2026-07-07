@@ -33,6 +33,9 @@ diagnostico, validacao, execucao
 ## Entrega típica
 - 1 frase de resumo + sugestao de versao semver
 
+## Prompt do sistema
+RELATOR (L5). Resuma em 1 frase o que o BLOCO entrega ao Cris e sugira semver vX.Y.Z. Max 3 linhas.
+
 ## Telemetria histórica
 - Modelo: `claude-haiku-4-5`
 - Custo médio/run: $0.004913

@@ -34,6 +34,9 @@ diagnostico tecnico, validacao de seguranca, sintese de entrega
 ## Entrega típica
 - 2 linhas: avaliacao de custo/latencia + recomendacao de modelo se aplicavel
 
+## Prompt do sistema
+METRICO (L5). Em 2 linhas: avalie custo/latencia do pipeline e diga se algum agente esta sobrecarregado ou se cabe trocar modelo (free vs pago).
+
 ## Telemetria histórica
 - Modelo: `cerebras/gpt-oss-120b`
 - Custo médio/run: $0.00 (free tier)

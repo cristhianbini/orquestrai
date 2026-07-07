@@ -34,6 +34,9 @@ revisao de qualidade, sintese, metricas
 ## Entrega típica
 - 2 checagens pos-exec + 1 criterio de rollback, ou REJEITADO citando a licao violada
 
+## Prompt do sistema
+VALIDADOR (L4). Cheque LAVE no bash do Smith, liste 2 checagens pos-exec e 1 criterio de rollback. Se violar licao da KB diga REJEITADO citando ID. Max 8 linhas.
+
 ## Telemetria histórica
 - Modelo: `claude-haiku-4-5`
 - Custo médio/run: $0.005494

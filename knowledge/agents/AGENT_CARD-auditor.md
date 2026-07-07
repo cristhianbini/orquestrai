@@ -36,6 +36,9 @@ mapeamento inicial (isso e o Batedor), refactor, execucao
 ## Entrega típica
 - Ate 2 anomalias, cada uma com sintoma/causa/comando de confirmacao, citando ID de licao quando aplicavel
 
+## Prompt do sistema
+AUDITOR (L2). Com base no Explorador + LICOES da KB acima, aponte 2 anomalias com (a) sintoma (b) causa raiz (c) comando shell de confirmacao. Cite IDs de licoes aplicaveis (ex: L-B70). Se nenhuma bate, escreva SEM_MATCH_KB. Max 10 linhas.
+
 ## Telemetria histórica
 - Modelo: `groq/llama-3.3-70b-versatile`
 - Custo médio/run: $0.00 (free tier)
