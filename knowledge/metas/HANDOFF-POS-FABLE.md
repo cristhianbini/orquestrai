@@ -41,3 +41,54 @@ esteira 1-9 justificada no codigo, reserva R1-R15 tatica, PENEIRA visual,
 fix promocao-cria-card, CTXMEMCTX01+CTXMEMKB01 (400 do memorialista).
 Licoes novas: L-PORTTEST01, L-ENVFILEWINS01, L-DATASETVOLATIL01,
 L-PROMOTESEMCARD01 (+2 da auditoria). ~30 commits, todos com o porque.
+
+## VISAO DE MENTOR — observacoes do Fable p/ Opus/Sonnet (nao sao tarefas; sao direcoes)
+
+### Estabilidade
+- O padrao .bak-manual acumula (dashboard.html ja tem varios da sessao) --
+  quarentenar periodicamente em _arquivados/ (regra do projeto) ou criar
+  script scripts/quarentena-baks.sh que roda semanal.
+- docker restart e' o unico deploy da API -- sem healthcheck pos-restart
+  automatizado. Sugestao barata: script restart-api.sh = restart + curl
+  /healthz + check de run ativa ANTES (o comando ja existe na KB).
+- SQLite em WAL segura bem 1 operador; o teto real chega com multi-user
+  (R6-19). Nao migrar antes -- Litestream ja cobre o risco de perda.
+
+### Seguranca (alem do backlog)
+- kb.cjs PROIBE no STACK_CTX comandos destrutivos em BLOCO, mas a defesa
+  real e' o hardVeto do guardian -- os dois nao estao sincronizados (listas
+  diferentes). Unificar num unico modulo de regras (fonte unica).
+- localStorage guarda o JWT (oq_token) -- XSS = token roubado. Mitigacao
+  futura: cookie httpOnly p/ sessao + token curto so p/ SSE. Custo alto,
+  so vale junto do multi-user.
+- Rate limit de /api/agents/* usa kbLimiter -- conferir se train (chama
+  Opus, custo real) tem limite proprio mais apertado.
+
+### Funcionalidades com maior razao valor/esforco (na minha leitura)
+1. CTXMASRUNID01 push (S17): SSE unico com run-started mata o polling 2s
+   e simplifica 3 pontos do frontend. ~1 sessao.
+2. Score por agente: a PENDENCIA DE PRODUTO do R6-11 continua sendo o
+   desbloqueio mais valioso -- agora que block_executed existe, a formula
+   pode nascer simples: taxa de blocos executados+aprovados por agente.
+3. PENEIRA funcional (S7): 1 run de teste padronizada (mesmo goal fixo)
+   por candidato + comparativo de custo/qualidade = promocao por merito.
+4. CTXBLOCONUM01: contador unico no backend (tabela counters), injetado
+   no prompt do Smith e exibido no card -- 3 fontes viram 1.
+
+### Qualidade dos agentes (p/ a curadoria 13.2-13.9)
+- Padrao que funcionou no BATEDOR: papel + fronteira anti-drift explicita
+  ("sem interpretar logica") + limites duros (max linhas, sem bash) + KB
+  por ID. Repetir esse esqueleto nos 8.
+- METRICO e AUDITOR rodam em free tier (cerebras/groq) -- mesmos riscos de
+  limite do memorialista. Se aparecer 400 neles, a solucao CTXMEMKB01
+  (opts no loadKB) ja esta pronta p/ reusar por agentId.
+- REVISOR (Opus) e' o mais caro do run ($0.12 de $0.19 total observado) --
+  quando o score por agente existir, avaliar se todo run precisa dele ou
+  so runs que geram bloco (pipeline adaptativo, Q10).
+
+### Dividas que NAO vale pagar agora (anti-tarefas)
+- Nao migrar agtPane pro React antes de terminar R6-13/14 (wrappers) --
+  ordem inversa dobra o risco.
+- Nao mexer na formula do harness (pesos) sem decisao de produto registrada.
+- Nao trocar confirm() sem redesenhar o fluxo de seguranca junto (R6-15).
+
