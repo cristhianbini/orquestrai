@@ -11,7 +11,7 @@ free: false
 versao_card: 1.0
 gerado_em: 2026-07-06T21:38:54.613Z
 fonte: CTXSKILL01 (mas/agents.mjs role, sem telemetria historica -- agente novo desde CTXREVISOR01)
-ordem_mesh: 99
+ordem_mesh: 9
 enabled: true
 ---
 

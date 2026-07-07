@@ -11,6 +11,7 @@ free: true
 versao_card: 1.0
 gerado_em: 20260701-193000
 fonte: CTXSKILL01 (mas/agents.mjs role + telemetria mas_event)
+ordem_mesh: 8
 ---
 
 # 📊 METRICO

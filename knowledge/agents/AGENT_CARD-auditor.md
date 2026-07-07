@@ -11,7 +11,7 @@ free: true
 versao_card: 1.0
 gerado_em: 2026-07-05T18:29:30.700Z
 fonte: CTXSKILL01 (mas/agents.mjs role + telemetria mas_event)
-ordem_mesh: 99
+ordem_mesh: 2
 enabled: true
 ---
 

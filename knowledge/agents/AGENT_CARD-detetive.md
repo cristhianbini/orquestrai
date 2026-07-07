@@ -11,6 +11,7 @@ free: false
 versao_card: 1.0
 gerado_em: 20260627-174507
 fonte: BLOCO-338 (telemetria mas_event + routes.mjs)
+ordem_mesh: 3
 ---
 
 # 🕵️ DETETIVE
