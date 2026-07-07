@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-06 23:14:05 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-06 23:18:36 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -263,7 +263,7 @@ var RESERVAS=[
   {pos:24,nm:'validador',lbl:'VALIDADOR',col:'#6ee7b7',fn:'Testes, QA, validacao de contratos de API'},
   {pos:25,nm:'tradutor',lbl:'TRADUTOR',col:'#fde68a',fn:'Traducao, localizacao, adaptacao cultural'}
 ]; // CTXRESERVA01: 15 reservas pre-configuradas
-var AGS=[ /*B181_AGS8*/ {nm:'scout',mdl:'claude-haiku-4-5',col:'#7ce7ff',st:'idle',lbl:'BATEDOR'},{nm:'auditor',mdl:'gpt-oss-120b',col:'#a78bfa',st:'idle',lbl:'AUDITOR'},{nm:'detetive',mdl:'claude-sonnet-4-5',col:'#22d3ee',st:'idle',lbl:'DETETIVE'},{nm:'smith',mdl:'claude-sonnet-4-5',col:'#fbbf24',st:'idle',lbl:'ARQUITETO'},{nm:'guardian',mdl:'claude-haiku-4-5',col:'#22c55e',st:'idle',lbl:'GUARDIAO'},{nm:'memorialista',mdl:'zai-glm-4.7',col:'#f472b6',st:'idle',lbl:'MEMORIALISTA'},{nm:'rel',mdl:'claude-haiku-4-5',col:'#60a5fa',st:'idle',lbl:'RELATOR'},{nm:'metrico',mdl:'gpt-oss-120b',col:'#94a3b8',st:'idle',lbl:'METRICO'},{nm:'revisor',mdl:'claude-opus-4-8',col:'#c084fc',st:'idle',lbl:'REVISOR'}/*CTXAGTUNIFY01-DEBT: 9a entrada hardcoded p/ REVISOR aparecer na UI. Remendo consciente -- a correcao real e derivar AGS de /api/agents/cards (ver META-CTXAGTUNIFY01). grep CTXAGTUNIFY01-DEBT ao unificar.*/];
+var AGS=[ /*B181_AGS8*/ {nm:'scout',mdl:'claude-haiku-4-5',col:'#7ce7ff',st:'idle',lbl:'BATEDOR'},{nm:'auditor',mdl:'gpt-oss-120b',col:'#a78bfa',st:'idle',lbl:'AUDITOR'},{nm:'detetive',mdl:'claude-sonnet-4-5',col:'#22d3ee',st:'idle',lbl:'DETETIVE'},{nm:'smith',mdl:'claude-sonnet-4-5',col:'#fbbf24',st:'idle',lbl:'ARQUITETO'},{nm:'guardian',mdl:'claude-haiku-4-5',col:'#22c55e',st:'idle',lbl:'GUARDIAO'},{nm:'memorialista',mdl:'zai-glm-4.7',col:'#f472b6',st:'idle',lbl:'MEMORIALISTA'},{nm:'rel',mdl:'claude-haiku-4-5',col:'#60a5fa',st:'idle',lbl:'RELATOR'},{nm:'metrico',mdl:'gpt-oss-120b',col:'#94a3b8',st:'idle',lbl:'METRICO'},{nm:'revisor',mdl:'claude-opus-4-8',col:'#c084fc',st:'idle',lbl:'REVISOR'}/*CTXAGTUNIFY01-RESOLVIDO: hardcode agora e so FALLBACK sincrono (render otimista); hydrateAGSFromCards() no boot() ja deriva os dados reais dos cards (F1-F3 concluidas).*/];
 /* CTXAGSWIN01: AGS/RESERVAS eram var locais do IIFE -> buildAgtPane lia
    window.AGS/window.RESERVAS e achava [] (0/11, 0/15). Expor ao window. */
 try{ window.AGS=AGS; window.RESERVAS=RESERVAS; }catch(e){ console.warn('CTXAGSWIN01',e); }
