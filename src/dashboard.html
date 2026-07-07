@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-06 18:50:20 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-06 23:06:48 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -267,6 +267,32 @@ var AGS=[ /*B181_AGS8*/ {nm:'scout',mdl:'claude-haiku-4-5',col:'#7ce7ff',st:'idl
 /* CTXAGSWIN01: AGS/RESERVAS eram var locais do IIFE -> buildAgtPane lia
    window.AGS/window.RESERVAS e achava [] (0/11, 0/15). Expor ao window. */
 try{ window.AGS=AGS; window.RESERVAS=RESERVAS; }catch(e){ console.warn('CTXAGSWIN01',e); }
+
+/* CTXAGTUNIFY01 F1: hidratacao do AGS a partir dos cards (fonte unica).
+   Padrao render-otimista: o AGS hardcoded acima garante render SINCRONO
+   imediato (sem tela vazia); esta funcao busca dados frescos da API DEPOIS
+   e atualiza cor/modelo/label por slug, mantendo a ORDEM canonica do
+   pipeline (definida abaixo, fonte: mas/agents.mjs). Aditiva e reversivel.
+   F1 apenas DEFINE -- a F2 liga ao load. NAO substitui nada ainda. */
+window.__AGS_ORDER = ['scout','auditor','detetive','smith','guardian','memorialista','rel','metrico','revisor'];
+window.hydrateAGSFromCards = async function(){
+  try{
+    var TK = localStorage.getItem('oq_token')||localStorage.getItem('token')||'';
+    var r = await fetch('/api/agents/cards',{headers:{Authorization:'Bearer '+TK}});
+    var j = await r.json();
+    if(!j || !j.ok || !Array.isArray(j.cards)) return {ok:false, reason:'resposta invalida'};
+    var bySlug = {};
+    j.cards.forEach(function(c){ bySlug[c.slug] = c; });
+    var novo = window.__AGS_ORDER.map(function(slug){
+      var c = bySlug[slug]; if(!c) return null;
+      var m = c.meta||{};
+      return { nm:slug, lbl:(m.label_pt||slug.toUpperCase()),
+               col:(m.cor||'#94a3b8'), mdl:(m.modelo_atual||'—'), st:'idle' };
+    }).filter(Boolean);
+    return {ok:true, count:novo.length, ags:novo};
+  }catch(e){ return {ok:false, reason:String(e&&e.message||e)}; }
+};
+
 var AMB=[{nm:'prod',cor:'#22c55e'},{nm:'teste',cor:'#22c55e'},{nm:'release',cor:'#f59e0b'}];
 function paintAg(){var el=document.getElementById('agentes');if(!el)return;var FREE={detetive:1,memorialista:1,metrico:1};el.innerHTML=AGS.map((a,i)=>{var isFree=FREE[a.nm];return '<div class="oq46y-card" data-agent="'+a.nm+'" data-order="'+i+'" title="'+a.mdl+'" style="--ag-col:'+a.col+'"><span class="av" style="background:'+a.col+';box-shadow:0 0 8px '+a.col+'66"></span><span class="nm">'+(a.lbl||a.nm)+'</span><span class="mdl">'+a.mdl+'</span><span class="oq46y-dot '+a.st+'" title="'+a.st+'"></span><span class="tk"><span>tk</span><b>—</b></span>'+(isFree?'<span class="usd free"><span>$</span><b>FREE</b></span>':'<span class="usd"><span>$</span><b>—</b></span>')+'</div>';}).join('');}
 function paintAmb(){var els=document.querySelectorAll('aside .text-xs');els.forEach(function(el){if(el.children.length===2&&el.querySelector('.flex')){var box=el;var rows=box.querySelectorAll('.flex.justify-between');if(rows.length>=3&&rows[0].textContent.includes('prod')){box.innerHTML=AMB.map(a=>'<div class="oq46y-amb"><span><span class="dot" style="color:'+a.cor+';background:'+a.cor+'"></span>'+a.nm+'</span><span style="font-family:ui-monospace,monospace;font-size:9px;color:#5b6b80">live</span></div>').join('');}}});}
