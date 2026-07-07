@@ -4,18 +4,24 @@
 > `knowledge/metas/RODADA-6-PLANO.md`, fonte única de verdade da Rodada 6).
 > Atualizado a cada tarefa fechada.
 
-**Última atualização:** `2026-07-04 23:00`
-**Commit de referência:** `76e73a8`
+**Última atualização:** `2026-07-07 (sessão Chat6)`
+**Commit de referência:** `1489f4d` (ver git log para a cadeia completa da sessão)
 
 ---
 
 ## Onde estamos
 
-Rodada 6 em andamento. Fundação do React island (Blocos A-D) e limpeza de
-dívida (Bloco E) majoritariamente concluídas antes desta sessão. Nesta
-sessão: segurança de execução no PTY root fechada (R6-15, R6-16 e seus
-gaps), auditoria hash-chain estendida ao oqterm, bugs do painel de agentes
-corrigidos (scroll, reset de status), e a topbar compactada (CTXTOPBAR01).
+Rodada 6 seguiu com foco no sistema de CONFIGURAÇÃO de agentes (agtPane,
+ver 01-ARQUITETURA.md seção "Um TERCEIRO sistema"), distinto do React
+island (execução). Fechamos CTXAGTUNIFY01 completo (fonte única: cards
+alimentam a UI, ordem canônica do pipeline, cor/modelo sincronizados com
+o ROUTING real). Descobrimos e corrigimos CTXAGTCARDMERGE01 (edição de
+agente apagava telemetria/prompt/conteúdo não coberto pelo form — achado
+em produção ao editar o AUDITOR, 114 amostras quase perdidas). Seed de
+prompt real nos 9 agentes. Endpoint /api/agents/train (Opus sugere,
+humano aprova) com botão funcional no form. Botão "usar" nas reservas
+promove pra titular. Padronização visual dos botões (nav + terminal +
+lic-card) com o mesmo padrão do COPIAR/EXECUTAR.
 
 Progresso item-a-item: ver `knowledge/metas/RODADA-6-PLANO.md`.
 
