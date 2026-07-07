@@ -29,8 +29,8 @@ pra confirmar que a remoção dos itens 4-5 não quebrou loadKB() em produção.
 - [x] 10. /api/mas/harness-score passa a refletir exec_success real via join
 
 ## FASE 3 — Segurança de infra (MÉDIO, sem urgência -- ver ADENDO do relatório)
-- [ ] 11. oqterm: OQTERM_HOST 0.0.0.0 -> 172.18.0.1 + After=docker.service
-- [ ] 12. nginx: log_format sem query string nos locations de SSE/terminal
+- [x] 11. oqterm: OQTERM_HOST 0.0.0.0 -> 172.18.0.1 + After=docker.service
+- [x] 12. nginx: log_format sem query string nos locations de SSE/terminal
       + truncar logs atuais depois de confirmado
 
 ## FASE 4 — Curadoria dos 9 agentes (CTXAGENTTRAIN01)
