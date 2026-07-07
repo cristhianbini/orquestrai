@@ -7,7 +7,7 @@ esperado e saudável; S1-S5 só reordenar com motivo registrado.
 
 ## PRÓXIMOS 5 (detalhados, executáveis já)
 - [x] S1  Itens 6-7 pós-auditoria (dedup L-B235 + frontmatter projeto: + filtro loadKB)
-- [ ] S2  Fase 2 pós-auditoria completa (8→9→10: mas_run_id + harness real)
+- [x] S2  Fase 2 pós-auditoria completa (8→9→10: mas_run_id + harness real)
 - [ ] S3  Fase 3 pós-auditoria (11-12: oqterm bind + nginx sem query string)
 - [ ] S4  CTXAGENTTRAIN01 execução (=item 13): curadoria dos 9 agentes, 1/vez
 - [ ] S5  R6-13.3→13.5.x: wrappers EventSource + containers-fantasma (fecha Bloco E)

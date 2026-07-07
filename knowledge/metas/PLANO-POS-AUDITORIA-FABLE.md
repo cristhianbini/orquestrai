@@ -22,11 +22,11 @@
 pra confirmar que a remoção dos itens 4-5 não quebrou loadKB() em produção.
 
 ## FASE 2 — Fundação Harness Score (mas_run_id)
-- [ ] 8. Meta CTXMASRUNLINK01: decisão de contrato (mas_run_id só a partir de
+- [x] 8. Meta CTXMASRUNLINK01: decisão de contrato (mas_run_id só a partir de
       agora; execuções antigas ficam null permanentemente, sem backfill)
-- [ ] 9. Frontend envia mas_run_id ao disparar /api/blocos/executar a partir
+- [x] 9. Frontend envia mas_run_id ao disparar /api/blocos/executar a partir
       de um run MAS em andamento
-- [ ] 10. /api/mas/harness-score passa a refletir exec_success real via join
+- [x] 10. /api/mas/harness-score passa a refletir exec_success real via join
 
 ## FASE 3 — Segurança de infra (MÉDIO, sem urgência -- ver ADENDO do relatório)
 - [ ] 11. oqterm: OQTERM_HOST 0.0.0.0 -> 172.18.0.1 + After=docker.service
