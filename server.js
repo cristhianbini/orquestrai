@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-06 23:53:45 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-07 15:35:08 -03:00 (auto, git pre-commit)
 // OQ46Z-v1
 import { createRequire as _oqReq } from "module";
 const _oqRequire = _oqReq(import.meta.url);
@@ -589,6 +589,35 @@ app.post('/api/agents/position', kbLimiter, authMiddleware, (req, res) => {
     db.exec("CREATE TABLE IF NOT EXISTS agent_positions (position INTEGER PRIMARY KEY, provider TEXT, model TEXT, label TEXT, updated_at TEXT DEFAULT (datetime('now')))");
     db.prepare("INSERT OR REPLACE INTO agent_positions (position,provider,model,label,updated_at) VALUES (?,?,?,?,datetime('now'))").run(position, provider, model, label || '');
     db.close();
+
+    // L-PROMOTESEMCARD01 (2026-07-07): promocao gravava so a POSICAO -- o
+    // "titular" ficava fantasma (sem AGENT_CARD, fora do pipeline, sem prompt).
+    // Achado real: DOCUMENTADOR e #10 apareciam 11/11 na UI com 9 cards no
+    // disco. Fix: materializar o card AQUI, no mesmo ato da promocao.
+    // Regras: (a) so cria se NAO existe (nunca sobrescreve card real);
+    // (b) prompt = placeholder "(...)" que o placeholder-detection do
+    // agents.mjs ja trata como vazio -> agente novo NUNCA roda com prompt
+    // fantasma; humano precisa Treinar/editar antes (fluxo PENEIRA).
+    try {
+      const fs2 = require('fs'), path2 = require('path');
+      const slug2 = String(label||'').trim().toLowerCase().replace(/[^a-z0-9_-]/g,'');
+      const CANON = ['scout','auditor','detetive','smith','guardian','memorialista','rel','metrico','revisor'];
+      if (slug2 && CANON.indexOf(slug2) < 0) {
+        const file2 = path2.join('/app/knowledge/agents', 'AGENT_CARD-' + slug2 + '.md');
+        if (!fs2.existsSync(file2)) {
+          const card = ['---','slug: ' + slug2,'label_pt: ' + String(label||slug2).toUpperCase(),
+            'emoji: 🆕','cor: "#6b7280"','modelo_atual: ' + (provider ? provider + '/' : '') + model,
+            'versao_card: 1.0','gerado_em: ' + new Date().toISOString(),
+            'fonte: promocao-usar (L-PROMOTESEMCARD01)','ordem_mesh: ' + (Number(position)+1),
+            'enabled: true','---','# ' + String(label||slug2).toUpperCase(),
+            '## Bom em','- (definir na curadoria -- botao Treinar)',
+            '## Ruim em','- (definir na curadoria)',
+            '## Prompt do sistema','(treinar antes de usar)',''].join('\n');
+          fs2.writeFileSync(file2, card, 'utf8');
+        }
+      }
+    } catch(e2) { console.warn('[usar] card nao materializado (nao bloqueia promocao):', e2.message); }
+
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
