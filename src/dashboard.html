@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-06 23:06:48 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-06 23:14:05 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -298,7 +298,14 @@ function paintAg(){var el=document.getElementById('agentes');if(!el)return;var F
 function paintAmb(){var els=document.querySelectorAll('aside .text-xs');els.forEach(function(el){if(el.children.length===2&&el.querySelector('.flex')){var box=el;var rows=box.querySelectorAll('.flex.justify-between');if(rows.length>=3&&rows[0].textContent.includes('prod')){box.innerHTML=AMB.map(a=>'<div class="oq46y-amb"><span><span class="dot" style="color:'+a.cor+';background:'+a.cor+'"></span>'+a.nm+'</span><span style="font-family:ui-monospace,monospace;font-size:9px;color:#5b6b80">live</span></div>').join('');}}});}
 function paintLic(items){var el=document.getElementById('licoes');if(!el)return;if(!items||!items.length){el.innerHTML='<li class="oq46y-licao" style="opacity:.6"><span class="lid">--</span><span class="ltx">sem licoes ainda em /knowledge/licoes</span></li>';return;}el.innerHTML=items.slice(0,10).map(it=>'<li class="oq46y-licao" title="'+(it.file||'')+'"><span class="lid">'+(it.id||'·')+'</span><span class="ltx">'+(it.title||it.file)+'</span></li>').join('');}
 async function loadLic(){try{var t=localStorage.getItem('token');var r=await fetch('/api/knowledge/licoes',{headers:t?{'Authorization':'Bearer '+t}:{}});if(!r.ok)throw 0;var j=await r.json();paintLic(j.items||[]);}catch(e){/*fallback hardcoded*/}}
-function boot(){paintAg();paintAmb();loadLic();}
+function boot(){paintAg();paintAmb();loadLic();
+  /* CTXAGTUNIFY01 F2: liga hidratacao ao boot. paintAg() acima ja renderizou
+     SINCRONO com AGS hardcoded (sem tela vazia). Aqui busca dados frescos dos
+     cards e re-renderiza. Fallback: se falhar, mantem o hardcoded. */
+  if(window.hydrateAGSFromCards){ window.hydrateAGSFromCards().then(function(r){
+    if(r&&r.ok&&r.ags&&r.ags.length){ try{ window.AGS.length=0; r.ags.forEach(function(a){window.AGS.push(a);}); paintAg(); var ap=document.getElementById('agtPane'); }catch(e){ console.warn('CTXAGTUNIFY01 F2 hydrate falhou, mantendo hardcoded',e); } }
+  }); }
+}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 window.OQ46Y={refresh:boot};
 })();
