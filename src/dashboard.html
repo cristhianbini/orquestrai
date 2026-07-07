@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-07 00:20:16 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-07 00:27:46 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -555,7 +555,7 @@ label[for="orqModelSel"]{
 .oq46m-title{display:inline-flex;align-items:center;gap:4px}
 </style>
 <style id="b83css">/*B83_MANUAL*/
-#b83Btn{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid #2b3a4f;color:#cfd8e3;padding:6px 12px;border-radius:8px;font:600 12px/1 system-ui,sans-serif;cursor:pointer;margin-right:8px;transition:all .15s}
+#b83Btn{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid #2b3a4f;color:#cfd8e3;padding:6px 12px;border-radius:8px;cursor:pointer;margin-right:8px;transition:all .15s}
 #b83Btn:hover{background:#1a2536;border-color:#3b82f6;color:#fff}
 #b83Manual{display:none;position:fixed;inset:0;z-index:9999;background:rgba(8,12,20,.78);backdrop-filter:blur(4px);align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
 #b83Manual.b83-on{display:flex}
@@ -1871,15 +1871,18 @@ body :is(header,.header,.topbar,.navbar,.dashboard-header,.dash-header,.app-head
 }
 body :is(header,.header,.topbar,.navbar,.dashboard-header,.dash-header,.app-header) :is(button,a.button,a.btn,.btn,[role="button"]){
   height:30px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;
-  gap:8px!important;padding:0 12px!important;border:1px solid var(--oq16-line2)!important;border-radius:8px!important;
-  background:linear-gradient(180deg,#0e1626,#0a111c)!important;color:var(--oq16-text)!important;
-  font:600 11px ui-monospace,SFMono-Regular,Menlo,monospace!important;letter-spacing:.2px!important;
+  gap:8px!important;padding:0 12px!important;border:1px solid var(--oq16-line2)!important;border-radius:3px!important;
+  background:#0a111c!important;color:var(--oq16-text)!important;
+  font:600 11px ui-monospace,SFMono-Regular,Menlo,monospace!important;letter-spacing:.2px!important;text-transform:uppercase!important;
   cursor:pointer!important;text-decoration:none!important;white-space:nowrap!important;line-height:1!important;
-  box-shadow:0 6px 16px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.04)!important;
-  transition:border-color .15s,background .15s,color .15s,transform .05s!important;
+  box-shadow:none!important;
+  transition:border-color .15s,color .15s,transform .05s!important;
 }
+/* CTXBTNSTD02: nav "seco" -- sem gradiente/glow, so cor solida + radius minimo,
+   igual ao padrao EXECUTAR (pedido explicito). Hover mantido MINIMO (so cor)
+   pra nao perder affordance de clicavel. */
 body :is(header,.header,.topbar,.navbar,.dashboard-header,.dash-header,.app-header) :is(button,a.button,a.btn,.btn,[role="button"]):hover{
-  border-color:var(--oq16-cyan)!important;color:var(--oq16-cyan)!important;background:linear-gradient(180deg,#10192a,#0b1322)!important;
+  border-color:var(--oq16-cyan)!important;color:var(--oq16-cyan)!important;
 }
 body :is(header,.header,.topbar,.navbar,.dashboard-header,.dash-header,.app-header) :is(button,a.button,a.btn,.btn,[role="button"]):active{transform:translateY(1px)!important}
 #oq10ProvBtn{position:static!important;margin:0!important;color:var(--oq16-cyan)!important;border-color:#27556b!important}
