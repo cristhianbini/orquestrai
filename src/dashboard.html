@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-07 15:01:12 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-07 15:08:49 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1679,6 +1679,9 @@ function b124g5Apply(ag,state){
           var __header = '# Gerado pelo MAS (OrquestrAI) -- run '+__rid+' -- revise antes de executar\n'; // CTXBLOCOMAS01
           var __corpo = /^\s*#/.test(lastBash) ? lastBash : (__header+lastBash);
           var el=$('bloco'); if(el){ el.textContent=__corpo; el.dataset.origem='mas'; el.dataset.agente=__lastBashAgent; el.dataset.masRunId=__rid; el.dataset.modelo=__lastBashModel; } // CTXPROV01
+          // CTXMASRUNLINK01 F4: dataset morre no reload (causa dos null no banco).
+          // Persiste o vinculo em localStorage; sendDirect casa o cmd contra isto.
+          try{ localStorage.setItem('oq_mas_meta', JSON.stringify({agente:__lastBashAgent||null, mas_run_id:__rid||null, body:String(__corpo).replace(/\r\n/g,'\n').trim()})); }catch(_){}
           var ti=$('bloco-titulo'); if(ti) ti.textContent='BLOCO LAVE (MAS)';
           pushChat('ia','✅ bloco pronto no card BLOCO LAVE. Clique EXECUTAR.');
           oqTermWrite('# [MAS] bloco gerado: '+lastBash.split('\n').length+' linhas\n');
@@ -2613,6 +2616,12 @@ window.OQ_BLOCKS={list:function(){return BLOCKS},clear:function(){BLOCKS=[];seen
             if(__mEl && __mEl.dataset.origem==='mas' && String(__mEl.textContent||'').replace(/\r\n/g,'\n').trim()===cmd){
               __mMeta.agente=__mEl.dataset.agente||null;
               __mMeta.mas_run_id=__mEl.dataset.masRunId||null;
+            }
+            // CTXMASRUNLINK01 F4: fallback persistente -- dataset e' apagado por
+            // reload; localStorage nao. So vincula com match EXATO do corpo.
+            if(!__mMeta.mas_run_id){
+              var __ls=JSON.parse(localStorage.getItem('oq_mas_meta')||'null');
+              if(__ls && __ls.body===cmd){ __mMeta.agente=__ls.agente; __mMeta.mas_run_id=__ls.mas_run_id; }
             }
           }catch(_){}
           return fetch('/api/blocos/oqterm-log',{method:'POST',headers:H,body:JSON.stringify({hash:hex,tamanho:cmd.length,agente:__mMeta.agente,mas_run_id:__mMeta.mas_run_id})});

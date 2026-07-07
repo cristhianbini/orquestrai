@@ -3,7 +3,7 @@
 // Ver mas/auth.mjs para o raciocinio completo.
 import { authMiddleware, authMiddlewareSSE } from './auth.mjs';
 
-// ATUALIZADO: 2026-07-02 19:05:42 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-07 15:08:49 -03:00 (auto, git pre-commit)
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 import express from 'express';
@@ -200,6 +200,21 @@ function computeHarnessScore(runId){
   const COST_CEILING = 0.10;
   const costScore = Math.max(0, 1 - (run.cost_usd || 0) / COST_CEILING);
 
+  // CTXMASRUNLINK01/S2 item 10 (2026-07-07): join real com cluster.db.
+  // block_executed = humano executou o bloco desta run pelo terminal
+  // (execucoes.mas_run_id, populado desde o F4 do frontend). NAO altera os
+  // pesos da formula -- status 'registrado' do oqterm nao captura sucesso/
+  // falha do comando (isso e' o CTXAGENTSCORE01 futuro). Sinal exposto p/
+  // consumo do dashboard e decisao de produto sobre peso.
+  let blockExecuted = 0, execCount = 0;
+  try {
+    const dc = new D('/app/data/cluster.db', { readonly: true });
+    const ex = dc.prepare('SELECT COUNT(*) n FROM execucoes WHERE mas_run_id=?').get(runId);
+    execCount = (ex && ex.n) || 0;
+    blockExecuted = execCount > 0 ? 1 : 0;
+    dc.close();
+  } catch(_) { /* cluster.db indisponivel: sinal fica 0, nao derruba o score */ }
+
   const score = 0.4*execSuccess + 0.3*guardianPass + 0.3*costScore;
   d.close();
 
@@ -210,6 +225,8 @@ function computeHarnessScore(runId){
       exec_success: execSuccess,
       guardian_pass: guardianPass,
       cost_score: Math.round(costScore * 1000) / 1000,
+      block_executed: blockExecuted,        // CTXMASRUNLINK01: bloco executado por humano
+      execucoes_count: execCount,           // CTXMASRUNLINK01: qtd de execucoes vinculadas
       human_approve: null // pendente CTXPROVBRIDGE01 -- ver nota acima
     },
     cost_usd: run.cost_usd,
