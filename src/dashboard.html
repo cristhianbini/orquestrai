@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-07 15:08:49 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-07 15:31:11 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -248,22 +248,45 @@ window.applyPositionOverrides = function(){
     });
   }).catch(function(){});
 };
+/* ============================================================================
+   CTXESTEIRA01 (2026-07-07) -- POR QUE a esteira tem esta ordem:
+   A pipeline titular segue o fluxo natural de resolver um problema:
+   1 BATEDOR    - reconhece o terreno ANTES de qualquer analise (sem mapa,
+                  os agentes seguintes chutam caminhos -- ver L-CTXDBPATH01).
+   2 AUDITOR    - com o mapa em maos, aponta anomalias/riscos no que existe.
+   3 DETETIVE   - correlaciona os achados com a KB (licoes ja vividas) --
+                  evita re-resolver problema ja resolvido.
+   4 ARQUITETO  - so agora CONSTROI: com terreno+riscos+historico conhecidos.
+   5 GUARDIAO   - veta o que o arquiteto produziu ANTES de chegar ao humano
+                  (seguranca vem depois da construcao, antes da entrega).
+   6 MEMORIALISTA - registra o que foi decidido/aprendido (memoria do time).
+   7 RELATOR    - sintetiza tudo p/ consumo humano (traduz tecnica->decisao).
+   8 METRICO    - mede custo/latencia da propria run (auto-observacao).
+   9 REVISOR    - Opus, o mais caro por ultimo: revisa o TRABALHO PRONTO
+                  (critico final -- por isso um CRITICO pos-revisor seria
+                  duplicidade; ver META-CTXESTEIRA01).
+   RESERVA (campo r: R1-R15) ordenada por COBERTURA TATICA -- quem entra
+   primeiro se um titular cair. R1 CRITICO cobre o REVISOR (papel mais
+   proximo), R2 VALIDADOR cobre o GUARDIAO, etc. Especialistas sem titular
+   correspondente (DESIGNER, TRADUTOR...) ficam no fim da fila.
+   Fonte da decisao: knowledge/metas/META-CTXESTEIRA01.md
+   ========================================================================== */
 var RESERVAS=[
-  {pos:11,nm:'pesquisador',lbl:'PESQUISADOR',col:'#34d399',fn:'Busca RAG em fontes externas, GitHub, docs'},
-  {pos:12,nm:'designer',lbl:'DESIGNER',col:'#fb923c',fn:'UI/UX, visual consistency, paleta, tipografia'},
-  {pos:13,nm:'documentador',lbl:'DOCUMENTADOR',col:'#a78bfa',fn:'Gera e atualiza documentacao tecnica'},
-  {pos:14,nm:'otimizador',lbl:'OTIMIZADOR',col:'#facc15',fn:'Performance, refactoring, reducao de custos'},
-  {pos:15,nm:'integrador',lbl:'INTEGRADOR',col:'#38bdf8',fn:'APIs, webhooks, integracoes externas'},
-  {pos:16,nm:'analista',lbl:'ANALISTA',col:'#e879f9',fn:'Analise de dados, logs, metricas avancadas'},
-  {pos:17,nm:'consultor',lbl:'CONSULTOR',col:'#4ade80',fn:'Best practices, recomendacoes arquiteturais'},
-  {pos:18,nm:'monitor',lbl:'MONITOR',col:'#f43f5e',fn:'Observabilidade, alertas, saude do sistema'},
-  {pos:19,nm:'planejador',lbl:'PLANEJADOR',col:'#818cf8',fn:'Roadmap, sprints, decomposicao de tarefas'},
-  {pos:20,nm:'critico',lbl:'CRITICO',col:'#fb7185',fn:'Code review, feedback negativo construtivo'},
-  {pos:21,nm:'treinador',lbl:'TREINADOR',col:'#86efac',fn:'Fine-tuning, exemplos, curadoria de datasets'},
-  {pos:22,nm:'descobridor',lbl:'DESCOBRIDOR',col:'#67e8f9',fn:'Exploracao de novas ferramentas e libs'},
-  {pos:23,nm:'sintetizador',lbl:'SINTETIZADOR',col:'#d8b4fe',fn:'Resumos, condensacao de contexto longo'},
-  {pos:24,nm:'validador',lbl:'VALIDADOR',col:'#6ee7b7',fn:'Testes, QA, validacao de contratos de API'},
-  {pos:25,nm:'tradutor',lbl:'TRADUTOR',col:'#fde68a',fn:'Traducao, localizacao, adaptacao cultural'}
+  {pos:11,nm:'pesquisador',r:4,lbl:'PESQUISADOR',col:'#34d399',fn:'Busca RAG em fontes externas, GitHub, docs'},
+  {pos:12,nm:'designer',r:12,lbl:'DESIGNER',col:'#fb923c',fn:'UI/UX, visual consistency, paleta, tipografia'},
+  {pos:13,nm:'documentador',r:5,lbl:'DOCUMENTADOR',col:'#a78bfa',fn:'Gera e atualiza documentacao tecnica'},
+  {pos:14,nm:'otimizador',r:9,lbl:'OTIMIZADOR',col:'#facc15',fn:'Performance, refactoring, reducao de custos'},
+  {pos:15,nm:'integrador',r:11,lbl:'INTEGRADOR',col:'#38bdf8',fn:'APIs, webhooks, integracoes externas'},
+  {pos:16,nm:'analista',r:3,lbl:'ANALISTA',col:'#e879f9',fn:'Analise de dados, logs, metricas avancadas'},
+  {pos:17,nm:'consultor',r:7,lbl:'CONSULTOR',col:'#4ade80',fn:'Best practices, recomendacoes arquiteturais'},
+  {pos:18,nm:'monitor',r:10,lbl:'MONITOR',col:'#f43f5e',fn:'Observabilidade, alertas, saude do sistema'},
+  {pos:19,nm:'planejador',r:8,lbl:'PLANEJADOR',col:'#818cf8',fn:'Roadmap, sprints, decomposicao de tarefas'},
+  {pos:20,nm:'critico',r:1,lbl:'CRITICO',col:'#fb7185',fn:'Code review, feedback negativo construtivo'},
+  {pos:21,nm:'treinador',r:13,lbl:'TREINADOR',col:'#86efac',fn:'Fine-tuning, exemplos, curadoria de datasets'},
+  {pos:22,nm:'descobridor',r:14,lbl:'DESCOBRIDOR',col:'#67e8f9',fn:'Exploracao de novas ferramentas e libs'},
+  {pos:23,nm:'sintetizador',r:6,lbl:'SINTETIZADOR',col:'#d8b4fe',fn:'Resumos, condensacao de contexto longo'},
+  {pos:24,nm:'validador',r:2,lbl:'VALIDADOR',col:'#6ee7b7',fn:'Testes, QA, validacao de contratos de API'},
+  {pos:25,nm:'tradutor',r:15,lbl:'TRADUTOR',col:'#fde68a',fn:'Traducao, localizacao, adaptacao cultural'}
 ]; // CTXRESERVA01: 15 reservas pre-configuradas
 var AGS=[ /*B181_AGS8*/ {nm:'scout',mdl:'claude-haiku-4-5',col:'#7ce7ff',st:'idle',lbl:'BATEDOR'},{nm:'auditor',mdl:'gpt-oss-120b',col:'#a78bfa',st:'idle',lbl:'AUDITOR'},{nm:'detetive',mdl:'claude-sonnet-4-5',col:'#22d3ee',st:'idle',lbl:'DETETIVE'},{nm:'smith',mdl:'claude-sonnet-4-5',col:'#fbbf24',st:'idle',lbl:'ARQUITETO'},{nm:'guardian',mdl:'claude-haiku-4-5',col:'#22c55e',st:'idle',lbl:'GUARDIAO'},{nm:'memorialista',mdl:'zai-glm-4.7',col:'#f472b6',st:'idle',lbl:'MEMORIALISTA'},{nm:'rel',mdl:'claude-haiku-4-5',col:'#60a5fa',st:'idle',lbl:'RELATOR'},{nm:'metrico',mdl:'gpt-oss-120b',col:'#94a3b8',st:'idle',lbl:'METRICO'},{nm:'revisor',mdl:'claude-opus-4-8',col:'#c084fc',st:'idle',lbl:'REVISOR'}/*CTXAGTUNIFY01-RESOLVIDO: hardcode agora e so FALLBACK sincrono (render otimista); hydrateAGSFromCards() no boot() ja deriva os dados reais dos cards (F1-F3 concluidas).*/];
 /* CTXAGSWIN01: AGS/RESERVAS eram var locais do IIFE -> buildAgtPane lia
@@ -1136,15 +1159,28 @@ button[onclick="send()"]:hover{
       }
       html+='</div><div style="border-top:1px solid #1f2937;padding-top:10px;margin-top:4px"><span style="color:#6ee7b7;font:13px ui-monospace,monospace;font-weight:bold;letter-spacing:.05em">🔄 RESERVA <span style="color:#4b5563;font-weight:normal;font-size:11px">('+res.length+'/15)</span></span></div>';
       html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:5px">';
-      res.forEach(function(r){
+      // CTXESTEIRA01: reserva exibida em ORDEM TATICA (campo r = quem entra
+      // primeiro se um titular cair), nao na ordem de cadastro. slice() evita
+      // mutar window.RESERVAS (outros consumidores esperam a ordem original).
+      res.slice().sort(function(a,b){return (a.r||99)-(b.r||99);}).forEach(function(r){
         html+='<div style="background:#0a1119;border:1px solid '+r.col+'33;border-radius:7px;padding:8px 10px">';
         html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span style="width:8px;height:8px;border-radius:50%;background:'+r.col+';flex-shrink:0;display:inline-block"></span>';
+        // Badge R# -- numeracao tatica visivel (analogia futebol: escalacao do banco)
+        html+='<span style="background:'+r.col+'22;color:'+r.col+';font:9px ui-monospace,monospace;font-weight:bold;border-radius:3px;padding:0 4px;flex-shrink:0">R'+(r.r||'?')+'</span>';
         html+='<span style="color:'+r.col+';font:11px ui-monospace,monospace;font-weight:bold">'+r.lbl+'</span>';
         html+='<button title="Promover p/ titular" onclick="event.stopPropagation();window.__oqUsar(\'anthropic\',\'claude-haiku-4-5\',\''+r.lbl+'\')" style="margin-left:auto;background:none;border:1px solid #22c55e55;border-radius:4px;cursor:pointer;color:#22c55e;font:9px ui-monospace,monospace;padding:1px 6px">usar</button>';
         html+='</div>';
         html+='<span style="display:block;color:#4b5563;font:10px ui-monospace,monospace;line-height:1.3">'+r.fn+'</span></div>';
       });
-      html+='</div></div>';
+      html+='</div>';
+      // CTXESTEIRA01: PENEIRA -- 3o tier (scouting). SO APRESENTACAO por ora:
+      // candidatos a agente/modelo serao avaliados aqui em runs de teste ANTES
+      // de entrar na reserva (funil de merito). A logica de avaliacao/promocao
+      // vem no S7 (CTXTEAMROSTER01 + CTXMODELCOMP01) -- nao construir logica
+      // nova no painel legado (strangler fig; ver L-PROMOTESEMCARD01).
+      html+='<div style="border-top:1px solid #1f2937;padding-top:10px;margin-top:10px"><span style="color:#f59e0b;font:13px ui-monospace,monospace;font-weight:bold;letter-spacing:.05em">🔎 PENEIRA <span style="color:#4b5563;font-weight:normal;font-size:11px">(0)</span></span>';
+      html+='<div style="margin-top:6px;border:1px dashed #374151;border-radius:7px;padding:14px;text-align:center;color:#4b5563;font:10px ui-monospace,monospace">Nenhum candidato em avaliacao. Modelos/agentes novos entram aqui para avaliacao em runs de teste antes de subir pra RESERVA (CTXTEAMROSTER01).</div></div>';
+      html+='</div>';
       return html;
     } // fim buildAgtPane
     agtPane.innerHTML=buildAgtPane(); // CTXAGENTES01
