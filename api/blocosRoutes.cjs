@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-02 14:48:32 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-07 15:01:12 -03:00 (auto, git pre-commit)
 // OQ-58a — Executor LAVE remoto
 const crypto = require('crypto');
 const { spawn } = require('child_process');
@@ -242,7 +242,13 @@ module.exports = function(app, requireAuth){
   // GET /api/blocos/historico
   app.post('/api/blocos/oqterm-log', requireAuth, (req, res) => {
     try {
-      const { hash, tamanho } = req.body || {};
+      // CTXMASRUNLINK01 (S2, 2026-07-07): oqterm-log agora aceita agente e
+      // mas_run_id opcionais. Motivo: no uso real os blocos rodam pelo caminho
+      // oqterm (B94), nao pelo execBloco -- e este INSERT gravava null fixo,
+      // jogando fora o vinculo com a run MAS (achado A3 da auditoria Fable).
+      // origem PERMANECE 'oqterm' (descreve o caminho de execucao); o vinculo
+      // MAS vem pelos 2 campos novos. Fallback null = retrocompativel.
+      const { hash, tamanho, agente = null, mas_run_id = null } = req.body || {};
       if (!hash) return res.status(400).json({ error: 'hash obrigatorio' });
       const id = 'oq_' + crypto.randomBytes(8).toString('hex');
       const sub = (req.user && req.user.sub) || '?';
@@ -254,7 +260,9 @@ module.exports = function(app, requireAuth){
       const chainInput = prevHash + '|' + id + '|' + hash + '|' + status + '|' + sub + '|' + ip + '|' + criadoEm;
       const chainHash = crypto.createHash('sha256').update(chainInput).digest('hex');
       db().prepare(`INSERT INTO execucoes (id,bloco_n,titulo,modo,ambiente,script,script_sha256,avisos,status,usuario_jwt_sub,ip_origem,criado_em,origem,agente,mas_run_id,provider,modelo,prev_hash,chain_hash) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(
-        id, null, null, null, null, null, hash, JSON.stringify({tamanho: tamanho||null}), status, sub, ip, criadoEm, 'oqterm', null, null, null, null, prevHash, chainHash
+        // CTXMASRUNLINK01: agente e mas_run_id propagados; chainInput INTACTO
+        // (adicionar campos a formula da cadeia invalidaria o verify-chain antigo).
+        id, null, null, null, null, null, hash, JSON.stringify({tamanho: tamanho||null}), status, sub, ip, criadoEm, 'oqterm', agente, mas_run_id, null, null, prevHash, chainHash
       );
       res.json({ ok: true });
     } catch(e){ res.status(500).json({ error: e.message }); }

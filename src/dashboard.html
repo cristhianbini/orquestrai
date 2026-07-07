@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-07 04:04:47 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-07 15:01:12 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -2153,17 +2153,21 @@ function wireCard(el,b){
   var btC=el.querySelector(".oq71z-copy");
   if(btC) btC.onclick=function(){navigator.clipboard.writeText(b.raw);btC.textContent="COPIADO";setTimeout(function(){btC.textContent="COPIAR"},1200)};
   var btE=el.querySelector(".oq71z-exec");
+  // CTXMASRUNLINK01/S2 (2026-07-07): handler DELEGA pro sendDirect em vez de
+  // fazer ws.send proprio. Motivo (achado da sessao): este era o botao usado
+  // no fluxo real e mandava ao PTY SEM passar pela auditoria hash-chain --
+  // o access.log provou que /api/blocos/oqterm-log NUNCA foi chamado por
+  // browser, so por curl de teste em 2026-07-02. Delegar realiza o proprio
+  // TODO do L2135 ("unificar tudo num unico execToTerminal"): confirmacao,
+  // auditoria e metadata MAS (agente+mas_run_id) num caminho unico.
+  // sendDirect ja cobre: confirm humano, terminal-off (copia p/ clipboard),
+  // normalizacao \r\n e o fetch de auditoria. Aqui fica so o feedback visual.
   if(btE) btE.onclick=function(){
-    var ws=window.oqRealWs;
-    if(!ws||ws.readyState!==1){
-      btE.textContent="✗ TERMINAL OFF"; btE.style.background="#3a1818"; btE.style.color="#ff9090";
-      try{navigator.clipboard.writeText(b.raw)}catch(e){}
-      setTimeout(function(){btE.textContent="▶ EXECUTAR";btE.style.background="#0d3a1a";btE.style.color="#7eff9c"},2000);
-      return;
-    }
-    if(!window.__b94Confirm(b.raw)){ btE.textContent="✗ CANCELADO"; setTimeout(function(){btE.textContent="▶ EXECUTAR"},1500); return; }
-    try{ws.send(b.raw+"\n")}catch(e){}
-    btE.textContent="✓ ENVIADO"; setTimeout(function(){btE.textContent="▶ EXECUTAR"},1500);
+    var ok=false;
+    try{ var __sd=window.__oqSendDirect||((typeof sendDirect!=='undefined')&&sendDirect); ok=__sd?__sd(b.raw):false; if(!__sd)console.warn('oq71z-exec: sendDirect indisponivel (escopo)'); }catch(e){ console.warn('oq71z-exec -> sendDirect falhou:',e&&e.message); }
+    if(ok){ btE.textContent="✓ ENVIADO"; }
+    else { btE.textContent="✗ NAO ENVIADO"; btE.style.background="#3a1818"; btE.style.color="#ff9090"; }
+    setTimeout(function(){btE.textContent="▶ EXECUTAR";btE.style.background="#0d3a1a";btE.style.color="#7eff9c"},2000);
   };
   var btD=el.querySelector(".oq71z-del");
   if(btD) btD.onclick=function(){BLOCKS=BLOCKS.filter(function(x){return x.n!==b.n});persist();renderAll()};
@@ -2570,6 +2574,9 @@ window.OQ_BLOCKS={list:function(){return BLOCKS},clear:function(){BLOCKS=[];seen
     if(!cmd&&window.__lastBloco&&window.__lastBloco.raw)cmd=String(window.__lastBloco.raw).trim();
     return cmd;
   }
+  // CTXMASRUNLINK01/S2: sendDirect exposto em window.__oqSendDirect logo abaixo
+  // (mesmo padrao do window.__b94Confirm) -- o handler do card (wireCard) vive
+  // em outro escopo de script e precisava de referencia global.
   function sendDirect(cmd){
     cmd=String(cmd||'').replace(/\r\n/g,'\n').trim();
     if(!cmd){badge('B94: bloco vazio',true);return false;}
@@ -2594,7 +2601,21 @@ window.OQ_BLOCKS={list:function(){return BLOCKS},clear:function(){BLOCKS=[];seen
           var hex=Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
           var H={'Content-Type':'application/json'};
           if(TOKEN)H.Authorization='Bearer '+TOKEN;
-          return fetch('/api/blocos/oqterm-log',{method:'POST',headers:H,body:JSON.stringify({hash:hex,tamanho:cmd.length})});
+          // CTXMASRUNLINK01 (S2): se o comando enviado E' exatamente o bloco MAS
+          // exibido no cockpit, propaga agente+mas_run_id pro registro de auditoria
+          // (o INSERT do oqterm-log gravava null fixo -- achado A3 da auditoria).
+          // Guarda anti-mislabel: so vincula se dataset.origem==='mas' E o texto do
+          // elemento bater com o cmd normalizado -- comando avulso digitado enquanto
+          // um bloco MAS esta na tela NAO e vinculado. Na duvida: null (= antigo).
+          var __mMeta={agente:null,mas_run_id:null};
+          try{
+            var __mEl=document.getElementById('bloco');
+            if(__mEl && __mEl.dataset.origem==='mas' && String(__mEl.textContent||'').replace(/\r\n/g,'\n').trim()===cmd){
+              __mMeta.agente=__mEl.dataset.agente||null;
+              __mMeta.mas_run_id=__mEl.dataset.masRunId||null;
+            }
+          }catch(_){}
+          return fetch('/api/blocos/oqterm-log',{method:'POST',headers:H,body:JSON.stringify({hash:hex,tamanho:cmd.length,agente:__mMeta.agente,mas_run_id:__mMeta.mas_run_id})});
         }).catch(function(e){ console.warn('[B94] auditoria oqterm-log falhou (nao bloqueia):',e&&e.message); });
       }catch(e){ console.warn('[B94] auditoria oqterm-log falhou (nao bloqueia):',e&&e.message); }
       return true;
@@ -2604,6 +2625,7 @@ window.OQ_BLOCKS={list:function(){return BLOCKS},clear:function(){BLOCKS=[];seen
     console.warn('B94: window.oqRealWs não conectado; comando ficou copiado');
     return false;
   }
+  window.__oqSendDirect = sendDirect; // CTXMASRUNLINK01/S2: ponte de escopo p/ wireCard
   function ensureRow(copyBtn){var p=copyBtn.parentElement;if(!p)return p;if(!p.classList.contains('b94-row')){var row=document.createElement('span');row.className='b94-row';p.insertBefore(row,copyBtn);row.appendChild(copyBtn);return row;}return p;}
   function tick(){
     var made=0,cards=0;
