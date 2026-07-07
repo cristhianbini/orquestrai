@@ -24,10 +24,6 @@ o run_id não é injetado no momento da persistência da execução.
 `display:none`. São dívida de limpeza pendente da migração strangler fig.
 Decisão em aberto (ver `03-DESAFIOS`, pergunta 6): remover agora ou depois.
 
-### Artefato de ilha dessincronizado
-Ver `04-STATUS` — `dist-island/*.js` rebuildado à frente do último commit.
-Micro-tarefa: verificar no browser + commitar para sincronizar.
-
 ---
 
 ## Follow-ups adicionais mencionados em sessões anteriores

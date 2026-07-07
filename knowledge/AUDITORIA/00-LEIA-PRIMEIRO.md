@@ -25,7 +25,7 @@ cirúrgico por vez, **sem quebrar produção**.
 | Arquivo | Conteúdo | Estabilidade |
 |---|---|---|
 | `00-LEIA-PRIMEIRO.md` | Este índice | estável |
-| `01-ARQUITETURA.md` | Stack, containers, bind-mounts, os 2 sistemas de card, fluxo SSE | estável |
+| `01-ARQUITETURA.md` | Stack, containers, bind-mounts, os 3 sistemas de card, fluxo SSE | estável |
 | `02-SEGURANCA.md` | Camadas de proteção já implementadas + riscos conhecidos (transparência) | estável |
 | `03-DESAFIOS-ABERTOS.md` | ★ Perguntas diretas ao auditor — onde mais queremos ajuda | evolui |
 | `04-STATUS.md` | ★ **VIVO** — estado atual, atualizado a cada tarefa fechada | muda toda hora |
