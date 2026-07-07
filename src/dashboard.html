@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-07 00:01:29 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-07 00:16:44 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -2060,7 +2060,14 @@ section.panel.flex.flex-col{min-height:0!important}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css">
 <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
-<style id="oq71z-css">pre#term{padding:0!important;background:#000!important;min-height:240px;overflow:hidden!important}pre#term .xterm{height:100%;padding:6px}.oq71z-card{border:1px solid var(--line);background:#0a0f15;border-radius:6px;padding:10px;display:grid;gap:8px}.oq71z-badge{display:inline-block;background:var(--green);color:#00130a;font-weight:800;border-radius:5px;padding:2px 8px}.oq71z-copy{border:1px solid var(--green);color:var(--green);padding:5px 10px;border-radius:4px;font-weight:700;font-size:12px}.oq71z-copy:hover{background:var(--green);color:#00130a}</style>
+<style id="oq71z-css">pre#term{padding:0!important;background:#000!important;min-height:240px;overflow:hidden!important}pre#term .xterm{height:100%;padding:6px}.oq71z-card{border:1px solid var(--line);background:#0a0f15;border-radius:6px;padding:10px;display:grid;gap:8px}.oq71z-badge{display:inline-block;background:var(--green);color:#00130a;font-weight:800;border-radius:5px;padding:2px 8px}.oq71z-copy{border:1px solid var(--green);color:var(--green);padding:5px 10px;border-radius:4px;font-weight:700;font-size:12px}.oq71z-copy:hover{background:var(--green);color:#00130a}
+/* CTXBTNSTD01: padroniza os 3 botoes do cabecalho do terminal (colar/chat,
+   clear, conectar) -- mesmo tamanho/fonte/efeito hover do padrao COPIAR/
+   EXECUTAR do bloco. Achado: "colar no chat" nunca tinha style proprio,
+   por isso destoava dos outros dois. */
+.oq-term-btn{font:10px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.03em;padding:3px 10px;border-radius:6px;border:1px solid #7CE7FF;background:rgba(124,231,255,.06);color:#7CE7FF;cursor:pointer;transition:background .15s,color .15s}
+.oq-term-btn:hover{background:#7CE7FF;color:#00130a}
+</style>
 <script id="oq71z-xterm">(function(){if(window.__oq71zXterm)return;window.__oq71zXterm=true;function tok(){try{return localStorage.getItem('oq_token')||localStorage.getItem('orq_jwt')||localStorage.getItem('jwt')||localStorage.getItem('token')||''}catch(e){return ''}}function header(s,on){var xs=document.querySelectorAll('span');for(var i=0;i<xs.length;i++){if((xs[i].textContent||'').indexOf('TERMINAL')>=0){xs[i].innerHTML='<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+(on?'#22c55e':'#ef4444')+';margin-right:6px;box-shadow:'+(on?'0 0 7px #22c55e':'none')+'"></span>TERMINAL · '+s;break}}}function boot(){var host=document.getElementById('term');if(!host||!window.Terminal)return;host.innerHTML='';host.classList.remove('scan');var term=new Terminal({cursorBlink:true,fontSize:12,fontFamily:'JetBrains Mono,ui-monospace,Menlo,Consolas,monospace',theme:{background:'#000000',foreground:'#7CFFB2'}});var fit=new FitAddon.FitAddon();term.loadAddon(fit);term.open(host);setTimeout(function(){try{fit.fit();term.focus()}catch(e){}},80);window.cbiniTerm=term;window.oqRealTerm=term;var t=tok();if(!t){header('sem token',false);term.write('sem token: faca login no painel\r\n');return}header('conectando',false);var ws=new WebSocket('wss://'+location.host+'/api/term/ws?_t='+encodeURIComponent(t));window.oqRealWs=ws;ws.binaryType='arraybuffer';ws.onopen=function(){header('conectado',true);try{ws.send(JSON.stringify({resize:true,cols:term.cols,rows:term.rows}))}catch(e){};term.focus()};ws.onmessage=function(ev){var d=ev.data;if(d instanceof ArrayBuffer)term.write(new Uint8Array(d));else term.write(d)};ws.onclose=function(ev){header('fechado '+ev.code,false)};ws.onerror=function(){header('erro WS',false)};term.onData(function(d){if(ws.readyState===1)ws.send(d)});term.onResize(function(sz){if(ws.readyState===1)try{ws.send(JSON.stringify({resize:true,cols:sz.cols,rows:sz.rows}))}catch(e){}});host.addEventListener('click',function(){term.focus()});window.addEventListener('resize',function(){try{fit.fit()}catch(e){}});document.querySelectorAll('button').forEach(function(b){var x=(b.textContent||'').trim().toLowerCase();if(x==='limpar'||x.indexOf('colar')>=0||x.indexOf('logar')>=0){b.onclick=function(){try{term.clear();term.focus()}catch(e){}}}})}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot()})();</script>
 
 <!--CBINI_XTERM_INLINE_END-->
@@ -3560,7 +3567,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     var b=document.createElement('button');
     b.id='oq-term-to-chat-b298';
     b.type='button';
-    b.textContent='📤 colar no chat';
+    b.textContent='📤 colar/chat';
+    b.className='oq-term-btn';
     b.title='Envia as últimas linhas do terminal para o chat (Ctrl+Shift+O)';
     b.onclick=function(){
       var t=termTail(40);
@@ -3576,7 +3584,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     bClear.type='button';
     bClear.textContent='🧹 clear';
     bClear.title='Limpa a tela do terminal';
-    bClear.style.cssText='font-size:10px;padding:2px 8px;border-radius:6px;border:1px solid #1d2a3a;background:rgba(124,231,255,.06);color:#7CE7FF;cursor:pointer';
+    bClear.className='oq-term-btn';
     bClear.onclick=function(){
       try{ if(window.oqRealTerm) window.oqRealTerm.clear(); }catch(e){}
     };
@@ -3591,7 +3599,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     bConn.type='button';
     bConn.textContent='🔒 conectar';
     bConn.title='Em breve: autenticacao dedicada do terminal (2FA de terminal)';
-    bConn.style.cssText='font-size:10px;padding:2px 8px;border-radius:6px;border:1px solid #1d2a3a;background:rgba(124,231,255,.06);color:#7CE7FF;cursor:pointer';
+    bConn.className='oq-term-btn';
     bConn.onclick=function(){
       alert('🔒 Em breve: autenticacao dedicada do terminal (2FA de terminal).');
     };
