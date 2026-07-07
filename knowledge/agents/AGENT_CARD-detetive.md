@@ -3,7 +3,7 @@ slug: detetive
 label_pt: DETETIVE
 emoji: 🕵️
 cor: "#8b5cf6"
-modelo_atual: claude-sonnet-4-5
+modelo_atual: anthropic/claude-sonnet-4-5
 custo_medio_usd: 0.01464
 latencia_media_s: 7.5
 tokens_medio: 3884.0

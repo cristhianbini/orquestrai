@@ -3,7 +3,7 @@ slug: auditor
 label_pt: AUDITOR
 emoji: 🔎
 cor: "#a855f7"
-modelo_atual: groq/llama-3.3-70b-versatile
+modelo_atual: cerebras/gpt-oss-120b
 custo_medio_usd: 0.0
 latencia_media_s: null
 tokens_medio: 581.0

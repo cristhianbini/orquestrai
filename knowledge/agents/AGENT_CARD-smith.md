@@ -3,7 +3,7 @@ slug: smith
 label_pt: ARQUITETO
 emoji: 🏗️
 cor: "#f59e0b"
-modelo_atual: claude-sonnet-4-5
+modelo_atual: anthropic/claude-sonnet-4-5
 custo_medio_usd: 0.01700
 latencia_media_s: 12.4
 tokens_medio: 2750.0

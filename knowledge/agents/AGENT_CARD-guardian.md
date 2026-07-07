@@ -3,7 +3,7 @@ slug: guardian
 label_pt: GUARDIAO
 emoji: 🛡️
 cor: "#22c55e"
-modelo_atual: claude-haiku-4-5
+modelo_atual: anthropic/claude-haiku-4-5
 custo_medio_usd: 0.005494
 latencia_media_s: null
 tokens_medio: 4031.0

@@ -3,7 +3,7 @@ slug: scout
 label_pt: BATEDOR
 emoji: 🔍
 cor: "#3b82f6"
-modelo_atual: claude-haiku-4-5
+modelo_atual: anthropic/claude-haiku-4-5
 custo_medio_usd: 0.00264
 latencia_media_s: 3.8
 tokens_medio: 1644.0

@@ -3,7 +3,7 @@ slug: rel
 label_pt: RELATOR
 emoji: 📝
 cor: "#06b6d4"
-modelo_atual: claude-haiku-4-5
+modelo_atual: anthropic/claude-haiku-4-5
 custo_medio_usd: 0.004913
 latencia_media_s: null
 tokens_medio: 4156.0

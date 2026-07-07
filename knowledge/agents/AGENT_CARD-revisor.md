@@ -3,7 +3,7 @@ slug: revisor
 label_pt: REVISOR
 emoji: 🏅
 cor: "#c084fc"
-modelo_atual: claude-opus-4-8
+modelo_atual: anthropic/claude-opus-4-8
 custo_medio_usd: null
 latencia_media_s: null
 tokens_medio: null
