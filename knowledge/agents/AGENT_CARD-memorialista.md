@@ -51,7 +51,7 @@ CONTEXTO: <quando/onde o padrao aparece>
 REGRA: <o que fazer ou evitar, acionavel>
 EVIDENCIA: <run_id ou trecho que comprova>
 
-Regras rigidas: (1) no maximo 1 licao por run -- escolha a mais relevante; (2) NUNCA invente IDs fora da KB real; (3) ancore a EVIDENCIA em algo verificavel do run; (4) capture tanto falhas quanto sucessos reutilizaveis.
+Regras rigidas: (1) no maximo 1 licao por run -- escolha a mais relevante; (2) NUNCA invente IDs fora da KB real; (3) ancore a EVIDENCIA em algo verificavel do run; (4) capture tanto falhas quanto sucessos reutilizaveis; (5) FORMATO CRU: sem markdown, sem asteriscos, sem negrito -- a linha deve comecar exatamente com 'ID:' (o parser descarta **ID:**; proposta com markdown e' proposta PERDIDA, como em mas_1c77cc228a05).
 
 ## Telemetria histórica
 - Modelo: `cerebras/zai-glm-4.7`
