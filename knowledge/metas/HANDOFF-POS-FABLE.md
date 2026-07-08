@@ -216,3 +216,17 @@ o hardcode ou ligar a toggle real; VALIDACAO = 1o CTXLEARNTEST01 (repetir
 'nome do sistema na VPS' -> deve responder via quickChat ~\$0.001).
 Defesa em profundidade 3 aneis: porta(router, fix pendente) + meio(SMITH
 nao gerar bloco p/ fato consolidado -- licao ja na KB) + fim(Q10, ok).
+
+### CTXEARLYEXIT01 — Early-exit do pipeline (ideia Bini 2026-07-08)
+'Se a resposta ja sair no batedor, nao tem porque os outros seguirem.'
+Diferente do router (decide NA PORTA): early-exit decide DURANTE o run.
+Desenho candidato: apos scout/auditor, um check barato (haiku ou heuristica)
+avalia 'o goal ja esta respondido?' -- se sim, pula direto p/ relator
+(sintese) + memorialista (licao) e encerra. Smith/guardian/revisor so
+rodam se ha algo a CONSTRUIR. Conecta com Q10 (mesma familia: convocacao
+por necessidade) e com a matematica do Bini: pergunta de \$0.19 viraria
+~\$0.04 (scout+auditor+relator). PRE-REQUISITO: validar CTXROUTER01-fix
+primeiro (a porta resolve 80% dos casos; early-exit pega o resto).
+### CORRECAO de honestidade: commit 3c8ddd7 disse 'CTXLEARNTEST01 VALIDADO'
+mas a run da evidencia era PRE-fix (mas_663ec anterior ao patch). O teste
+real: repetir a pergunta POS Ctrl+Shift+R. Registrado p/ nao enganar o futuro.

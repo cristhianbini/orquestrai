@@ -1,3 +1,7 @@
+---
+PROJETO: orquestrai
+APROVADA: 2026-07-08 (curadoria humana)
+---
 # L-PROP-naming-sources-priority
 
 _Proposta por Memorialista, pre-aprovada por Guardian em 2026-07-08T19:55:44.530Z. Aguardando revisao humana._
