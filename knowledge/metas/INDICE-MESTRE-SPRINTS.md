@@ -9,7 +9,7 @@ esperado e saudável; S1-S5 só reordenar com motivo registrado.
 - [x] S1  Itens 6-7 pós-auditoria (dedup L-B235 + frontmatter projeto: + filtro loadKB)
 - [x] S2  Fase 2 pós-auditoria completa (8→9→10: mas_run_id + harness real)
 - [x] S3  Fase 3 pós-auditoria (11-12: oqterm bind + nginx sem query string)
-- [~] S4  Curadoria 8/9: ...relator✅metrico✅ | falta REVISOR (13.9 -- proxima sessao, decisao Q10 junto)
+- [x] S4  Curadoria 9/9 COMPLETA (2026-07-08): todos os titulares curados; revisor validado em run real (pegou 2 furos pre-aprovacao); memorialista em haiku + FORMATO CRU enfileirando L-PROP; metrico com telemetria real injetada
 - [ ] S5  R6-13.3→13.5.x: wrappers EventSource + containers-fantasma (fecha Bloco E)
 
 ## FILA ORDENADA (títulos; detalhar ao chegar)
