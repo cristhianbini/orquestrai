@@ -40,3 +40,30 @@ nao construir logica nova no painel legado (strangler fig).
 ## Pre-requisito de qualidade
 Slot #10 atual (llama-3.2-3b free) entrou sem peneira -- avaliar em 1 run
 dedicada antes de considerar titular real.
+
+## DECISOES DE ARQUITETURA (2026-07-07, Fable -- justificativa p/ Opus/Sonnet)
+
+### Numeracao R# relativa (R1-R15) vs absoluta (R11-R26) -- DECIDIDO: relativa
+Absoluta (continuar a contagem dos titulares) quebra quando o nº de titulares
+muda: promover 1 reserva a titular renumeraria TODO o banco (churn de UI +
+docs + banco). Relativa (R# = posicao NA FILA da reserva) e' estavel: diz
+"quem entra primeiro", independe do tamanho do time titular. Analogia: futebol
+numera o banco por ordem de entrada, nao continuando a camisa dos titulares.
+
+### Pipeline de evolucao dos agentes -- promocao POR MERITO, nao por numero
+O numero (R#) e' CONSEQUENCIA do score, nao a fonte. Arquitetura alvo:
+  PENEIRA (avaliacao padronizada: mesmo goal fixo por candidato)
+    -> RESERVA (ranqueada por harness/custo NO PAPEL que cobre)
+    -> TITULAR (troca quando reserva supera titular na metrica do papel)
+Hierarquia por numero fixo e' fragil (nao reflete desempenho real). O que
+falta p/ isso funcionar: SCORE POR AGENTE (dependencia -- ver PENDENCIA DE
+PRODUTO R6-11; o block_executed do S2 comecou a destravar). Enquanto o score
+nao existe, R# manual (cobertura tatica) e' o proxy aceitavel.
+
+### Visao de longo prazo que orienta estas decisoes
+Plataforma sera: orquestrador de agentes + construtor de projetos + auditoria
+continua + modo individual (chat direto com 1 modelo, sem pipeline). Logo:
+a fonte de agentes (cards) deve ser DESACOPLADA do modo de uso -- o mesmo card
+serve o pipeline MAS e o chat individual. CTXAGTUNIFY01 (card=fonte unica) ja
+caminha nessa direcao; manter.
+

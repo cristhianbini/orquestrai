@@ -4,6 +4,15 @@ PROJETO: orquestrai
 > este arquivo (pendências finas). Regra de ouro: L-CTXHANDOFFVERIFY01 --
 > verifique o estado pelo terminal, não confie só neste texto.
 
+## RESOLVIDO nesta continuacao (nao refazer)
+- Bug "usar reserva" (CTXUSARFIX02): slot promovido nascia com slug fake
+  'pos9' -> lapis nao achava card + cor cinza. Fix: slug derivado do label
+  (mesmo normalize do backend) + cor do card real. Testado: CRITICO promovido,
+  lapis abre o card. Commit 84d7b2d/aafeec0.
+- Layout da reserva: R# movido pra dentro do dot, labels longos nao cortam.
+- Decisoes de arquitetura (R# relativo + pipeline por merito) registradas em
+  META-CTXESTEIRA01.
+
 ## Fila imediata (ordem)
 1. VERIFICAR CTXMEMKB01: rodar 1 run MAS -- memorialista deve concluir NO
    cerebras sem AGENT_ERROR 400 e COM tokens no card. Se falhar de novo:
