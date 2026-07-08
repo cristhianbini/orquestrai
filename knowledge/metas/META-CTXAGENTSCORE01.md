@@ -84,3 +84,24 @@ e e' sinal forte p/ troca de modelo. 3 sabores, FASEADOS:
   bug no bash gerado). So o segundo penaliza.
 - score e' JANELA movel (ultimas N runs), nao vida inteira -- agente melhora
   apos curadoria e o score deve refletir isso rapido.
+
+## IDEIAS DO BINI (2026-07-07, pos-FASE 1 visual) -- registradas p/ futuro
+
+### Animacao do ScoreMeter (score sobe/desce ao vivo)
+FASE 1 hoje: fetch unico no mount (score estatico ate refresh). Bini quer o
+meter ANIMANDO conforme metrifica. Caminho: (a) re-fetch periodico do
+/agent-scores (ex: a cada 30s) + transicao CSS nas barras (height/opacity
+com transition) -> a barra "cresce/encolhe" suave quando o score muda entre
+fetches. (b) Versao rica: apos cada run terminar (SSE run-done), disparar
+1 re-fetch -> o score reage AO VIVO ao resultado da run que acabou. Baixo
+custo, alto impacto visual. Fica p/ depois da curadoria (CTXKBLOOP01) --
+primeiro o score precisa MUDAR de verdade (hoje e' historico estavel).
+
+### Manual do sistema (pagina de ajuda detalhada)
+Pagina dedicada explicando: o que cada agente faz, a esteira (por que esta
+ordem -- ja documentado em CTXESTEIRA01), como ler o Score (as 4 dimensoes),
+reserva/peneira, LAVE+F. Publico: quem for aprender o sistema. Fonte de
+conteudo JA EXISTE espalhada nas METAs -- o manual consolida em linguagem
+de usuario. Candidato a: pagina estatica /manual ou secao no cockpit.
+Prioridade: media (didatico, nao bloqueia evolucao). Bom candidato p/ o
+proprio DOCUMENTADOR (agente) gerar quando for curado (13.x).
