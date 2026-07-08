@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-08 11:32:17 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-08 11:39:07 -03:00 (auto, git pre-commit)
 
 // [B220-LOG]
 import { appendFileSync as _appB220 } from "node:fs";
@@ -171,7 +171,7 @@ const ROUTING = {
   detetive:     { provider: 'anthropic', model: 'claude-sonnet-4-5' },
   smith:        { provider: 'anthropic', model: 'claude-sonnet-4-5' },
   guardian:     { provider: 'anthropic', model: 'claude-haiku-4-5' },
-  memorialista: { provider: 'cerebras',  model: 'zai-glm-4.7' },
+  memorialista: { provider: 'anthropic', model: 'claude-haiku-4-5' }, // CTXMEMHAIKU01 (2026-07-08): zai-glm falhou 3x no papel (400 contexto -> vazio sem material -> vazio COM material, tokens_out=0 em mas_d17af4a8b43f); haiku ja provou no fallback informal; free!=gratis quando a saida e' vazia -- custo estimado ~¢0.5/run
   rel:          { provider: 'anthropic', model: 'claude-haiku-4-5' },
   metrico:      { provider: 'cerebras',  model: 'gpt-oss-120b' },
   revisor:      { provider: 'anthropic', model: 'claude-opus-4-8' },
