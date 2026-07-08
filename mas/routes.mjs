@@ -3,7 +3,7 @@
 // Ver mas/auth.mjs para o raciocinio completo.
 import { authMiddleware, authMiddlewareSSE } from './auth.mjs';
 
-// ATUALIZADO: 2026-07-07 15:08:49 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-07 22:55:22 -03:00 (auto, git pre-commit)
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 import express from 'express';
@@ -254,6 +254,81 @@ router.get('/harness-score', authMiddleware, readLimiter, (req,res) => { // CTXR
     ? Math.round((scored.reduce((a,s)=>a+s.harness_score,0)/scored.length) * 1000) / 1000
     : null;
   res.json({ count: scored.length, avg_harness_score: avg, runs: scored });
+});
+
+// ===========================================================================
+// CTXAGENTSCORE01 FASE 1 (2026-07-07) -- AgentScore por (agente x papel).
+// On-the-fly (dados ja no SQLite, janela pequena, 1 operador -- persistir so
+// se virar gargalo). Formula (META-CTXAGENTSCORE01):
+//   0.35 contribuicao + 0.30 qualidade + 0.20 eficiencia + 0.15 convergencia
+// FASE 1 usa so sinais que JA existem em mas_event (done/error/vetoed) +
+// execucoes (block_executed do S2). Fases 2/3 (humano, reincidencia) depois.
+// READ-ONLY: nao grava nada, nao afeta runs.
+// ===========================================================================
+router.get('/agent-scores', authMiddleware, readLimiter, (req, res) => {
+  try {
+    const D = require('better-sqlite3');
+    const WINDOW = Math.min(parseInt(req.query.window) || 30, 200);
+    const d = new D('/app/data/blackboard.db', { readonly: true });
+    const runs = d.prepare("SELECT id FROM mas_run ORDER BY started_at DESC LIMIT ?").all(WINDOW).map(r => r.id);
+    if (!runs.length) { d.close(); return res.json({ ok: true, window: WINDOW, agents: [] }); }
+    const ph = runs.map(() => '?').join(',');
+    const rows = d.prepare(
+      "SELECT agent, COUNT(*) AS eventos, " +
+      "SUM(CASE WHEN phase='done' THEN 1 ELSE 0 END) AS dones, " +
+      "SUM(CASE WHEN phase='error' THEN 1 ELSE 0 END) AS erros, " +
+      "SUM(CASE WHEN phase='vetoed' THEN 1 ELSE 0 END) AS vetos, " +
+      "AVG(NULLIF(cost_usd,0)) AS custo_medio, " +
+      "COUNT(DISTINCT run_id) AS runs_participadas " +
+      "FROM mas_event WHERE run_id IN (" + ph + ") GROUP BY agent"
+    ).all(...runs);
+    d.close();
+
+    const dc = new D('/app/data/cluster.db', { readonly: true });
+    let runsComExec = 0;
+    try {
+      const ex = dc.prepare("SELECT COUNT(DISTINCT mas_run_id) n FROM execucoes WHERE mas_run_id IN (" + ph + ")").get(...runs);
+      runsComExec = (ex && ex.n) || 0;
+    } catch(_) {}
+    dc.close();
+
+    // CTXAGENTSCORE01-fix: eficiencia NAO compara custo entre papeis (Opus vs
+    // free tier) -- isso puniria o REVISOR por ser Opus (anti-armadilha da META).
+    // FASE 1: eficiencia = 1 se o agente concluiu sem retrabalho custoso; o
+    // custo bruto vira sinal informativo (exposto), nao penalidade cross-papel.
+    // Comparacao de custo POR PAPEL fica pra FASE 3 (PENEIRA, mesmo papel).
+    const agents = rows.map(row => {
+      const total = (row.dones + row.erros) || 1;
+      const qualidade = Math.max(0, (row.dones - row.vetos) / total);
+      const convergencia = Math.max(0, 1 - (row.erros / (row.runs_participadas || 1)));
+      // eficiencia FASE 1: proxy = tokens/custo nao explodiram (sem retrabalho).
+      // Base 1.0, penaliza so se houve erro (retrabalho = desperdicio). Custo
+      // absoluto exposto em sinais p/ leitura, mas NAO entra como penalidade
+      // cross-papel. Revisao p/ comparacao intra-papel na FASE 3.
+      const eficiencia = Math.max(0.5, 1 - (row.erros * 0.1));
+      const contribuicao = runs.length ? runsComExec / runs.length : 0;
+      const score = 0.35*contribuicao + 0.30*qualidade + 0.20*eficiencia + 0.15*convergencia;
+      return {
+        agent: row.agent,
+        score: Math.round(score * 1000) / 1000,
+        dims: {
+          contribuicao: Math.round(contribuicao*100)/100,
+          qualidade: Math.round(qualidade*100)/100,
+          eficiencia: Math.round(eficiencia*100)/100,
+          convergencia: Math.round(convergencia*100)/100
+        },
+        sinais: { runs: row.runs_participadas, dones: row.dones, erros: row.erros, vetos: row.vetos, custo_medio_usd: Math.round((row.custo_medio||0)*100000)/100000 }
+      };
+    }).sort((a,b) => b.score - a.score);
+
+    const contribImatura = runsComExec < 5;
+    res.json({ ok: true, window: WINDOW, formula: '0.35c+0.30q+0.20e+0.15conv',
+      nota: 'FASE 1: contribuicao=sinal de time; humano+reincidencia nas fases 2/3',
+      aviso: contribImatura ? 'contribuicao imatura: so '+runsComExec+' runs com bloco executado vinculado (mas_run_id novo). Dimensao ganha sinal com o uso.' : null,
+      agents });
+  } catch(e) {
+    res.status(500).json({ ok: false, error: String(e && e.message || e) });
+  }
 });
 
 // ===== CTXKBCURATOR01_REVIEW =====
