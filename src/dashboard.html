@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-07 15:45:01 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-07 22:26:45 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -240,11 +240,24 @@ window.applyPositionOverrides = function(){
   return fetch('/api/agents/positions',{headers:{Authorization:'Bearer '+tk}}).then(function(r){return r.json();}).then(function(d){
     if(!d.ok||!d.positions||!d.positions.length) return;
     var map={'BATEDOR':'#7ce7ff','AUDITOR':'#a78bfa','DETETIVE':'#22d3ee','ARQUITETO':'#fbbf24','GUARDIAO':'#22c55e','MEMORIALISTA':'#f472b6','RELATOR':'#60a5fa','METRICO':'#94a3b8','REVISOR':'#c084fc','#10':'#6b7280','#11':'#6b7280'};
+    // CTXUSARFIX02 (2026-07-07): slot promovido nascia com nm:'pos9' (slug
+    // FAKE) -- o lapis buscava card 'pos9' e dava "agente nao encontrado",
+    // e a cor ficava cinza fixa (o "acinzentado" reportado). Fix: derivar o
+    // slug REAL do label com o MESMO normalize do backend (server.js, fix
+    // L-PROMOTESEMCARD01 -- o card JA existe, foi materializado na promocao)
+    // e puxar cor do card via window.__CARDS_BYSLUG (populado no hydrate).
     d.positions.forEach(function(row){
       var idx=row.position; if(idx<0) return;
+      var slug=String(row.label||'').trim().toLowerCase().replace(/[^a-z0-9_-]/g,'')||('pos'+idx);
       while(window.AGS.length<=idx){ window.AGS.push({nm:'pos'+window.AGS.length,mdl:'—',col:'#6b7280',st:'idle',lbl:'#'+(window.AGS.length+1)}); }
+      window.AGS[idx].nm=slug; // slug real -> lapis encontra o card
       window.AGS[idx].mdl=(row.provider&&row.provider!==''?row.provider+'/':'')+row.model;
-      if(row.label){ window.AGS[idx].lbl=row.label; if(map[row.label]) window.AGS[idx].col=map[row.label]; }
+      if(row.label){
+        window.AGS[idx].lbl=row.label;
+        var card=(window.__CARDS_BYSLUG||{})[slug];
+        var cardCor=card&&card.meta&&card.meta.cor;
+        window.AGS[idx].col=cardCor||map[row.label]||'#fb7185'; // cor do card > mapa > fallback vivo (nao cinza)
+      }
     });
   }).catch(function(){});
 };
@@ -308,6 +321,7 @@ window.hydrateAGSFromCards = async function(){
     if(!j || !j.ok || !Array.isArray(j.cards)) return {ok:false, reason:'resposta invalida'};
     var bySlug = {};
     j.cards.forEach(function(c){ bySlug[c.slug] = c; });
+    window.__CARDS_BYSLUG = bySlug; // CTXUSARFIX02: overrides de posicao usam cor/meta do card real
     var novo = window.__AGS_ORDER.map(function(slug){
       var c = bySlug[slug]; if(!c) return null;
       var m = c.meta||{};
@@ -1164,9 +1178,10 @@ button[onclick="send()"]:hover{
       // mutar window.RESERVAS (outros consumidores esperam a ordem original).
       res.slice().sort(function(a,b){return (a.r||99)-(b.r||99);}).forEach(function(r){
         html+='<div style="background:#0a1119;border:1px solid '+r.col+'33;border-radius:7px;padding:8px 10px">';
-        html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span style="width:8px;height:8px;border-radius:50%;background:'+r.col+';flex-shrink:0;display:inline-block"></span>';
-        // Badge R# -- numeracao tatica visivel (analogia futebol: escalacao do banco)
-        html+='<span style="background:'+r.col+'22;color:'+r.col+';font:9px ui-monospace,monospace;font-weight:bold;border-radius:3px;padding:0 4px;flex-shrink:0">R'+(r.r||'?')+'</span>';
+        // CTXESTEIRA01-fix2: gap 6->4, dot 8->7, badge padding menor -- nomes
+        // longos (VALIDADOR/PESQUISADOR) cortavam com "..." cedo demais.
+        html+='<div style="display:flex;align-items:center;gap:4px;margin-bottom:3px"><span style="width:7px;height:7px;border-radius:50%;background:'+r.col+';flex-shrink:0;display:inline-block"></span>';
+        html+='<span style="background:'+r.col+'22;color:'+r.col+';font:9px ui-monospace,monospace;font-weight:bold;border-radius:3px;padding:0 3px;flex-shrink:0">R'+(r.r||'?')+'</span>';
         html+='<span style="color:'+r.col+';font:11px ui-monospace,monospace;font-weight:bold;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r.lbl+'</span>';
         html+='<button title="Promover p/ titular" onclick="event.stopPropagation();window.__oqUsar(\'anthropic\',\'claude-haiku-4-5\',\''+r.lbl+'\')" style="margin-left:auto;flex-shrink:0;background:none;border:1px solid #22c55e55;border-radius:4px;cursor:pointer;color:#22c55e;font:9px ui-monospace,monospace;padding:1px 6px">usar</button>';
         html+='</div>';
