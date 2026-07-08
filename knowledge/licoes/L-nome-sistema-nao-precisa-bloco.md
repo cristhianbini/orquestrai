@@ -1,3 +1,7 @@
+---
+PROJETO: orquestrai
+APROVADA: 2026-07-08 (curadoria humana)
+---
 # L-PROP-nome-sistema-nao-precisa-bloco
 
 _Proposta por Memorialista, pre-aprovada por Guardian em 2026-07-08T19:43:13.276Z. Aguardando revisao humana._

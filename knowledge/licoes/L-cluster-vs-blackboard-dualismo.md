@@ -1,3 +1,7 @@
+---
+PROJETO: orquestrai
+APROVADA: 2026-07-08 (curadoria humana)
+---
 # L-PROP-cluster-vs-blackboard-dualismo
 
 _Proposta por Memorialista, pre-aprovada por Guardian em 2026-07-08T19:25:27.274Z. Aguardando revisao humana._
