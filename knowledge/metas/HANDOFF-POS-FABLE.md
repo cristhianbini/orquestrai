@@ -156,3 +156,20 @@ contagem (salvou o arquivo 3x nesta sessao).
    Modo automatizado de implantacao: so quando plataforma ~100%.
 3. Sequencia mestre confirmada: S4 completo -> score -> PENEIRA
    (DeepSeek/MiniMax $5-10) -> L-SELF* -> redesign -> plataforma CBini.
+
+## ADENDO 3 — Rodada 2026-07-08 (parte 2): ideias Bini + Q10 municiado
+### Ideias registradas
+1. QWEN 3.6 27B: 3o candidato PENEIRA (junto DeepSeek+MiniMax) -- Bini ouviu
+   bom custo/beneficio. Comparativo dos 3: preco/1M, contexto, rate-limit,
+   qualidade PT-BR. Entrada SEMPRE via PENEIRA com run padronizada.
+2. DOCUMENTACAO VISUAL DO SCORE (adendo ao redesign S9-S11): quando as telas
+   novas nascerem (padrao Provedores-com-abas), incluir tela/aba explicando
+   COMO o score de cada agente e' pontuado -- formula visivel, interativa,
+   moderna. Idem p/ fluxo da esteira, treinamento dos agentes, manuais.
+   Principio: o operador deve COMPREENDER o sistema olhando pra tela
+   (transparencia = confianca = CTXSELFKNOW01 na camada visual).
+### Q10 municiado (decisao pendente do Bini)
+127 runs / revisor 27x / \$2.54 / so 3 runs (2%) com bloco executado
+(ressalva: mas_run_id e' novo, taxa real maior, mas mesmo 20% cortaria
+~80% do maior custo). Proposta de implementacao quando decidir: revisor
+condicional -- so convocado se smith produziu BLOCO executavel no run.
