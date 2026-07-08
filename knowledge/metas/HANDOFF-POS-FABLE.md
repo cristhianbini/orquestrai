@@ -194,3 +194,16 @@ Mesma classe do confirm() mentiroso: dado certo viaja, apresentacao erra.
 FIX (entra no quick-win CTXCHATUX01): marco no formato
 '<emoji/cor do card> AGENTE · modelo-real' + texto. Persona = nome do
 agente; cracha = modelo. Cor herdada do card (consistencia com mesh).
+
+### CTXLEARNTEST01 — Teste de regressao de aprendizado (ideia Bini 2026-07-08)
+CONCEITO: aprendizado so e' REAL se muda comportamento. Ciclo: erro ->
+licao -> KB -> REPETIR O MESMO ESTIMULO -> medir se a resposta mudou.
+E' a Fase 3 do harness que o codigo ja reservava ('reincidencia').
+CASO DE TESTE INAUGURAL (ja engatilhado): perguntar de novo 'qual o nome
+do sistema?' apos L-nome-sistema-nao-precisa-bloco entrar na KB --
+sucesso = pipeline responde SEM gerar bloco (ou router nem aciona o MAS).
+DESENHO FUTURO: suite de goals-gatilho (1 por licao critica) rodada
+periodicamente; reincidencia detectada = licao nao absorvida = sinal de
+KB scoring falho ou prompt fraco. Metrica: taxa de reincidencia por licao.
+Conecta: PENEIRA (run padronizada e' o mesmo mecanismo), Fase 2 score,
+CTXSELFKNOW01 (a prova final do autoconhecimento e' nao repetir o erro).
