@@ -258,3 +258,28 @@ propria com backup do conf + nginx -t antes do reload.
 BONUS futuro: quando vierem telas separadas (manual/projetos/licoes),
 rotas limpas /manual /projetos /licoes via mesmo mecanismo -- o sistema
 passa a ter cara de app, nao de pasta de arquivos.
+
+## FECHAMENTO 2026-07-08 (rodadas 1+2+3 -- dia recorde)
+### Entregue e VALIDADO em producao
+S4 9/9 | S5+S6 | Trilogia da economia 3/3 (chat limpo CTXCHATUX01-v2 +
+Q10 revisor condicional + porta CTXROUTER01-fix2 texto puro) |
+S8 v1 NO AR (aba TELEMETRIA: 3 cards-mestre + ranking salarial + economia
+Q10 visivel + score-- reservado) | endpoint /api/mas/telemetry |
+CTXLEARNTEST01 inaugurado (janela anonima, \$0.19 -> \$0.001) |
+9 licoes aprovadas (KB=100) | favicon | confirm() honesto.
+### Fila da proxima sessao (ordem)
+1. Polir TELEMETRIA: auto-refresh ao abrir aba, clique no agente ->
+   detalhe (ultimas runs dele), tooltip nas barras.
+2. Cosmeticos do router: 'iniciando agentes' antes do fetch em modo chat
+   (mover pushChat p/ depois da decisao) + quickChat com manifesto no
+   system prompt (responderia 'OrquestrAI' em vez de instruir comandos).
+3. Console limpo: insertBefore (L1318) + send is not defined (L1473/3609).
+4. CTXCLEANURL01 (nginx try_files, fracao propria com nginx -t).
+5. Fase 2 do Score -- PERGUNTA ABERTA AO BINI: o que e' 'sucesso' de run?
+   (bloco executado? aprovado? sem retrabalho?) A formula nasce da resposta.
+6. Telas irmas: LICOES (100 itens = busca+filtro obrigatorios), MANUAL
+   (indice+scroll) -- padrao b356, diretrizes CTXDESIGNGUIDE01.
+### Backlog vivo (nao esquecer)
+CTXEARLYEXIT01 (resposta no meio = encerra) | PENEIRA + DeepSeek/MiniMax/
+QWEN \$5-10 | CTXBLOCONUM01 | CTXPIPECLOSE01 (#10/#11) | L-SELF* |
+CTXLEARNTEST01 suite completa | ADMIN_PASSWORD placeholder (primo do A8).
