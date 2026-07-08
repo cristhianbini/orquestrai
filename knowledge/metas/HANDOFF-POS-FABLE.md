@@ -184,3 +184,13 @@ agente: mesh (existe) + clique no card -> modal output completo (B339 ja
 faz metade). Toggle 'modo verboso' p/ debug.
 QUANDO: quick-win possivel antes do redesign (filtrar msgs de agente no
 ponto de injecao SSE->chat = 1 condicional); versao completa junto S9-S11.
+
+### CTXCHATUX01 refinamento 2 (Bini): rotulo do chat MENTE o modelo
+BUG CONFIRMADO: toda msg de agente no chat sai carimbada com o MODELO ATIVO
+do seletor do chat individual (ex. 'Claude Sonnet 4 5'), ignorando d.model
+que JA CHEGA em cada evento SSE (bus.emit envia model real por agente).
+Metrico rodou groq, auditor cerebras FREE -- chat disse Sonnet p/ tudo.
+Mesma classe do confirm() mentiroso: dado certo viaja, apresentacao erra.
+FIX (entra no quick-win CTXCHATUX01): marco no formato
+'<emoji/cor do card> AGENTE · modelo-real' + texto. Persona = nome do
+agente; cracha = modelo. Cor herdada do card (consistencia com mesh).
