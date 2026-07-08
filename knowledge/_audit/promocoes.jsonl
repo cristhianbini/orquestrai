@@ -13,3 +13,5 @@
 {"ts":1783521963280,"id":"L-PROP-docker-uptime-drift-audit","fname":"L-PROP-docker-uptime-drift-audit.md","event":"queued","by":"guardian"}
 {"ts":1783538359964,"id":"L-PROP-bind-mount-validation-host-vs-container","fname":"L-PROP-bind-mount-validation-host-vs-container.md","event":"queued","by":"guardian"}
 {"ts":1783538727275,"id":"L-PROP-cluster-vs-blackboard-dualismo","fname":"L-PROP-cluster-vs-blackboard-dualismo.md","event":"queued","by":"guardian"}
+{"ts":1783539619631,"id":"L-PROP-docker-memory-oom-diagnostic","fname":"L-PROP-docker-memory-oom-diagnostic.md","event":"queued","by":"guardian"}
+{"ts":1783539793276,"id":"L-PROP-nome-sistema-nao-precisa-bloco","fname":"L-PROP-nome-sistema-nao-precisa-bloco.md","event":"queued","by":"guardian"}

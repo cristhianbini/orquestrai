@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-08 16:19:53 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-08 16:45:13 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1719,7 +1719,7 @@ function b124g5Apply(ag,state){
           if(idx+1<PIPE.length) masxSet(PIPE[idx+1],'working');
         }
       }
-      if(tx){ /* CTXCHATUX01 quick-win (2026-07-08): chat narra, mesh processa. ANTES: 1 msg por agente (nao escala, 26 agentes = 26 gritos) carimbada com MODELO ATIVO do seletor (mentia o modelo real). AGORA: so MARCOS passam -- excecoes (veto/erro, operador PRECISA ver) + RELATOR (voz oficial curada no S4: 1 frase + semver). Rotulo = AGENTE · modelo-real (d.model do SSE, que sempre chegou e era descartado). Detalhe por agente: mesh + tooltip B339. Modo verboso: localStorage.oq_chat_verbose='1'. */ var __resumo = String(tx).split('\n').filter(function(l){return l.trim();})[0]||tx; var __verb=(localStorage.getItem('oq_chat_verbose')==='1'); var __isExc=/VETO|AGENT_ERROR|GUARDIAN HARD/i.test(tx); var __isRel=(ag==='rel'); if(__verb||__isExc||__isRel){ pushChat('mas','['+ag+'] '+__resumo.slice(0,140)+(__resumo.length>140?'\u2026':''), d.model||''); } }
+      if(tx){ /* CTXCHATUX01 v2 (2026-07-08): chat narra, mesh processa -- so marcos: excecoes (veto/erro) + RELATOR (voz oficial, pulando linhas-titulo markdown). Rotulo carrega d.model real. Verboso: localStorage.oq_chat_verbose='1'. Reaplicado pos-incidente de escaping (L-HTMLNOCHECK01: html nao tem node --check, validar parse no navegador). */ var __lns=String(tx).split('\\n').filter(function(l){return l.trim();}); var __resumo=(ag==='rel'?(__lns.filter(function(l){return l.indexOf('#')!==0 && l.indexOf('**')!==0;})[0]||__lns[0]):__lns[0])||tx; var __verb=(localStorage.getItem('oq_chat_verbose')==='1'); var __isExc=/VETO|AGENT_ERROR|GUARDIAN HARD/i.test(tx); if(__verb||__isExc||ag==='rel'){ pushChat('mas','['+ag+'] '+__resumo.slice(0,160)+(__resumo.length>160?'...':''), d.model||''); } }
       var b = extractBloco(d.bash || d.code || tx || '') || tryExtract(d.bash || d.code || ''); // CTXBLOCOMAS01
       if(!b) b = b124g5Buf(ag,tx);
       if(b){ lastBash = b; __lastBashAgent = ag||''; __lastBashModel = d.model||''; } // CTXPROV01

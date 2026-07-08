@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-08 16:29:34 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-08 16:45:13 -03:00 (auto, git pre-commit)
 
 // [B220-LOG]
 import { appendFileSync as _appB220 } from "node:fs";
@@ -298,7 +298,7 @@ function buildMemorialistaContext(runResults){
         dQ.prepare('INSERT INTO mas_event(run_id,agent,phase,model,tokens_in,tokens_out,latency_ms,cost_usd,output,ts,duration_ms) VALUES(?,?,?,?,?,?,?,?,?,?,?)')
           .run(runId,'revisor','skipped','q10-conditional',0,0,0,0,'[Q10] Convocacao condicional: run sem BLOCO executavel do SMITH -- revisor nao convocado (economia ~\$0.09). Decisao CTXREVCOND01.',Date.now(),0);
         dQ.close();
-        bus.emit(runId,{type:'agent.done',run_id:runId,agent:'revisor',model:'q10-skip',tokens_in:0,tokens_out:0,latency_ms:0,cost_usd:0,text:'[Q10] sem bloco executavel -- revisor nao convocado (economia ~\$0.09)',ts:Date.now()});
+        bus.emit(runId,{type:'agent.done',run_id:runId,agent:'revisor',model:'dispensado (sem bloco)',tokens_in:0,tokens_out:0,latency_ms:0,cost_usd:0,text:'Revisor dispensado: este run nao gerou BLOCO executavel, entao a revisao final (Opus) nao foi necessaria. Economia: ~\$0.11. [Q10/CTXREVCOND01]',ts:Date.now()});
         continue;
       }
     }
