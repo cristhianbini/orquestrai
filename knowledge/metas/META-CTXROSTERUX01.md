@@ -26,3 +26,11 @@ Motivo: pipeline ja tem 3 juizes (AUDITOR/GUARDIAO/REVISOR); 4o juiz em
 todo run = custo+latencia sem dado que justifique. Reavaliar quando o
 Harness Score tiver historico por agente (Q10, pipeline adaptativo):
 candidato natural = camada opcional so em runs que geram BLOCO executavel.
+
+## Adendo 2026-07-08 (sessao 13.8)
+4. Modal de agente PERDE o formulario quando cadastro falha por token
+   expirado (401) -- treino do Opus (custo real) quase perdido. Fix:
+   preservar estado do form no erro + mensagem "faca login e tente de novo".
+5. Posicao no time devia vir PRE-SELECIONADA ao editar agente existente
+   via lapis -- campo vazio quase criou 2o fantasma do dia (METRICO ia
+   pro slot 10 TESTADOR por hover acidental).
