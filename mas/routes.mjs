@@ -3,7 +3,7 @@
 // Ver mas/auth.mjs para o raciocinio completo.
 import { authMiddleware, authMiddlewareSSE } from './auth.mjs';
 
-// ATUALIZADO: 2026-07-08 17:07:06 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-08 17:14:51 -03:00 (auto, git pre-commit)
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 import express from 'express';
@@ -252,6 +252,26 @@ router.get('/harness-score/:id', authMiddleware, readLimiter, (req,res) => { // 
 });
 
 // Ultimos N runs com score + media -- alimenta o futuro dashboard (CTXVITE02)
+// CTXAGTDASH01/S8 (2026-07-08): Tabela do Elenco -- 'salario alto exige
+// resultado' (Bini). Agrega por agente: custo acumulado (salario), runs,
+// tokens, latencia, skips do Q10 (economia = dinheiro que NAO saiu).
+// Score por agente entra na Fase 2; a tela ja nasce com a coluna reservada.
+router.get('/telemetry', authMiddleware, readLimiter, (req,res) => {
+  try{
+    const D = require('better-sqlite3');
+    const d = new D('/app/data/blackboard.db', { readonly: true }); // padrao do arquivo (L128/L158/L188)
+    const rows = d.prepare(`SELECT agent, COUNT(*) runs,
+      SUM(tokens_in+tokens_out) tokens, ROUND(SUM(cost_usd),4) custo_total,
+      ROUND(AVG(cost_usd),4) custo_medio, ROUND(AVG(latency_ms)) lat_media
+      FROM mas_event WHERE phase='done' GROUP BY agent ORDER BY custo_total DESC`).all();
+    const skips = d.prepare(`SELECT agent, COUNT(*) n FROM mas_event WHERE phase='skipped' GROUP BY agent`).all();
+    const skipMap = {}; skips.forEach(x=>skipMap[x.agent]=x.n);
+    rows.forEach(r=>{ r.skips = skipMap[r.agent]||0; r.economia_q10 = Math.round((r.skips * (r.custo_medio||0.1))*100)/100; });
+    const tot = rows.reduce((a,r)=>({custo:a.custo+r.custo_total, tokens:a.tokens+r.tokens, economia:a.economia+r.economia_q10}),{custo:0,tokens:0,economia:0});
+    res.json({ ok:true, agents: rows, total: { custo_usd: Math.round(tot.custo*100)/100, tokens: tot.tokens, economia_q10_usd: tot.economia } });
+  }catch(e){ res.status(500).json({ok:false,error:String(e.message||e)}); }
+});
+
 router.get('/harness-score', authMiddleware, readLimiter, (req,res) => { // CTXRATELIM02 + CTXMASAUTH01
   const limit = Math.min(Number(req.query.limit) || 20, 100);
   const D = require('better-sqlite3');

@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-08 16:56:43 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-08 17:14:51 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1141,7 +1141,7 @@ button[onclick="send()"]:hover{
     bar.innerHTML='<span class="lbl">SECAO</span>'+
       '<button class="b356-tab on" data-t="prov">PROVEDORES</button>'+
       '<button class="b356-tab" data-t="mod">MODELOS</button>'+
-      '<button class="b356-tab" data-t="agt">AGENTES</button>';
+      '<button class="b356-tab" data-t="agt">AGENTES</button>'+'<button class="b356-tab" data-t="tel">TELEMETRIA</button>'; // CTXAGTDASH01/S8
     if(head && head.nextSibling) shell.insertBefore(bar, head.nextSibling); else shell.insertBefore(bar, body);
 
     // Panes -- CTXFIXPROV01: preserva os nos reais via appendChild (move, nao recria por string,
@@ -1200,6 +1200,36 @@ button[onclick="send()"]:hover{
     } // fim buildAgtPane
     agtPane.innerHTML=buildAgtPane(); // CTXAGENTES01
     body.appendChild(provPane); body.appendChild(modPane); body.appendChild(agtPane);
+    /* CTXAGTDASH01/S8 (2026-07-08): Tabela do Elenco -- salario x producao. Diretrizes CTXDESIGNGUIDE01: grid do padrao AGENTES, alinhamento primeiro. */
+    var telPane=document.createElement('div'); telPane.className='b356-pane'; telPane.dataset.p='tel';
+    var TELCOR={revisor:'#c084fc',smith:'#fbbf24',detetive:'#22d3ee',guardian:'#22c55e',rel:'#60a5fa',scout:'#7ce7ff',memorialista:'#f472b6',metrico:'#94a3b8',auditor:'#a78bfa'};
+    var TELNM={revisor:'REVISOR',smith:'ARQUITETO',detetive:'DETETIVE',guardian:'GUARDIAO',rel:'RELATOR',scout:'BATEDOR',memorialista:'MEMORIALISTA',metrico:'METRICO',auditor:'AUDITOR'};
+    function buildTelPane(j){
+      if(!j||!j.ok) return '<div class="b356-empty"><b>Telemetria</b>Falha ao carregar: '+((j&&j.error)||'sem resposta')+'</div>';
+      var maxC=Math.max.apply(null,j.agents.map(function(a){return a.custo_total||0.0001;}));
+      var h='<div style="padding:14px 16px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;height:100%;box-sizing:border-box">';
+      h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">';
+      h+='<div style="background:#0a1119;border:1px solid #f59e0b44;border-radius:8px;padding:12px"><div style="color:#6b7280;font:10px ui-monospace,monospace;letter-spacing:.08em">INVESTIMENTO TOTAL</div><div style="color:#fbbf24;font:22px ui-monospace,monospace;font-weight:bold;margin-top:4px">$'+j.total.custo_usd.toFixed(2)+'</div></div>';
+      h+='<div style="background:#0a1119;border:1px solid #3b82f644;border-radius:8px;padding:12px"><div style="color:#6b7280;font:10px ui-monospace,monospace;letter-spacing:.08em">TOKENS PROCESSADOS</div><div style="color:#93c5fd;font:22px ui-monospace,monospace;font-weight:bold;margin-top:4px">'+(j.total.tokens/1000).toFixed(0)+'k</div></div>';
+      h+='<div style="background:#052e16;border:1px solid #22c55e66;border-radius:8px;padding:12px"><div style="color:#4ade80;font:10px ui-monospace,monospace;letter-spacing:.08em">ECONOMIA Q10</div><div style="color:#22c55e;font:22px ui-monospace,monospace;font-weight:bold;margin-top:4px">$'+j.total.economia_q10_usd.toFixed(2)+'</div><div style="color:#4ade8099;font:9px ui-monospace,monospace">dinheiro que NAO saiu</div></div>';
+      h+='</div>';
+      h+='<div style="display:flex;flex-direction:column;gap:6px">';
+      j.agents.forEach(function(a){
+        var cor=TELCOR[a.agent]||'#94a3b8'; var nm=TELNM[a.agent]||a.agent.toUpperCase();
+        var pct=Math.max(2,Math.round(100*(a.custo_total||0)/maxC));
+        var free=(a.custo_total===0);
+        h+='<div style="background:#0a1119;border:1px solid '+cor+'33;border-radius:8px;padding:10px 14px;display:grid;grid-template-columns:150px 1fr 240px;gap:12px;align-items:center">';
+        h+='<div><span style="color:'+cor+';font:12px ui-monospace,monospace;font-weight:bold">'+nm+'</span><div style="color:#4b5563;font:9px ui-monospace,monospace">'+a.runs+' runs · '+((a.lat_media||0)/1000).toFixed(1)+'s med</div></div>';
+        h+='<div style="background:#111827;border-radius:4px;height:14px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+cor+'88"></div></div>';
+        h+='<div style="text-align:right;font:11px ui-monospace,monospace">'+(free?'<span style="color:#22c55e;font-weight:bold">FREE</span>':'<span style="color:#fbbf24;font-weight:bold">$'+a.custo_total.toFixed(2)+'</span> <span style="color:#6b7280">· $'+(a.custo_medio||0).toFixed(3)+'/run</span>')+(a.skips>0?' <span style="color:#22c55e" title="Q10: dispensado '+a.skips+'x">↓$'+a.economia_q10.toFixed(2)+'</span>':'')+' <span style="color:#374151" title="Score: Fase 2">· score --</span></div>';
+        h+='</div>';
+      });
+      h+='</div></div>'; return h;
+    }
+    telPane.innerHTML='<div class="b356-empty">Carregando telemetria...</div>';
+    fetch('/api/mas/telemetry',{headers:{Authorization:'Bearer '+(localStorage.getItem('oq_token')||'')}}).then(function(r){return r.json();}).then(function(j){telPane.innerHTML=buildTelPane(j);}).catch(function(e){telPane.innerHTML='<div class="b356-empty"><b>Telemetria</b>erro: '+e+'</div>';});
+    body.appendChild(telPane);
+
 
     bar.addEventListener('click',function(e){
       var b=e.target.closest('.b356-tab'); if(!b) return;
