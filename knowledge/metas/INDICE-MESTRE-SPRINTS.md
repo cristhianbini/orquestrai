@@ -10,10 +10,10 @@ esperado e saudável; S1-S5 só reordenar com motivo registrado.
 - [x] S2  Fase 2 pós-auditoria completa (8→9→10: mas_run_id + harness real)
 - [x] S3  Fase 3 pós-auditoria (11-12: oqterm bind + nginx sem query string)
 - [x] S4  Curadoria 9/9 COMPLETA (2026-07-08): todos os titulares curados; revisor validado em run real (pegou 2 furos pre-aprovacao); memorialista em haiku + FORMATO CRU enfileirando L-PROP; metrico com telemetria real injetada
-- [ ] S5  R6-13.3→13.5.x: wrappers EventSource + containers-fantasma (fecha Bloco E)
+- [x] S5 CONCLUIDO (2026-07-08): R6-13 encerrado -- wrappers ja removidos, trio paint/cardsFor/ensureLine INOCENTADO (telemetria viva); L-PLANOVSCODE01
 
 ## FILA ORDENADA (títulos; detalhar ao chegar)
-- [ ] S6   R6-14 MutationObserver pesado (junto com S5 se a cirurgia permitir)
+- [x] S6 CONCLUIDO (2026-07-08): observer domado (sem characterData, debounce 300ms, interval 5s); BONUS: CTXCHATUX01 quick-win (chat narra/mesh processa + modelo real no rotulo)
 - [ ] S7   CTXTEAMROSTER01 (absorve CTXMODELCOMP01) — depende de S2
 - [ ] S8   CTXALERTFAIL01 + CTXAGTDASH01 — dependem de S2/S7 (dado real)
 - [ ] S9   R6-04 + R6-05 (Topbar React + design tokens — Bloco B)

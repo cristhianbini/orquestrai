@@ -1,3 +1,7 @@
+---
+PROJETO: orquestrai
+APROVADA: 2026-07-08 (curadoria humana; 3a licao do ciclo haiku)
+---
 # L-PROP-bind-mount-validation-host-vs-container
 
 _Proposta por Memorialista, pre-aprovada por Guardian em 2026-07-08T19:19:19.963Z. Aguardando revisao humana._
