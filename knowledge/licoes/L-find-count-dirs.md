@@ -1,3 +1,7 @@
+---
+PROJETO: orquestrai
+APROVADA: 2026-07-08 (curadoria humana, propostas do MEMORIALISTA)
+---
 # L-PROP-find-count-dirs
 
 _Proposta por Memorialista, pre-aprovada por Guardian em 2026-07-04T21:38:13.722Z. Aguardando revisao humana._

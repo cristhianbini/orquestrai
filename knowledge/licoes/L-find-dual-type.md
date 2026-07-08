@@ -1,3 +1,7 @@
+---
+PROJETO: orquestrai
+APROVADA: 2026-07-08 (curadoria humana, propostas do MEMORIALISTA)
+---
 # L-PROP-find-dual-type
 
 _Proposta por Memorialista, pre-aprovada por Guardian em 2026-07-03T14:45:25.573Z. Aguardando revisao humana._
