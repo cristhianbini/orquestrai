@@ -101,3 +101,32 @@ L-PROMOTESEMCARD01 (+2 da auditoria). ~30 commits, todos com o porque.
 - Nao mexer na formula do harness (pesos) sem decisao de produto registrada.
 - Nao trocar confirm() sem redesenhar o fluxo de seguranca junto (R6-15).
 
+
+## ADENDO — Sessao 2026-07-08 (Fable, continuacao)
+### Fila imediata ATUALIZADA (substitui a anterior)
+1. FIX METRICO (13.8 reprovado, mapa pronto): (a) clonar buildMemorialistaContext
+   (mas/agents.mjs L253) -> buildMetricoContext injetando tokens_in/out,
+   cost_usd, latency_ms REAIS por agente; (b) enxertar no loop L265-269
+   (if ag.id==='metrico'); (c) descobrir nome real da var de results
+   (grep retornou vazio p/ 'results.push' -- procurar como os done events
+   sao acumulados); (d) adicionar clausula ao card: "Se os numeros nao
+   estiverem disponiveis, escreva DADOS_INDISPONIVEIS -- NUNCA estime";
+   (e) RESTART obrigatorio; (f) run de validacao: 2 linhas secas, zero bash,
+   numeros batendo com o blackboard.
+   EVIDENCIA da reprova: run mas_70fbd96f7e42 -- inventou "200tk/$0.00/0.3s/
+   metrico mais pesado" quando o real era revisor 14.1k/$0.095.
+2. FIX B246: mas/promote-lessons.mjs L50 retorna {skipped} e o evento done
+   do memorialista grava vazio -- persistir o texto do modelo mesmo no skip.
+3. 13.9 REVISOR (ultimo do S4) + decisao Q10 junto: $0.09/run em TODO run
+   ou so runs com BLOCO executavel? (telemetria: revisor $2.05 em 22 runs
+   vs smith $2.44 em 90).
+### Novidades desta sessao (nao redescobrir)
+- METAs novas: CTXROSTERUX01 (rebaixar+drag+UX modal), CTXPIPECLOSE01
+  (#10 TESTADOR #11 VERIFICADOR), CTXSELFKNOW01 (tese autoconhecimento).
+- CRITICO: treinado, card ok, REBAIXADO (agent_positions vazia = correto;
+  titulares 1-9 vem do codigo; tabela e' so overrides, 0-based).
+- 3 L-PROP aprovadas -> licoes/ (1o ciclo propor->guardian->humano->KB ok).
+- LICAO DA REPROVA (vale p/ #11 VERIFICADOR futuro): agente de sintese L5
+  SEM dado injetado = alucinacao garantida. Encanamento vem ANTES do prompt.
+- DeepSeek + MiniMax: candidatos PENEIRA com $5-10 do Bini (comparativo
+  preco/contexto/rate-limit/qualidade-PTBR pendente).
