@@ -245,3 +245,16 @@ real: repetir a pergunta POS Ctrl+Shift+R. Registrado p/ nao enganar o futuro.
 4. VOLUMES CONHECIDOS p/ planejar: Manual (longo, precisa de indice/scroll),
    Licoes (100 itens, precisa busca+filtro), Projetos (poucos, cards
    grandes), Telemetria (9-11 agentes + 3 resumos, cabe sem scroll).
+
+### CTXCLEANURL01 — URL limpa (ideia Bini 2026-07-08)
+'dashboard.html na barra da a impressao de sistema feito so de HTML.'
+DESEJO: orquestrai.cbini.com.br/ (raiz) em qualquer tela.
+FIX (barato, nginx): location = / { try_files /dashboard.html ... } ou
+rewrite interno -- o arquivo continua onde esta, a URL fica limpa; +
+redirect 301 de /dashboard.html -> / (links antigos nao quebram).
+ATENCAO: validar que assets relativos (favicon.svg, /api/*) seguem
+funcionando; e' mudanca de NGINX (fora do container da API), fracao
+propria com backup do conf + nginx -t antes do reload.
+BONUS futuro: quando vierem telas separadas (manual/projetos/licoes),
+rotas limpas /manual /projetos /licoes via mesmo mecanismo -- o sistema
+passa a ter cara de app, nao de pasta de arquivos.
