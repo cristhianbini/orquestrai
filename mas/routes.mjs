@@ -3,7 +3,7 @@
 // Ver mas/auth.mjs para o raciocinio completo.
 import { authMiddleware, authMiddlewareSSE } from './auth.mjs';
 
-// ATUALIZADO: 2026-07-07 22:55:22 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-08 16:56:43 -03:00 (auto, git pre-commit)
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 import express from 'express';
@@ -35,7 +35,11 @@ const AUDIT_TRIGGERS = [
   /\baudit(a|ar|oria)\b/i, /\binvestig(a|ar|ue)\b/i, /\banalis(a|ar|e)\b/i,
   /\bvarredura\b/i, /\bdiagnostic(a|ar|o)\b/i,
   /\brod(a|ar)\s+(mas|mesh|pipeline)\b/i, /\b\/mas\b/i,
-  /\bxmonex\b/i, /\borquestrai\b/i, /\bvps\b/i, /\bservidor\b/i,
+  // CTXROUTER01 (2026-07-08): substantivos REMOVIDOS dos gatilhos (orquestrai/
+  // vps/servidor/xmonex). Falar SOBRE o sistema != pedir auditoria DO sistema:
+  // 'qual o nome do sistema na VPS?' custava \$0.19 no pipeline (caso Bini,
+  // L-nome-sistema-nao-precisa-bloco). VERBOS de acao continuam gatilhos;
+  // na duvida = chat (escalar custa 1 prefixo /mas; desperdicar nao volta).
   /\bdrift\b/i, /\bbloco[- ]?\d+/i, /\bL-[A-Z0-9-]+/,
 ];
 function classifyIntent(text){

@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-08 16:45:13 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-08 16:56:43 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1610,7 +1610,7 @@ async function send(){
         }
       }
     } catch(_){}
-    var rr = await fetch('/api/mas/run',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(localStorage.getItem('oq_token')||'')},body:JSON.stringify({goal: t + __masCtx, mas_mode: true})}); // CTXROUTE01 + CTXMASAUTH01
+    var rr = await fetch('/api/mas/run',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(localStorage.getItem('oq_token')||'')},body:JSON.stringify({goal: t + __masCtx, mas_mode: (t.indexOf('/mas')===0)})}); // CTXROUTER01-fix (2026-07-08): mas_mode era TRUE hardcoded = gate B271 bypassado desde sempre (classifier nunca consultado, 'qual o nome do sistema' custava \$0.19). Agora explicito SO com prefixo /mas; demais msgs passam pelo classifyIntent do backend (verbos de acao = MAS, conversa = quickChat ~\$0.001).
     var jj = await rr.json().catch(function(){return{}});
     if(!rr.ok){ pushChat('erro','MAS nao iniciou: '+(jj.error||rr.status)); input.focus(); return; } if(jj.mode==='chat' && jj.reply){ pushChat('ia',jj.reply); input.focus(); return; } if(!(jj.run_id||jj.id)){ pushChat('erro','MAS sem run_id: '+(jj.error||JSON.stringify(jj).slice(0,120))); input.focus(); return; } var __rid = jj.run_id||jj.id;
     if(window.__oqMasES){ try{window.__oqMasES.close();}catch(_){} } // CTXSSE02: fecha SSE anterior
