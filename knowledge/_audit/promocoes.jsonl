@@ -7,3 +7,6 @@
 {"ts":1782709894284,"id":"L-PROP-ui-first-removal","fname":"L-PROP-ui-first-removal.md","approved_by":"guardian"}
 {"ts":1782710051269,"id":"L-PROP-ptbr-hardcode-html","fname":"L-PROP-ptbr-hardcode-html.md","approved_by":"guardian"}
 {"ts":1782871100887,"id":"L-PROP-audit-security-orquestrai","fname":"L-PROP-audit-security-orquestrai.md","approved_by":"guardian"}
+{"ts":1783089925574,"id":"L-PROP-find-dual-type","fname":"L-PROP-find-dual-type.md","event":"queued","by":"guardian"}
+{"ts":1783110459410,"id":"L-PROP-exclude-node-modules","fname":"L-PROP-exclude-node-modules.md","event":"queued","by":"guardian"}
+{"ts":1783201093723,"id":"L-PROP-find-count-dirs","fname":"L-PROP-find-count-dirs.md","event":"queued","by":"guardian"}
