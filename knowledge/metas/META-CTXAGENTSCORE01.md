@@ -33,6 +33,14 @@ Score = 0.35*contribuicao + 0.30*qualidade + 0.20*eficiencia + 0.15*convergencia
 - Persistir: nova tabela agent_scores (agente, papel, janela, score, n_runs).
 - Exibir no card (o ScoreMeter que hoje fica "sem dados" ganha fonte real).
 CRITERIO FASE 1: ScoreMeter mostra numero real, nao placeholder.
+STATUS FASE 1 (2026-07-07): endpoint /api/mas/agent-scores FUNCIONANDO e
+validado com dado real (ranking coerente: perfeitos no topo, memorialista no
+fundo por 7 erros, REVISOR nao punido por ser Opus). FALTA: ligar ao
+ScoreMeter dos cards (hoje 'sem dados'). Aprendizados:
+- contribuicao fica imatura ate mas_run_id acumular historico (so 2 runs
+  vinculadas hoje) -- dimensao ganha sinal com o uso, endpoint avisa.
+- eficiencia cross-papel foi ABANDONADA na FASE 1 (puniria Opus); comparacao
+  de custo so intra-papel na FASE 3 (PENEIRA).
 
 ## FASE 2 (depois) -- amostragem humana
 - 👍/👎 por agente ja existe parcial (CTXFEEDBACK01) -- ligar ao AgentScore
