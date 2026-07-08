@@ -207,3 +207,12 @@ periodicamente; reincidencia detectada = licao nao absorvida = sinal de
 KB scoring falho ou prompt fraco. Metrica: taxa de reincidencia por licao.
 Conecta: PENEIRA (run padronizada e' o mesmo mecanismo), Fase 2 score,
 CTXSELFKNOW01 (a prova final do autoconhecimento e' nao repetir o erro).
+
+### ACHADO CRITICO fim-de-rodada (2026-07-08): gate B271 bypassado desde sempre
+Frontend L1613 manda mas_mode:true HARDCODED em toda msg -> masModeExplicit
+sempre true -> classifyIntent NUNCA consultado. Patch CTXROUTER01 (triggers)
+esta correto e no ar, mas inerte. FIX (proxima rodada, 1a fracao): remover
+o hardcode ou ligar a toggle real; VALIDACAO = 1o CTXLEARNTEST01 (repetir
+'nome do sistema na VPS' -> deve responder via quickChat ~\$0.001).
+Defesa em profundidade 3 aneis: porta(router, fix pendente) + meio(SMITH
+nao gerar bloco p/ fato consolidado -- licao ja na KB) + fim(Q10, ok).
