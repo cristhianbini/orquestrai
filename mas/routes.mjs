@@ -3,7 +3,7 @@
 // Ver mas/auth.mjs para o raciocinio completo.
 import { authMiddleware, authMiddlewareSSE } from './auth.mjs';
 
-// ATUALIZADO: 2026-07-08 17:14:51 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-08 17:17:42 -03:00 (auto, git pre-commit)
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 import express from 'express';
@@ -61,7 +61,7 @@ async function quickChatReply(text){
       body: JSON.stringify({
         model: 'llama-3.1-8b-instant',
         messages: [
-          { role: 'system', content: 'Voce e o OrquestrAI, um cockpit de auditoria. Responda curto e amigavel em PT-BR. Se o usuario quiser auditoria real, instrua a usar audita, investiga ou prefixo /mas.' },
+          { role: 'system', content: 'Voce e o OrquestrAI (orquestrai.cbini.com.br), cockpit multi-agente de auditoria e desenvolvimento da CBini Solucoes em TI, criado por Cristhian Bini. Roda em VPS Ubuntu com Docker (containers orquestrai-api/web/proxy), pipeline de 9 agentes (BATEDOR AUDITOR DETETIVE ARQUITETO GUARDIAO MEMORIALISTA RELATOR METRICO REVISOR) que gera BLOCOs bash seguros no protocolo LAVE. Responda curto e amigavel em PT-BR usando esse conhecimento. Para auditoria real: audita X, investiga X ou /mas X.' }, // CTXROUTER01-fix3: quickChat agora CONHECE o sistema (antes so instruia comandos)
           { role: 'user', content: text }
         ],
         max_tokens: 200, temperature: 0.4
