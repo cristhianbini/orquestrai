@@ -3,7 +3,7 @@
 // Ver mas/auth.mjs para o raciocinio completo.
 import { authMiddleware, authMiddlewareSSE } from './auth.mjs';
 
-// ATUALIZADO: 2026-07-08 16:56:43 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-08 17:07:06 -03:00 (auto, git pre-commit)
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 import express from 'express';
@@ -78,10 +78,16 @@ const router=express.Router();
 router.post('/run', authMiddleware, runLimiter, express.json(), async (req,res)=>{ // CTXRATELIM02 + CTXMASAUTH01
     try {
       const userText = (req.body && (req.body.prompt || req.body.message || req.body.text || req.body.goal)) || '';
+      // CTXROUTER01-fix2 (2026-07-08): classifier era enganado pelo __masCtx colado
+      // no goal (1387 chars c/ 'orquestrai' de conversa antiga -> length>120 -> audit
+      // sempre). Classifica SO o texto puro do usuario (antes do marcador);
+      // o contexto continua indo INTEIRO pro pipeline quando a run acontece.
+      const userTextPure = userText.split('[CONTEXTO DO CHAT ANTES DO MAS]')[0].trim();
       // CTXROUTE01: respeita mas_mode=true do frontend (usuario ativou MAS explicitamente)
       const masModeExplicit = !!(req.body && req.body.mas_mode);
-      if (!masModeExplicit && classifyIntent(userText) === 'chat') {
-        const reply = (await quickChatReply(userText)).reply;
+      if (!masModeExplicit && classifyIntent(userTextPure) === 'chat') {
+        const reply = (await quickChatReply(userTextPure)).reply;
+        console.log('[B271] intent=chat len_pure='+userTextPure.length+' len_full='+userText.length); // CTXROUTER01-fix2: log da decisao
         return res.json({ ok:true, mode:'chat', reply, agents:[], cost_usd:0, tokens:0 });
       }
     } catch(e){ console.error('[B271_GATE_ERR]', e && e.message); }
