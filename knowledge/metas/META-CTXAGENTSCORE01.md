@@ -10,7 +10,9 @@ PROJETO: orquestrai
 3. Separar PROMPT ruim de MODELO fraco = SIM, mas em fase posterior (PENEIRA).
 
 ## Formula proposta -- AgentScore por (agente x papel)
-Score = 0.40*contribuicao + 0.35*qualidade + 0.25*eficiencia
+Score = 0.35*contribuicao + 0.30*qualidade + 0.20*eficiencia + 0.15*convergencia
+  (rebalanceado 2026-07-07: 4a dimensao 'convergencia' adicionada a pedido do
+   Bini -- persistencia do erro distingue 2 agentes que parecem iguais no resto)
 
   contribuicao (0-1): o bloco final da run onde o agente atuou foi
     EXECUTADO e APROVADO pelo humano? (block_executed do S2 + 👍 do
@@ -45,9 +47,32 @@ CRITERIO FASE 2: feedback humano move o score do agente.
   promover reserva. Alimenta CTXTEAMROSTER01/CTXMODELCOMP01.
 CRITERIO FASE 3: decisao de troca baseada em dado, nao em impressao.
 
+## Dimensao CONVERGENCIA (0-1) -- persistencia do erro (decidido por Fable a pedido do Bini)
+Mede se o agente RESOLVE ou fica preso repetindo. Dimensao PROPRIA (nao
+enterrada em qualidade) porque distingue agentes que parecem iguais no resto
+e e' sinal forte p/ troca de modelo. 3 sabores, FASEADOS:
+
+  SABOR 1 -- retry intra-run (FASE 1, barato, dado JA existe):
+    quantas tentativas o agente fez DENTRO da run ate 'done'. mas_event ja
+    grava cada tentativa (ex: memorialista 400->fallback->sucesso = 2 retries).
+    convergencia = 1.0 se acertou de primeira; decai ~0.2 por retry.
+
+  SABOR 2 -- reincidencia inter-run (FASE 2/3, precisa agrupar erros):
+    o MESMO tipo de erro reaparece em runs diferentes apesar da KB registrar
+    a licao. E o sinal MAIS FORTE p/ troca de modelo: o modelo nao aprende do
+    contexto. Precisa de assinatura/hash do erro p/ agrupar. Ex: Smith erra
+    schema cluster.db (created_at) repetidamente -> candidato a troca.
+
+  SABOR 3 -- loop com humano (FASE 2):
+    blocos consecutivos do mesmo agente SEM execucao/aprovacao = "nao marcou
+    gol" (ideia do Bini, Rodada 5). Sinal: sequencia de blocos rejeitados.
+
 ## Anti-armadilhas (registradas p/ nao esquecer)
 - NAO punir agente por ser o modelo caro do papel (teto de eficiencia por papel).
 - NAO deixar o auto-score sozinho definir troca -- humano no loop (amostragem).
 - contribuicao e' merito de TIME; nao penalizar o BATEDOR se o REVISOR falhou.
+- convergencia: retry por CAUSA EXTERNA (rate limit 429, provider fora) NAO
+  e' culpa do agente -- distinguir de retry por erro proprio (400 de contexto,
+  bug no bash gerado). So o segundo penaliza.
 - score e' JANELA movel (ultimas N runs), nao vida inteira -- agente melhora
   apos curadoria e o score deve refletir isso rapido.
