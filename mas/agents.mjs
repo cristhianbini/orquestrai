@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-07 15:45:01 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-08 11:32:17 -03:00 (auto, git pre-commit)
 
 // [B220-LOG]
 import { appendFileSync as _appB220 } from "node:fs";
@@ -241,6 +241,11 @@ export async function runMas(goal){
     let ctx='OBJETIVO: '+goal+getRecentRunsContext(runId,3); let tin=0,tout=0,tc=0; // CTXMAS01
     try{
       let __smithOut=''; let __vetoed=false;
+      // CTXMETRICTELEM01 (2026-07-08): acumulador ESTRUTURADO por agente.
+      // B238 checava 'results' que NUNCA existiu (guard sempre falso = codigo
+      // morto): memorialista rodava SEM material (done vazio) e metrico
+      // INVENTAVA numeros (run mas_70fbd96f7e42). __telem alimenta ambos via __inj.
+      const __telem=[];
       console.log('[B236] AGENTS len=', AGENTS.length, 'ids=', AGENTS.map(a=>a.id));
   
 // B238_MEM_CTX — enriquece prompt do memorialista com run summary
@@ -250,6 +255,18 @@ export async function runMas(goal){
 // precisa reler o run inteiro -- o papel dele e' destilar 1 licao. Recebe:
 // 300 chars/agente (o suficiente p/ identificar acerto/erro/padrao) + o
 // veredito integral do guardian (a informacao mais densa p/ licao).
+// CTXMETRICTELEM01: injecao LOCAL por agente (memorialista=textual, metrico=numerica).
+// Licao 13.8: agente de sintese L5 SEM dado injetado alucina numeros.
+function __inj(agentId, telem){
+  if(!telem || !telem.length) return '';
+  if(agentId==='memorialista') return '\n\n'+buildMemorialistaContext(telem);
+  if(agentId==='metrico'){
+    const rows=telem.map(t=>t.agent+' | '+t.model+' | '+(t.tk_in+t.tk_out)+' tk | $'+((t.usd||0).toFixed(4))+' | '+t.ms+'ms');
+    const tot=telem.reduce((a,t)=>({tk:a.tk+t.tk_in+t.tk_out,usd:a.usd+(t.usd||0),ms:a.ms+t.ms}),{tk:0,usd:0,ms:0});
+    return '\n\n=== TELEMETRIA REAL DO RUN (fonte: blackboard; use SOMENTE estes numeros) ===\nagente | modelo | tokens | custo | latencia\n'+rows.join('\n')+'\nTOTAL: '+tot.tk+' tk | $'+tot.usd.toFixed(4)+' | '+tot.ms+'ms (ate aqui; voce fecha o pipeline)';
+  }
+  return '';
+}
 function buildMemorialistaContext(runResults){
   const lines = ['=== RESUMO DO RUN (destilado p/ licao) ===\n'];
   for(const r of runResults){
@@ -264,7 +281,7 @@ function buildMemorialistaContext(runResults){
 
   for(const ag of AGENTS){
     // B238: memorialista recebe run completo como contexto
-    if(ag.id === 'memorialista' && typeof results !== 'undefined'){
+    if(ag.id === 'memorialista' && false /* B238 morto: 'results' nunca existiu; substituido por __inj (CTXMETRICTELEM01) */){
       meta = {...meta, runContext: buildMemorialistaContext(results)};
     } console.log('[B236] iter agente=', ag.id);
         if(__vetoed) break;
@@ -298,12 +315,13 @@ function buildMemorialistaContext(runResults){
         } catch(eG){ console.error('[B387_GUARDIAN_ERR]', eG && eG.stack || eG); const dE=db(); dE.prepare('INSERT INTO mas_event(run_id,agent,phase,model,tokens_in,tokens_out,latency_ms,cost_usd,output,ts,duration_ms) VALUES(?,?,?,?,?,?,?,?,?,?,?)').run(runId,'guardian','error','regex',0,0,0,0,'[GUARDIAN_CRASH] '+String(eG&&eG.message||eG).slice(0,400),Date.now(),0); dE.close(); bus.emit(runId,{type:'agent.error',run_id:runId,agent:'guardian',error:String(eG&&eG.message||eG),ts:Date.now()}); }
         const agStart=Date.now(); const model=MODEL_BY_AGENT[ag.id]||HAIKU;
         bus.emit(runId,{type:'agent.start',run_id:runId,agent:ag.id,model,ts:Date.now()});
-        /* B124e8_AGENT_ERROR */ let out; try { out=await callLLM(ctx+'\n\n[VOCE E '+ag.id.toUpperCase()+'] '+(loadAgentCardPrompt(ag.id,runId)||ag.role), ag.id, ctx); } catch(eAg){ const errMsg='[AGENT_ERROR] '+ag.id+': '+String(eAg&&eAg.message||eAg).slice(0,300); const dErr=db(); dErr.prepare('INSERT INTO mas_event(run_id,agent,phase,model,tokens_in,tokens_out,latency_ms,cost_usd,output,ts,duration_ms) VALUES(?,?,?,?,?,?,?,?,?,?,?)').run(runId,ag.id,'error',(MODEL_BY_AGENT&&MODEL_BY_AGENT[ag.id])||'unknown',0,0,0,0,errMsg,Date.now(),Date.now()-agStart); dErr.close(); bus.emit(runId,{type:'agent.error',run_id:runId,agent:ag.id,error:errMsg,ts:Date.now()}); out={text:errMsg,model:(MODEL_BY_AGENT&&MODEL_BY_AGENT[ag.id])||'error',tokens_in:0,tokens_out:0,latency_ms:0,cost_usd:0}; }
+        /* B124e8_AGENT_ERROR */ let out; try { out=await callLLM(ctx+__inj(ag.id,__telem)+'\n\n[VOCE E '+ag.id.toUpperCase()+'] '+(loadAgentCardPrompt(ag.id,runId)||ag.role), ag.id, ctx); } catch(eAg){ const errMsg='[AGENT_ERROR] '+ag.id+': '+String(eAg&&eAg.message||eAg).slice(0,300); const dErr=db(); dErr.prepare('INSERT INTO mas_event(run_id,agent,phase,model,tokens_in,tokens_out,latency_ms,cost_usd,output,ts,duration_ms) VALUES(?,?,?,?,?,?,?,?,?,?,?)').run(runId,ag.id,'error',(MODEL_BY_AGENT&&MODEL_BY_AGENT[ag.id])||'unknown',0,0,0,0,errMsg,Date.now(),Date.now()-agStart); dErr.close(); bus.emit(runId,{type:'agent.error',run_id:runId,agent:ag.id,error:errMsg,ts:Date.now()}); out={text:errMsg,model:(MODEL_BY_AGENT&&MODEL_BY_AGENT[ag.id])||'error',tokens_in:0,tokens_out:0,latency_ms:0,cost_usd:0}; }
         const d2=db();
         d2.prepare('INSERT INTO mas_event(run_id,agent,phase,model,tokens_in,tokens_out,latency_ms,cost_usd,output,ts,duration_ms) VALUES(?,?,?,?,?,?,?,?,?,?,?)')
           .run(runId,ag.id,'done',out.model,out.tokens_in,out.tokens_out,out.latency_ms,out.cost_usd,out.text,Date.now(),Date.now()-agStart);
         d2.close();
         tin+=out.tokens_in; tout+=out.tokens_out; tc+=out.cost_usd;
+        __telem.push({agent:ag.id,model:out.model,tk_in:out.tokens_in,tk_out:out.tokens_out,usd:out.cost_usd,ms:out.latency_ms,output:out.text}); // CTXMETRICTELEM01
         bus.emit(runId,{type:'agent.done',run_id:runId,agent:ag.id,model:out.model,tokens_in:out.tokens_in,tokens_out:out.tokens_out,latency_ms:out.latency_ms,cost_usd:out.cost_usd,text:out.text,ts:Date.now()});
         if(ag.id==='smith') __smithOut=out.text;
         ctx+='\n\n['+ag.id.toUpperCase()+']: '+out.text;
