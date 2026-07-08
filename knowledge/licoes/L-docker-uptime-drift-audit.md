@@ -1,3 +1,7 @@
+---
+PROJETO: orquestrai
+APROVADA: 2026-07-08 (curadoria humana; 1a proposta do ciclo haiku+FORMATO CRU)
+---
 # L-PROP-docker-uptime-drift-audit
 
 _Proposta por Memorialista, pre-aprovada por Guardian em 2026-07-08T14:46:03.280Z. Aguardando revisao humana._
