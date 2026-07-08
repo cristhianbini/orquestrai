@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-08 11:49:54 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-08 16:07:45 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -2318,7 +2318,7 @@ async function loadRecent(){
   }catch(e){}
 }
 
-function boot(){renderAll();tick();loadRecent();new MutationObserver(tick).observe(document.body,{childList:true,subtree:true,characterData:true});setInterval(tick,1200);setInterval(loadRecent,8000)}
+function boot(){renderAll();tick();loadRecent();/* R6-14 (2026-07-08): observer domado -- ANTES: body+characterData (disparava a CADA caractere digitado) + interval 1200 redundante. AGORA: sem characterData + debounce 300ms; interval vira rede de seguranca 5s. */var __tkT;var __dtick=function(){clearTimeout(__tkT);__tkT=setTimeout(tick,300);};new MutationObserver(__dtick).observe(document.body,{childList:true,subtree:true});setInterval(tick,5000);setInterval(loadRecent,8000)}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 
 // API global p/ debug
@@ -3160,10 +3160,12 @@ else{setTimeout(ensure,200);setTimeout(ensure,1500);}
       .catch(function(){});
   }
 
-  // R6-13.4.3: hook __B187_WRAP removido (interceptava window.EventSource p/
-  // alimentar paint()->.oq46y-card/.masx-card, cards fantasma display:none,
-  // substituidos pelo React). paint/cardsFor/ensureLine ficam orfaos ate o
-  // R6-13.5 (saem junto com os containers).
+  // R6-13 ENCERRADO (2026-07-08): comentario anterior ficou OBSOLETO -- o hook
+  // __B187_WRAP saiu no 13.4.3, mas paint/cardsFor/ensureLine foram RELIGADOS
+  // por attach/findLastRun (SSE proprio, L~3144) e hoje pintam a telemetria
+  // VIVA dos cards (.b187-agent-tele: tk/custo/status). NAO SAO ORFAOS.
+  // Tentativa de quarentena 2026-07-08 abortou no guarda anti-SSE -- e o
+  // guarda estava certo (L-PLANOVSCODE01: verificar codigo > confiar em plano).
 
   setTimeout(findLastRun, 700);
   setInterval(findLastRun, 2500);

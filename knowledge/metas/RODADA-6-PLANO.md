@@ -53,8 +53,8 @@ frontend-vite/src/
 
 ## BLOCO E — Limpeza da divida (cada item apaga bug de hoje)
 - [x] R6-12  Remover BLOG_MAS duplicado (2 declaracoes conflitantes)
-- [~] R6-13 (em progresso: .2 de 5 sub-sprints)  Remover wrappers de EventSource empilhados
-- [ ] R6-14  Remover MutationObserver pesado (observe document.body inteiro)
+- [x] R6-13 CONCLUIDO (2026-07-08): wrappers todos removidos em sub-fracoes; paint/cardsFor/ensureLine INOCENTADOS (religados via attach/SSE L3144, pintam telemetria viva dos cards) -- guarda anti-SSE abortou a quarentena e estava CERTO
+- [x] R6-14 CONCLUIDO (2026-07-08): observer L2321 domado -- characterData removido (disparava a cada tecla), debounce 300ms, interval 1200->5000ms (rede de seguranca)
 - [x] R6-15  Tratar B94 (executar-sem-confirmar): decisao de seguranca --
              remover ou proteger (fura o modelo do CTXUNIFY01 hoje).
              RESOLVIDO 2026-07-04: confirmacao humana centralizada
