@@ -230,3 +230,18 @@ primeiro (a porta resolve 80% dos casos; early-exit pega o resto).
 ### CORRECAO de honestidade: commit 3c8ddd7 disse 'CTXLEARNTEST01 VALIDADO'
 mas a run da evidencia era PRE-fix (mas_663ec anterior ao patch). O teste
 real: repetir a pergunta POS Ctrl+Shift+R. Registrado p/ nao enganar o futuro.
+
+### CTXDESIGNGUIDE01 — Diretrizes visuais do redesign (Bini 2026-07-08)
+1. CONTEUDO DITA O LAYOUT: cada tela (Manual, Projetos, Licoes, Telemetria)
+   tem volume de informacao diferente -- o design nasce do inventario do
+   conteudo, nao o contrario. Antes de codar cada aba: listar O QUE precisa
+   caber, DEPOIS escolher grid/densidade.
+2. ALINHAMENTO E' PRIORIDADE #1 declarada: 'bem encaixado, bem alinhado
+   principalmente'. Grid consistente entre abas (mesmo gap, mesmo raio,
+   mesma tipografia de label) -- padrao ja aprovado: tela AGENTES (cards
+   coloridos, dots numerados, badges).
+3. REFERENCIA CANONICA: modal Provedores (b356: barra SECAO + panes) e o
+   mesh lateral (cards com cor por agente). Toda tela nova herda esses tokens.
+4. VOLUMES CONHECIDOS p/ planejar: Manual (longo, precisa de indice/scroll),
+   Licoes (100 itens, precisa busca+filtro), Projetos (poucos, cards
+   grandes), Telemetria (9-11 agentes + 3 resumos, cabe sem scroll).
