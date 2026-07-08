@@ -217,3 +217,14 @@ ScoreMeter hoje fica apagado (sem score por agente). Ideia do Bini: dar uma
 leve animacao/cor de repouso nas barrinhas mesmo sem dado (shimmer sutil ou
 gradiente estatico), pra nao parecer "morto". Fica pro polish visual (Bloco F)
 ou pra quando o score por agente existir (ver PENDENCIA DE PRODUTO).
+
+### R6-13 SINCRONIZACAO COM ESTADO REAL (2026-07-08, raio-X da sessao)
+Codigo esta A FRENTE dos checkboxes: __masxWrapped (R6-13.5.2), __B187_WRAP
+(R6-13.4.3) e origES (R6-13.4.2) JA REMOVIDOS em sub-fracoes anteriores.
+CORRECAO ao 13.3: paintAg NAO e' orfa (chamada viva em boot() L340/348).
+Restante REAL do R6-13: orfaos paint/cardsFor/ensureLine (comentario L3163)
++ container #agentes fantasma + onEvt/onCost (confirmar se ja sairam).
+PRESERVAR: script B187_AGENT_TELEMETRY_VISIBLE (telemetria dos cards, VIVO),
+setIdle (usado por init), 5 conexoes SSE (L1617/1787/2097/2888/3144).
+R6-14 alvo identificado: MutationObserver L2321 (body inteiro + characterData
++ setInterval 1200) e' o pesado; os de L205/682 avaliar na fracao.
