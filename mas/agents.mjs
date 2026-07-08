@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-08 11:39:07 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-08 16:29:34 -03:00 (auto, git pre-commit)
 
 // [B220-LOG]
 import { appendFileSync as _appB220 } from "node:fs";
@@ -284,6 +284,24 @@ function buildMemorialistaContext(runResults){
     if(ag.id === 'memorialista' && false /* B238 morto: 'results' nunca existiu; substituido por __inj (CTXMETRICTELEM01) */){
       meta = {...meta, runContext: buildMemorialistaContext(results)};
     } console.log('[B236] iter agente=', ag.id);
+    // Q10/CTXREVCOND01 (2026-07-08, decisao Bini): REVISOR (opus, ~\$0.09/run =
+    // ~50% do custo do pipeline) so e' convocado se o SMITH produziu BLOCO bash
+    // executavel. Dado: 27 convocacoes/\$2.54 com pouquissimos blocos executados.
+    // Run de diagnostico puro termina no METRICO; GUARDIAO segue em TODO run
+    // (risco != qualidade). Skip e' AUDITAVEL: evento 'skipped' no blackboard
+    // (score sabe que foi pulado, nao falhou) + msg no chat via bus.
+    if(ag.id==='revisor'){
+      const __temBloco = /```bash[\s\S]*?```/.test(__smithOut) || (/(^|\n)\s*set\s+\+[eH]/.test(__smithOut) && /(^|\n)\s*echo\s+/.test(__smithOut));
+      if(!__temBloco){
+        console.log('[Q10] revisor SKIPPED: run sem bloco executavel');
+        const dQ=db();
+        dQ.prepare('INSERT INTO mas_event(run_id,agent,phase,model,tokens_in,tokens_out,latency_ms,cost_usd,output,ts,duration_ms) VALUES(?,?,?,?,?,?,?,?,?,?,?)')
+          .run(runId,'revisor','skipped','q10-conditional',0,0,0,0,'[Q10] Convocacao condicional: run sem BLOCO executavel do SMITH -- revisor nao convocado (economia ~\$0.09). Decisao CTXREVCOND01.',Date.now(),0);
+        dQ.close();
+        bus.emit(runId,{type:'agent.done',run_id:runId,agent:'revisor',model:'q10-skip',tokens_in:0,tokens_out:0,latency_ms:0,cost_usd:0,text:'[Q10] sem bloco executavel -- revisor nao convocado (economia ~\$0.09)',ts:Date.now()});
+        continue;
+      }
+    }
         if(__vetoed) break;
         try { /*B387_GUARDIAN_TRY*/
         if(ag.id==='guardian'){
