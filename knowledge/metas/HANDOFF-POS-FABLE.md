@@ -173,3 +173,14 @@ contagem (salvou o arquivo 3x nesta sessao).
 (ressalva: mas_run_id e' novo, taxa real maior, mas mesmo 20% cortaria
 ~80% do maior custo). Proposta de implementacao quando decidir: revisor
 condicional -- so convocado se smith produziu BLOCO executavel no run.
+
+### CTXCHATUX01 — Chat narra, Mesh processa (ideia Bini 2026-07-08, refinada)
+PROBLEMA: chat exibe 1 msg por agente = duplica o painel mesh (que ja mostra
+status/tk/custo por agente ao vivo) e nao escala (26 agentes = 26 gritos).
+DESENHO: chat = 5 marcos fixos (goal | pipeline iniciado | EXCECOES: veto/
+erro | sintese do RELATOR | bloco pronto). O RELATOR curado no S4 ja E' a
+voz oficial (1 frase + semver) -- o chat so precisa promove-lo. Detalhe por
+agente: mesh (existe) + clique no card -> modal output completo (B339 ja
+faz metade). Toggle 'modo verboso' p/ debug.
+QUANDO: quick-win possivel antes do redesign (filtrar msgs de agente no
+ponto de injecao SSE->chat = 1 condicional); versao completa junto S9-S11.
