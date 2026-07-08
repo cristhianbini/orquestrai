@@ -130,3 +130,29 @@ L-PROMOTESEMCARD01 (+2 da auditoria). ~30 commits, todos com o porque.
   SEM dado injetado = alucinacao garantida. Encanamento vem ANTES do prompt.
 - DeepSeek + MiniMax: candidatos PENEIRA com $5-10 do Bini (comparativo
   preco/contexto/rate-limit/qualidade-PTBR pendente).
+
+## ADENDO 2 — Continuacao 2026-07-08 (patch CTXMETRICTELEM01 + ideias Bini)
+### Estado do patch (commit do codigo APOS validacao em run)
+CTXMETRICTELEM01 aplicado em mas/agents.mjs (5 edits, backup .bak-telem-*):
+__telem acumulador + __inj (memorialista=textual, metrico=tabela numerica)
++ enxerto no callLLM + guard morto B238 neutralizado. DESCOBERTA: B238 era
+codigo morto ('results' nunca existiu) -- memorialista NUNCA recebeu run
+summary; done vazio nao era bug do promote-lessons, era prompt sem material.
+### Licao nova p/ KB: L-REPLACEDOLLAR01
+String.replace() com substituicao contendo $' / $& / $` injeta pedacos do
+proprio arquivo (footgun JS). Em patch programatico: replace(a, ()=>b) ou
+split/join. Padrao consolidado dos patches: ancora unica + abort por
+contagem (salvou o arquivo 3x nesta sessao).
+### Ideias do Bini registradas (decisoes de produto)
+1. REDESIGN DE TELAS (adendo S9-S11): padrao "Provedores de IA" (modal
+   com abas SECAO) aprovado como referencia -- replicar p/ Manual, Licoes,
+   Projetos. Telas separadas consistentes > hub centralizado. Fazer APOS
+   S8/score (design com dado vivo > estetica com dado morto).
+2. LOVABLE->GITHUB->VPS (adendo S20/S21/S25): OrquestrAI como plataforma
+   de operacao da CBini. Projetos proprios: manual de exportacao padrao
+   (estrutura de dirs, compose, README, envs) p/ chegar no formato ideal.
+   Projetos de terceiros: BATEDOR + import GitHub reconhecem qualquer
+   estrutura. Cada projeto em container proprio (S20) ou VPS dedicada.
+   Modo automatizado de implantacao: so quando plataforma ~100%.
+3. Sequencia mestre confirmada: S4 completo -> score -> PENEIRA
+   (DeepSeek/MiniMax $5-10) -> L-SELF* -> redesign -> plataforma CBini.
