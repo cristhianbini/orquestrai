@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-09 00:00:38 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-09 00:09:26 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -3514,7 +3514,23 @@ else{setTimeout(ensure,200);setTimeout(ensure,1500);}
               + '<span style="color:#6b7280;font-size:10px">'+DDSC[v]+'</span></div>';
           }).join('') + '</div>';
     }
-    else if (step===4) h = `<div style="background:#0a0e13;border:1px solid #2a3340;border-radius:6px;padding:14px;font-family:monospace;font-size:12px;line-height:1.7"><b style="color:#7dd3fc">Nome:</b> ${data.name}<br><b style="color:#7dd3fc">Stack:</b> ${data.stack}<br><b style="color:#7dd3fc">DB:</b> ${data.db}<br><b style="color:#7dd3fc">Descrição:</b> ${data.description||'-'}<br><b style="color:#7dd3fc">Features:</b><br>${(data.features||[]).map(f=>'  • '+f).join('<br>')||'  -'}</div><p style="color:#6b7280;font-size:11px;margin-top:10px">Ao confirmar: cria diretório, salva project.json, e dispara mesh dos 8 agentes para gerar plano + arquitetura (.md) em /projects/${data.name}/docs/.</p>`;
+    else if (step===4){
+      // CTXWIZ2: preview identico ao card da lista (CTXPROJ2) -- o que
+      // voce ve e o que nasce. E() escapa input do usuario no preview.
+      var E=function(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
+      var PICO={'node-express':'\u{1F7E2}','nextjs':'\u25B2','python-fastapi':'\u{1F40D}','static-html':'\u{1F4C4}'};
+      h = '<div style="background:#0a0e13;border:1px solid #3b82f6;border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;max-width:420px">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center"><b style="color:#7dd3fc;font-size:15px">'+(PICO[data.stack]||'\u{1F4C1}')+' '+E(data.name)+'</b>'
+        + '<span style="font-size:9px;padding:2px 8px;border-radius:10px;border:1px solid #f59e0b66;color:#fbbf24">draft</span></div>'
+        + '<div style="font:11px ui-monospace,monospace;color:#94a3b8;line-height:1.8">'
+        + 'stack&nbsp;&nbsp;&nbsp;&nbsp;'+E(data.stack)+'<br>'
+        + 'db&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+E(data.db)+'<br>'
+        + 'destino&nbsp;&nbsp;projects/'+E(data.name)+'/</div>'
+        + (data.description?'<div style="color:#94a3b8;font-size:11px;border-top:1px solid #1a2230;padding-top:6px">'+E(data.description)+'</div>':'')
+        + ((data.features||[]).length?'<div style="display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid #1a2230;padding-top:6px">'+(data.features||[]).map(function(f){return '<span style="font-size:10px;border:1px solid #2a3340;border-radius:10px;padding:2px 8px;color:#7dd3fc">'+E(f)+'</span>';}).join('')+'</div>':'')
+        + '</div>'
+        + '<p style="color:#6b7280;font-size:11px;margin-top:10px">Ao confirmar: cria o diretorio, salva project.json (persistencia real via CTXPROJPERSIST01) e dispara o mesh dos 9 agentes para gerar plano + arquitetura em projects/'+E(data.name)+'/docs/.</p>';
+    }
     $('proj-body').innerHTML = h;
     $('proj-back').style.visibility = step===0?'hidden':'visible';
     $('proj-next').textContent = step===STEPS.length-1?'🚀 Criar projeto':'Próximo →';

@@ -349,3 +349,36 @@ honesta: Import GitHub (S25) | Container isolado (S20) | VPS dedicada
 - MEMORIALISTA context budget continua aberto (da rodada anterior).
 - Fase B da tela: acoes por card (abrir docs/, disparar mesh do
   projeto, arquivar) -- so quando houver projeto real de uso.
+
+## HANDOFF CHAT 8 -> CHAT 9 (2026-07-09) — VERSAO FINAL DA SESSAO
+### ENTREGUE
+1. LICOES premium (CTXLIC2 dono unico + CTXLIC3 badge de familia por card).
+2. /api/projects persiste em DISCO (CTXPROJPERSIST01, provado em restart);
+   dir orfao projectsRoutes.cjs/ da raiz removido; fonte = api/projectsRoutes.cjs.
+3. Tela PROJETOS Fase A (CTXPROJ2: lista mini-cockpit + EM BREVE honesto) +
+   contador no header (CTXPROJCOUNT01) + wizard premium (CTXWIZ1 stack/db em
+   cards; CTXWIZ2 Confirmar = card-preview identico ao da lista).
+4. GOVERNANCA: PROTOCOLO-ANTICONTAMINACAO (PARE TUDO) + L-CONTAMINACAO01 +
+   DECISAO-XMONEX-EXPURGO (censo completo; ativo=zero; antidoto+historico
+   preservados). Protocolo JA PEGOU 1 caso real na 1a execucao (oq288
+   semeava xmonex/hello-world-vps no seletor -> CTXPROJSEL01 sincroniza
+   com /api/projects). 4 docs do Project Knowledge classificados
+   NAO-CANONICOS (EscopoV6.0, Mega-Brain, Evolucao Colaborativa, AIOX).
+5. Dogfooding: projects/orquestrai/project.json (status producao) e o 1o card.
+6. Roadmap absorveu do Plano Mestre CBini v3.0 SO padroes: CTXDNA01(=S21),
+   CTXIMPORT01(!=CTXRAG01, =S25), CTXOPSCHECK01 (TESTE RESTORE LITESTREAM
+   PENDENTE — risco alto), gatilho duro p/ S20. Numeracao S* -> CTX*.
+### INCIDENTE DA SESSAO (resolvido, licoes na KB)
+CTXPROJSEL01 foi injetado DENTRO do comentario do CTXPROJ2 (comentario
+continha token literal de fechamento de body; replace 1a ocorrencia sem
+re-contar). Tela PROJETOS regrediu ao wizard; consertado (CTXFIXBODY01).
+Licoes: L-ANCORACOMENT01 (unicidade se verifica A CADA insercao; comentarios
+sem tokens estruturais; validacao = visao-do-browser com simbolo-chave) +
+L-BASHHIST01 (patch NUNCA via node -e inline; sempre arquivo heredoc 'EOF').
+### PENDENTE P/ CHAT 9
+- E2E do wizard: criar lab-teste PELO BROWSER (cobaia p/ S20/DNA) — o Bini
+  ia fazer ao fim da sessao; conferir projects/lab-teste/project.json.
+- Polir passo 1 (Nome) do wizard p/ fechar uniformidade visual.
+- Fase B da tela PROJETOS: clique no card abre painel de detalhes.
+- GET /api/projects sem auth pela borda (avaliar); MEMORIALISTA context
+  budget (aberto desde Rodada 6); teste de restore do Litestream (URGENTE).
