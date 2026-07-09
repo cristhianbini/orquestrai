@@ -99,3 +99,7 @@ Verificacao 2026-07-09 (1a execucao do protocolo):
   RESOLVIDO 2026-07-09: contaminacao leve CONFIRMADA (oq288 semeava
   projetos fake no localStorage). Corrigido via CTXPROJSEL01: DEF=[orquestrai],
   limpeza unica do localStorage legado, seletor sincroniza com /api/projects.
+
+## 10. REGISTRO OPERACIONAL (CTXOPSCHECK01)
+- 2026-07-09: 1o TESTE DE RESTORE do Litestream executado (resultado no
+  commit desta data). Proximo teste obrigatorio: outubro/2026 (trimestral).
