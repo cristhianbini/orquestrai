@@ -103,3 +103,12 @@ Verificacao 2026-07-09 (1a execucao do protocolo):
 ## 10. REGISTRO OPERACIONAL (CTXOPSCHECK01)
 - 2026-07-09: 1o TESTE DE RESTORE do Litestream executado (resultado no
   commit desta data). Proximo teste obrigatorio: outubro/2026 (trimestral).
+
+## 11. CHECKS OPERACIONAIS RECORRENTES (CTXOPSCHECK01, alimentado pela KB)
+Origem: licoes aprovadas viram verificacoes concretas aqui. Rodar no inicio
+de cada Rodada (junto do grep anticontaminacao da secao 7).
+- [ ] proxy_pass correto (L-audit-regressao-proxy-nginx): 
+      grep -n 'proxy_pass.*8080' nginx/proxy.conf -> esperado VAZIO.
+      Se achar: CRITICO, 502 iminente (regressao do fix 8080->3000).
+- [ ] restore Litestream: trimestral (proximo out/2026, CTXOPSCHECK01 secao 10).
+- [ ] auth coverage das rotas MAS: contar rotas vs rotas com Authorization.
