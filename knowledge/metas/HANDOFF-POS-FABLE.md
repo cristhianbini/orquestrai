@@ -382,3 +382,32 @@ L-BASHHIST01 (patch NUNCA via node -e inline; sempre arquivo heredoc 'EOF').
 - Fase B da tela PROJETOS: clique no card abre painel de detalhes.
 - GET /api/projects sem auth pela borda (avaliar); MEMORIALISTA context
   budget (aberto desde Rodada 6); teste de restore do Litestream (URGENTE).
+
+## ADENDO FINAL CHAT 8 (2026-07-09, encerramento)
+### E2E COMPLETO PROVADO (1a vez na vida do sistema)
+lab-teste criado PELO BROWSER: wizard premium -> POST -> disco -> mesh
+9 agentes ate o REVISOR -> card na lista -> seletor namespaceia blocos
+(Bini validou: trocar p/ lab-teste trocou os BLOCOs do cockpit).
+Mesh PROPOS LICAO SOZINHO (L-PROP-audit-cascata-scout-guardian, pre-aprovada
+pelo Guardian, aguardando curadoria do Bini em _pending). Placar do
+aprendizado: 9 licoes APROVADAS ciclo completo + 1 pendente.
+### GAP CONFIRMADO COM PROVA (prioridade do CTXDNA01)
+projects/lab-teste/docs/ VAZIO: o mesh gera o plano mas nao grava no
+projeto — run nao conhece o slug, agentes nao tem canal de escrita em
+projects/. Requisito nº1 do vinculo run<->projeto: (a) /api/mas/run aceita
+{project_slug}, (b) saida do ARQUITETO/RELATOR persiste em
+projects/{slug}/docs/. Sem isso a esteira trabalha mas nao entrega.
+### FASE B DA TELA PROJETOS (espec refinada com o Bini)
+Clique no card -> painel: descricao/features completas + arquivos de docs/
++ botao ATIVAR NO COCKPIT (seta oq_proj_current+reload, via UI o que o
+seletor ja faz) + botao PREVIEW p/ static-html (alias nginx
+/projects/{slug}/ -> nova aba) + caminho no disco.
+### FIX DA SESSAO (pos-handoff anterior)
+CTXWIZ3: submit do wizard sem await no mesh (botao ficava "Criando..."
+pelos minutos do pipeline — visto no 1o E2E); modal fecha, mesh em
+background, lista reabre com o card.
+### LIXEIRA DO HEADER (avaliada, decisao p/ chat 9)
+oq-proj-trash (L3653): remove projeto do seletor + blocos do localStorage.
+PROBLEMA: nao toca projects/{slug}/ no disco nem a API — pos-CTXPROJSEL01
+o projeto "removido" RESSUSCITA no proximo sync. Fase B deve unificar:
+arquivar de verdade (API move p/ _arquivados) ou remover o botao.
