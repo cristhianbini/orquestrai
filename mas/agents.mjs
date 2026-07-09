@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-09 00:29:05 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-09 07:02:11 -03:00 (auto, git pre-commit)
 
 // [B220-LOG]
 import { appendFileSync as _appB220 } from "node:fs";
@@ -366,6 +366,50 @@ function buildMemorialistaContext(runResults){
           console.log('[CTXPROJRUN01] plano persistido:', dst);
         } else { console.warn('[CTXPROJRUN01] projeto sem docs/:', projectSlug); }
       }catch(e){ console.error('[CTXPROJRUN01] falha ao persistir plano (run segue done):', e.message); } }
+      // CTXPROJRUN02 f2: gera+valida+persiste site estatico
+      if(projectSlug && /^BUILD\s+novo\s+projeto/i.test(goal)){ try{
+        const fsN2=await import('node:fs'); const pathN2=await import('node:path');
+        const pdir=pathN2.join('/app/projects', projectSlug);
+        const pjPath=pathN2.join(pdir,'project.json');
+        if(fsN2.existsSync(pjPath)){
+          const proj=JSON.parse(fsN2.readFileSync(pjPath,'utf8'));
+          if(proj.stack==='static-html'){
+            const built = await buildStaticSite(goal, projectSlug);
+            const html = built.html||'';
+            const hits = hardVeto(html); // mesmas regras universais do Guardian
+            const htmlChecks = [];
+            if(/<script[^>]+src=/i.test(html)) htmlChecks.push({rule:'html-script-src-externo',severity:'block',match:'script src externo'});
+            if(/fetch\(|XMLHttpRequest|\/api\//i.test(html)) htmlChecks.push({rule:'html-fetch-ou-api',severity:'block',match:'fetch/XHR ou /api'});
+            if(!/^<!doctype html/i.test(html.trim())) htmlChecks.push({rule:'html-sem-doctype',severity:'block',match:'sem DOCTYPE'});
+            if(html.length < 50) htmlChecks.push({rule:'html-vazio-ou-curto',severity:'block',match:'len='+html.length});
+            const allHits=[...hits, ...htmlChecks];
+            const blocked=allHits.filter(function(h){ return h.severity==='block'; });
+            if(allHits.length){
+              const dV2=db();
+              for(const h of allHits){
+                dV2.prepare('INSERT INTO vetoes(run_id,artifact_id,rule,severity,details) VALUES(?,?,?,?,?)').run(runId,'site',h.rule,h.severity,String(h.match).slice(0,200));
+              }
+              dV2.close();
+            }
+            if(blocked.length){
+              console.warn('[CTXPROJRUN02] site NAO gravado (bloqueado):', blocked.map(function(h){return h.rule;}).join(','));
+            } else {
+              const siteDir=pathN2.join(pdir,'site');
+              if(fsN2.existsSync(siteDir)){
+                const qdir=pathN2.join(pdir,'_arquivados');
+                fsN2.mkdirSync(qdir,{recursive:true});
+                fsN2.renameSync(siteDir, pathN2.join(qdir,'site-'+new Date().toISOString().replace(/[:.]/g,'-')));
+              }
+              fsN2.mkdirSync(siteDir,{recursive:true});
+              const tmp2=pathN2.join(siteDir,'.index.html.tmp');
+              const dst2=pathN2.join(siteDir,'index.html');
+              fsN2.writeFileSync(tmp2, html);
+              fsN2.renameSync(tmp2, dst2);
+              console.log('[CTXPROJRUN02] site persistido:', dst2, '| custo:', built.cost_usd);
+            }
+          }
+        }
+      }catch(e){ console.error('[CTXPROJRUN02] falha ao gerar/persistir site (run segue done):', e.message); } }
       dF.close();
       bus.emit(runId,{type:'run.done',run_id:runId,tokens_in:tin,tokens_out:tout,cost_usd:tc,ts:Date.now()});
     }catch(e){
@@ -385,4 +429,42 @@ export function getRun(runId){
   d.close();
   return { run, events };
 }
+
+// ============================================================
+// CTXPROJRUN02 f1 -- gerador de site estatico (caminho dedicado)
+// ============================================================
+export async function buildStaticSite(goal, slug){
+  // CTXPROJRUN02 f1v2 (correcoes documentadas no cabecalho do patch)
+  const key = process.env.ANTHROPIC_API_KEY;
+  if (!key) throw new Error('ANTHROPIC_API_KEY ausente');
+  const model = MODEL_BY_AGENT.smith; // string direta (bug f1: nao e' {model:..})
+  const sys = [
+    'Voce e um CONSTRUTOR de sites estaticos. Gere UM arquivo index.html',
+    'COMPLETO e AUTOSSUFICIENTE para o pedido do usuario.',
+    'REGRAS RIGIDAS:',
+    '- TODO CSS em <style> e TODO JS em <script> inline no proprio arquivo.',
+    '- PROIBIDO <script src=...> externo, <link> para CDN, @import de URL,',
+    '  fetch()/XMLHttpRequest para qualquer dominio, e chamadas a /api.',
+    '- Sem bibliotecas externas. HTML+CSS+JS puro.',
+    '- Design limpo e responsivo. Portugues do Brasil.',
+    'RESPONDA APENAS com o HTML, comecando em <!DOCTYPE html>. Sem markdown, sem cercas de codigo, sem explicacao.'
+  ].join('\n');
+  const prompt = String(goal||'').slice(0,4000);
+  const t0=Date.now();
+  const r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'x-api-key':key,'anthropic-version':'2023-06-01','content-type':'application/json'},
+    body:JSON.stringify({model,max_tokens:4000,system:sys,messages:[{role:'user',content:prompt}]})
+  });
+  const dt=Date.now()-t0;
+  const j=await r.json();
+  if(!r.ok) throw new Error('claude '+r.status+': '+JSON.stringify(j).slice(0,300));
+  let html=(j.content&&j.content[0]&&j.content[0].text)||'';
+  html=html.replace(/^\s*```html\s*/i,'').replace(/\s*```\s*$/,'').trim();
+  const p=PRICE[model]||PRICE[HAIKU];
+  const u=j.usage||{};
+  const inT=u.input_tokens||0, outT=u.output_tokens||0;
+  return { html, model, tokens_in:inT, tokens_out:outT, latency_ms:dt, cost_usd:(inT*p.in+outT*p.out)/1e6 };
+}
+
 export { AGENTS, MODEL_BY_AGENT, PRICE };

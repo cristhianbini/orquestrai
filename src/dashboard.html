@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-09 00:43:29 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-09 07:02:11 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -3561,7 +3561,9 @@ else{setTimeout(ensure,200);setTimeout(ensure,1500);}
       // CTXWIZ3: mesh em background (sem await) -- o 1o E2E real provou
       // que aguardar o pipeline segura o botao em "Criando..." por minutos.
       const prompt = `BUILD novo projeto OrquestrAI: nome=${data.name} stack=${data.stack} db=${data.db}. Descrição: ${data.description}. Features: ${data.features.join('; ')}. Gere plano de arquitetura, módulos, schema (se houver DB) e roadmap em formato markdown.`;
-      fetch('/api/mas/run',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({goal: prompt, project_slug:j.slug}) /* CTXGOALFIX01: rota le goal, nao prompt */}).catch(function(e){ console.warn('mesh nao disparou:', e); }); // CTXPROJRUN01: vincula o run ao projeto recem-criado
+      fetch('/api/mas/run',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({goal: prompt, project_slug:j.slug})}).then(function(r){
+        if(!r.ok){ r.text().then(function(t){ alert('Projeto criado, mas o mesh NAO foi disparado (HTTP '+r.status+'). Se voce esta em janela anonima/sem login, o token de sessao pode estar ausente. Detalhe: '+t.slice(0,150)); }); }
+      }).catch(function(e){ alert('Projeto criado, mas falha de rede ao disparar o mesh: '+e.message); }); // CTXPROJRUN01+CTXWIZERR01: vincula o run e avisa se o disparo falhar
       projClose();
       // reabre a LISTA ja com o card novo (feedback imediato no lugar do alert)
       if(typeof window.projOpen==='function') window.projOpen();

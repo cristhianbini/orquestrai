@@ -1,0 +1,15 @@
+{
+  "slug": "cafe-teste",
+  "name": "cafe-teste",
+  "stack": "static-html",
+  "db": "none",
+  "description": "Landing page de teste do CTXPROJRUN02",
+  "features": [
+    "titulo",
+    "botao"
+  ],
+  "mode": "build",
+  "status": "draft",
+  "createdAt": "2026-07-09T09:50:39.201Z",
+  "updatedAt": "2026-07-09T09:50:39.201Z"
+}
