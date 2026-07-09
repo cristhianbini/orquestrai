@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-09 07:32:15 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-09 08:18:33 -03:00 (auto, git pre-commit)
 // [B315] /api/projects — Projetos, Modos e Scorecard dos Agentes
 // [CTXPROJPERSIST01 2026-07-09] Persistencia em DISCO substitui o Map
 // em memoria do B315 original.
@@ -16,6 +16,9 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET || 'orquestrai-secret-change-me-2025';
+if (!process.env.JWT_SECRET) console.warn('[CTXPREVIEWAUTH01] JWT_SECRET ausente no .env -- usando fallback fraco.');
 
 const router = express.Router();
 // __dirname no container = /app (arquivo montado em /app/projectsRoutes.cjs)
@@ -134,6 +137,7 @@ router.post('/', express.json({ limit: '1mb' }), (req, res) => {
     features: Array.isArray(body.features) ? body.features.map(String) : [],
     mode: String(body.mode || 'build'),
     status: 'draft',
+    public: false, // CTXPREVIEWAUTH01: privado por padrao
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
@@ -197,6 +201,40 @@ router.delete('/:slug', express.json({ limit: '10kb' }), (req, res) => {
     fs.renameSync(dir, dst);
     return res.json({ ok:true, archived: dst.replace(PROJ_DIR + path.sep, 'projects/') });
   } catch(e) { return res.status(500).json({ ok:false, error:'falha ao arquivar: '+e.message }); }
+});
+
+// [CTXPREVIEWAUTH01 2026-07-09] usada pelo nginx auth_request (subrequest).
+// Responde SO com status (200/401/400/404) -- corpo e ignorado pelo nginx.
+router.get('/:slug/preview-auth', (req, res) => {
+  const slug = String(req.params.slug||'');
+  if (!/^[a-z0-9-]{1,60}$/.test(slug)) return res.status(400).end();
+  let project;
+  try { project = JSON.parse(fs.readFileSync(path.join(PROJ_DIR, slug, 'project.json'),'utf8')); }
+  catch(e){ return res.status(404).end(); }
+  if (project.public === true) return res.status(200).end();
+  const tk = String(req.query._t || '');
+  if (!tk) return res.status(401).end();
+  try { jwt.verify(tk, JWT_SECRET); return res.status(200).end(); }
+  catch(e){ return res.status(401).end(); }
+});
+
+// [CTXPREVIEWAUTH01] alterna publico/privado. SEM auth ainda (ver aviso
+// no cabecalho do patch) -- mesma situacao de todas as rotas deste arquivo.
+router.patch('/:slug', express.json({ limit: '10kb' }), (req, res) => {
+  const slug = String(req.params.slug||'');
+  if (!/^[a-z0-9-]{1,60}$/.test(slug)) return res.status(400).json({ ok:false, error:'slug invalido' });
+  const pjPath = path.join(PROJ_DIR, slug, 'project.json');
+  let project;
+  try { project = JSON.parse(fs.readFileSync(pjPath,'utf8')); }
+  catch(e){ return res.status(404).json({ ok:false, error:'projeto nao encontrado' }); }
+  if (typeof req.body.public === 'boolean') project.public = req.body.public;
+  project.updatedAt = new Date().toISOString();
+  try {
+    const tmp = pjPath + '.tmp';
+    fs.writeFileSync(tmp, JSON.stringify(project, null, 2));
+    fs.renameSync(tmp, pjPath);
+  } catch(e){ return res.status(500).json({ ok:false, error:'falha ao gravar: '+e.message }); }
+  res.json({ ok:true, project });
 });
 
 router.get('/modes', (req, res) => {

@@ -112,3 +112,18 @@ de cada Rodada (junto do grep anticontaminacao da secao 7).
       Se achar: CRITICO, 502 iminente (regressao do fix 8080->3000).
 - [ ] restore Litestream: trimestral (proximo out/2026, CTXOPSCHECK01 secao 10).
 - [ ] auth coverage das rotas MAS: contar rotas vs rotas com Authorization.
+
+## 12. INCIDENTE CTXPREVIEWLOCKDOWN (2026-07-09) -- exposicao publica corrigida
+Preview de sites (CTXPREVIEW01) ficou publicamente acessivel sem auth por
+~1h. Causa raiz: nginx/proxy.conf tem DOIS server{} (porta 80 e 443); o
+location de preview + auth_request so foi inserido no bloco 80 (sem
+trafego real); HTTPS caia no location/generico do bloco 443, servido pelo
+orquestrai-web sem checagem nenhuma. Bloqueio de emergencia (403
+incondicional) aplicado no bloco 443 real -- CONFIRMADO fechado via curl.
+LICAO: ao editar nginx/proxy.conf, SEMPRE confirmar QUANTOS server{} blocks
+existem e em QUAL o trafego real bate (443 e o de producao aqui) antes de
+inserir qualquer location -- uma unica insercao no bloco errado nao gera
+erro de sintaxe, so silenciosamente nao tem efeito nenhum.
+PENDENTE proxima sessao: reprojetar auth_request corretamente nos DOIS
+blocos + entender por que orquestrai-web servia arquivos de projects/ sem
+location dedicado (bind-mount a investigar).
