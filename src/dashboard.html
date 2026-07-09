@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-09 00:23:08 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-09 00:29:05 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -3554,7 +3554,7 @@ else{setTimeout(ensure,200);setTimeout(ensure,1500);}
       // CTXWIZ3: mesh em background (sem await) -- o 1o E2E real provou
       // que aguardar o pipeline segura o botao em "Criando..." por minutos.
       const prompt = `BUILD novo projeto OrquestrAI: nome=${data.name} stack=${data.stack} db=${data.db}. Descrição: ${data.description}. Features: ${data.features.join('; ')}. Gere plano de arquitetura, módulos, schema (se houver DB) e roadmap em formato markdown.`;
-      fetch('/api/mas/run',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({prompt})}).catch(function(e){ console.warn('mesh nao disparou:', e); });
+      fetch('/api/mas/run',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({prompt, project_slug:j.slug})}).catch(function(e){ console.warn('mesh nao disparou:', e); }); // CTXPROJRUN01: vincula o run ao projeto recem-criado
       projClose();
       // reabre a LISTA ja com o card novo (feedback imediato no lugar do alert)
       if(typeof window.projOpen==='function') window.projOpen();

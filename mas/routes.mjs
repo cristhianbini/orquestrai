@@ -3,7 +3,7 @@
 // Ver mas/auth.mjs para o raciocinio completo.
 import { authMiddleware, authMiddlewareSSE } from './auth.mjs';
 
-// ATUALIZADO: 2026-07-08 17:17:42 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-09 00:29:05 -03:00 (auto, git pre-commit)
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 import express from 'express';
@@ -93,8 +93,11 @@ router.post('/run', authMiddleware, runLimiter, express.json(), async (req,res)=
     } catch(e){ console.error('[B271_GATE_ERR]', e && e.message); }
 
   const goal=(req.body&&req.body.goal)||'Auditoria geral rapida';
+  // CTXPROJRUN01: slug opcional vindo do wizard; sanitizado aqui e de novo
+  // dentro do runMas (defesa em profundidade).
+  const projectSlug=(req.body&&typeof req.body.project_slug==='string'&&/^[a-z0-9-]{1,60}$/.test(req.body.project_slug))?req.body.project_slug:null;
   try{
-    const r=await runMas(goal);
+    const r=await runMas(goal, projectSlug);
     // [B209] auto-promote: Memorialista propõe → Guardião aprova → vira lição
     try{
       const rid = r.run_id||r.runId||r.id||'';

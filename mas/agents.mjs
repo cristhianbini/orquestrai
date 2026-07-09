@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-08 16:45:13 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-09 00:29:05 -03:00 (auto, git pre-commit)
 
 // [B220-LOG]
 import { appendFileSync as _appB220 } from "node:fs";
@@ -231,7 +231,10 @@ Voce e um agente do OrquestrAI no protocolo LAVE (Ler, Avaliar, Verificar, Execu
   return { text:text.trim(), tokens_in:inT, tokens_out:outT, latency_ms:dt, cost_usd:(inT*p.in+outT*p.out)/1e6, model };
 }
 
-export async function runMas(goal){
+export async function runMas(goal, projectSlug){
+  // CTXPROJRUN01: projectSlug (opcional) liga o run ao projeto; validado
+  // aqui de novo (defesa em profundidade alem da rota).
+  if(projectSlug && !/^[a-z0-9-]{1,60}$/.test(projectSlug)) projectSlug=null;
   const runId='mas_'+crypto.randomBytes(6).toString('hex');
   const d=db();
   d.prepare('INSERT INTO mas_run(id,goal,status,started_at) VALUES(?,?,?,?)').run(runId,goal,'running',Date.now());
@@ -346,6 +349,23 @@ function buildMemorialistaContext(runResults){
       }
       const dF=db();
       dF.prepare('UPDATE mas_run SET status=?,ended_at=?,tokens_in=?,tokens_out=?,cost_usd=? WHERE id=?').run('done',Date.now(),tin,tout,tc,runId);
+      // CTXPROJRUN01: persiste o entregavel no projeto (se vinculado).
+      // RELATOR = sintese p/ humano; SMITH = arquitetura/bloco. Falha aqui
+      // NAO derruba o run (try isolado): entregar e bonus, run ja e 'done'.
+      if(projectSlug){ try{
+        const fsN=await import('node:fs'); const pathN=await import('node:path');
+        const dir=pathN.join('/app/projects', projectSlug, 'docs');
+        if(fsN.existsSync(dir)){
+          const dP=db();
+          const evs=dP.prepare("SELECT agent,output FROM mas_event WHERE run_id=? AND agent IN ('rel','smith') ORDER BY id").all(runId);
+          dP.close();
+          const corpo=evs.map(e=>'## '+(e.agent==='rel'?'RELATOR (sintese)':'SMITH (arquitetura)')+'\n\n'+(e.output||'')).join('\n\n---\n\n');
+          const md='# Plano gerado pelo mesh OrquestrAI\n\n- run: '+runId+'\n- goal: '+goal.slice(0,200)+'\n- gerado em: '+new Date().toISOString()+'\n\n---\n\n'+(corpo||'_agentes rel/smith sem saida neste run_');
+          const tmp=pathN.join(dir,'.plano.tmp'); const dst=pathN.join(dir,'plano-'+runId+'.md');
+          fsN.writeFileSync(tmp,md); fsN.renameSync(tmp,dst); // escrita atomica (padrao CTXPROJPERSIST01)
+          console.log('[CTXPROJRUN01] plano persistido:', dst);
+        } else { console.warn('[CTXPROJRUN01] projeto sem docs/:', projectSlug); }
+      }catch(e){ console.error('[CTXPROJRUN01] falha ao persistir plano (run segue done):', e.message); } }
       dF.close();
       bus.emit(runId,{type:'run.done',run_id:runId,tokens_in:tin,tokens_out:tout,cost_usd:tc,ts:Date.now()});
     }catch(e){
