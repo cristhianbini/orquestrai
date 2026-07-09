@@ -316,3 +316,36 @@ completo PROJETOS Fase A (S20/S21/S25 + multi-cloud + Lovable->GitHub)
 Cards mini-cockpit (nome/stack/container/custo/deploy) + secao EM BREVE
 honesta: Import GitHub (S25) | Container isolado (S20) | VPS dedicada
 (multi-cloud) | DNA de projeto (S21) | Deploy automatizado (~100%).
+
+## HANDOFF CHAT 8 -> CHAT 9 (2026-07-09)
+### ENTREGUE nesta rodada
+1. LICOES premium NO AR: CTXLIC2 (script novo antes do </body>, dono
+   unico -- redefinicao de licOpen vence B265/B268 por ordem de carga).
+   Causa raiz achada: licOpen definida 2x + premium do B258 apontava p/
+   #lic-modal-list que NAO EXISTE no DOM (nunca rodou). Chip b169 virou
+   contador puro e delega clique. Busca+filtros familia funcionando.
+2. CTXPROJPERSIST01: /api/projects agora persiste em DISCO
+   (projects/{slug}/project.json, escrita atomica tmp+rename, 409 p/
+   duplicata). O Map em memoria do B315 perdia TUDO a cada restart e o
+   wizard prometia gravar mas a rota nunca gravava. PROVADO: projeto
+   sobreviveu a docker compose restart. Dir orfao projectsRoutes.cjs/
+   (raiz) removido -- fonte real e api/projectsRoutes.cjs.
+3. CTXPROJ2: tela PROJETOS Fase A no ar -- lista mini-cockpit +
+   '+Novo Projeto' (wizard B273 intacto como 2a camada) + EM BREVE
+   honesto (S25/S20/multi-cloud/S21/deploy).
+### LICOES da rodada
+- L-BUSYBOXLOCALHOST01: busybox wget resolve localhost -> ::1 (IPv6);
+  node escuta 0.0.0.0 (IPv4). Healthcheck em container SEMPRE 127.0.0.1.
+- L-ACTIVEWAIT01: pos docker compose restart, espera ATIVA com retry
+  (for+wget+sleep 2), nunca sleep fixo -- sleep 4 deu falso negativo.
+- Padrao dono-unico consolidado (CTXLIC2/CTXPROJ2): script novo
+  independente antes do </body> captura/redefine o global; nunca
+  wrapper por ancora, nunca editar script legado por dentro.
+### PROXIMOS PASSOS sugeridos
+- GET /api/projects esta SEM auth pela borda (herdado do B315) --
+  avaliar na proxima passada de seguranca.
+- Wizard dispara /api/mas/run mas o run nao vincula projeto (prompt
+  solto) -- quando S21/DNA chegar, amarrar run <-> slug.
+- MEMORIALISTA context budget continua aberto (da rodada anterior).
+- Fase B da tela: acoes por card (abrir docs/, disparar mesh do
+  projeto, arquivar) -- so quando houver projeto real de uso.
