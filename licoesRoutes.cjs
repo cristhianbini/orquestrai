@@ -1,3 +1,4 @@
+// ATUALIZADO: 2026-07-08 22:32:02 -03:00 (auto, git pre-commit)
 // B259 — lista lições da KB para o chip do header
 const express = require('express');
 const fs = require('fs');
@@ -10,7 +11,7 @@ router.get('/list', (req, res) => {
   try {
     if (!fs.existsSync(KB_DIR)) return res.json({ count: 0, items: [] });
     const files = fs.readdirSync(KB_DIR)
-      .filter(f => f.endsWith('.md'))
+      .filter(f => f.endsWith('.md')).filter(f => !f.startsWith('BLOCO-')) /* CTXLICCLEAN01 (2026-07-09): BLOCO-* e' LOG de execucao (mora em knowledge/blocos + espelhado aqui pelo autosync), NAO e' licao -- 20 de 100 itens poluiam a lista. Licao = L-*.md com Regra pratica. Blocos tem card proprio na UI. */
       .sort();
     const items = files.map(f => {
       const full = path.join(KB_DIR, f);

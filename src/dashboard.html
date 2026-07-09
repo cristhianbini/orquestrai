@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-08 17:17:42 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-08 22:32:02 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1345,7 +1345,15 @@ button[onclick="send()"]:hover{
 
     var bar=document.createElement('div'); bar.className='b358-search';
     bar.innerHTML='<input type="search" placeholder="Buscar em provedores, modelos e agentes..." aria-label="Busca global"><span class="cnt" id="b358Cnt"></span>';
-    body.insertBefore(bar, panes);
+    // CTXPOLISH03 (2026-07-09): insertBefore(bar,panes) quebrava com NotFoundError
+    // -- 'panes' (um .b341d-pane) NAO e' filho direto de 'body' (o .oq10-shell
+    // fica no meio). Fix: inserir a barra como 1o filho do body (posicao
+    // visual identica, sem exigir parentesco). Erro vermelho do console h a dias.
+    // CTXPOLISH04 (2026-07-09): b358 DESATIVADA -- duplicava a b361 (L4335,
+    // mais nova, integrada aos panes). Ontem consertamos o insertBefore dela e
+    // ela voltou... duplicada. Decisao: 1 busca so (b361). Codigo mantido p/
+    // historico; o return abaixo impede a insercao.
+    return;
 
     var inp=bar.querySelector('input'), cnt=bar.querySelector('#b358Cnt');
     function apply(){
@@ -3392,6 +3400,21 @@ else{setTimeout(ensure,200);setTimeout(ensure,1500);}
 <div id="proj-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center" onclick="if(event.target===this)projClose()">
 <div style="background:#0e1116;border:1px solid #2a3340;border-radius:10px;padding:20px;width:min(640px,92vw);max-height:88vh;overflow:auto;color:#cfd6dd;font-family:system-ui">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <!-- ============================================================
+  TELA PROJETOS (wizard) -- CTXPROJSCREEN01
+  O QUE E: portal de entrada da fabrica CBini. Projeto nasce aqui
+  (wizard 5 passos) ou CHEGARA aqui (import GitHub <- Lovable, S25).
+  PASSOS: 1.Nome (vira slug + dir projects/{slug}) 2.Stack 3.Features
+  4.Banco 5.Confirmar -> POST /api/projects (server.js L359).
+  VISAO FUTURA (nao mentir na UI -- badges EM BREVE ate existir):
+   - Import GitHub (S25): traz repo do Lovable ja estruturado
+   - Container isolado por projeto (S20): cada projeto seu espaco
+   - VPS dedicada opcional (multi-cloud, visao longa)
+   - DNA de projeto (S21): manifesto que a esteira le p/ auditar
+  PROXIMO DEV: cada card de projeto deve virar mini-cockpit (stack,
+  container, status, custo acumulado, ultimo deploy). Decisoes em
+  knowledge/metas/ (CTXDESIGNGUIDE01, HANDOFF). -- 2026-07-09
+============================================================ -->
     <h3 style="margin:0;color:#7dd3fc">🚀 Novo Projeto OrquestrAI</h3>
     <button onclick="projClose()" style="background:transparent;border:1px solid #2a3340;color:#cfd6dd;border-radius:6px;padding:4px 10px;cursor:pointer">✕</button>
   </div>
