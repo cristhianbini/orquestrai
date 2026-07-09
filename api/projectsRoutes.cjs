@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-08 22:54:19 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-09 00:32:00 -03:00 (auto, git pre-commit)
 // [B315] /api/projects — Projetos, Modos e Scorecard dos Agentes
 // [CTXPROJPERSIST01 2026-07-09] Persistencia em DISCO substitui o Map
 // em memoria do B315 original.
@@ -149,6 +149,35 @@ router.post('/', express.json({ limit: '1mb' }), (req, res) => {
   }
   // slug no topo: o wizard (B273) le j.slug direto
   res.json({ ok: true, slug, project });
+});
+
+// [CTXPROJDOCS01 2026-07-09] Fase B: detalhe do projeto + docs gerados
+// pelo mesh (CTXPROJRUN01 grava plano-{runid}.md em docs/).
+router.get('/:slug', (req, res) => {
+  const slug = String(req.params.slug||'');
+  if (!/^[a-z0-9-]{1,60}$/.test(slug)) return res.status(400).json({ ok:false, error:'slug invalido' });
+  const dir = path.join(PROJ_DIR, slug);
+  let project;
+  try { project = JSON.parse(fs.readFileSync(path.join(dir,'project.json'),'utf8')); }
+  catch(e){ return res.status(404).json({ ok:false, error:'projeto nao encontrado' }); }
+  let docs = [];
+  try {
+    docs = fs.readdirSync(path.join(dir,'docs')).filter(f=>/^[\w.-]+\.md$/.test(f))
+      .map(f=>({ file:f, size:fs.statSync(path.join(dir,'docs',f)).size,
+                 mtime:fs.statSync(path.join(dir,'docs',f)).mtime.toISOString() }));
+  } catch(e){}
+  res.json({ ok:true, project, docs });
+});
+
+router.get('/:slug/docs/:file', (req, res) => {
+  const slug = String(req.params.slug||''), file = String(req.params.file||'');
+  if (!/^[a-z0-9-]{1,60}$/.test(slug)) return res.status(400).json({ ok:false, error:'slug invalido' });
+  // regex estrita: nome simples .md, sem / nem .. (path traversal impossivel)
+  if (!/^[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)*\.md$/.test(file) || file.includes('..'))
+    return res.status(400).json({ ok:false, error:'arquivo invalido' });
+  const p = path.join(PROJ_DIR, slug, 'docs', file);
+  try { res.json({ ok:true, file, content: fs.readFileSync(p,'utf8').slice(0,200000) }); }
+  catch(e){ return res.status(404).json({ ok:false, error:'doc nao encontrado' }); }
 });
 
 router.get('/modes', (req, res) => {

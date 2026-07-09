@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-09 00:29:05 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-09 00:32:00 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -3554,7 +3554,7 @@ else{setTimeout(ensure,200);setTimeout(ensure,1500);}
       // CTXWIZ3: mesh em background (sem await) -- o 1o E2E real provou
       // que aguardar o pipeline segura o botao em "Criando..." por minutos.
       const prompt = `BUILD novo projeto OrquestrAI: nome=${data.name} stack=${data.stack} db=${data.db}. Descrição: ${data.description}. Features: ${data.features.join('; ')}. Gere plano de arquitetura, módulos, schema (se houver DB) e roadmap em formato markdown.`;
-      fetch('/api/mas/run',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({prompt, project_slug:j.slug})}).catch(function(e){ console.warn('mesh nao disparou:', e); }); // CTXPROJRUN01: vincula o run ao projeto recem-criado
+      fetch('/api/mas/run',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({goal: prompt, project_slug:j.slug}) /* CTXGOALFIX01: rota le goal, nao prompt */}).catch(function(e){ console.warn('mesh nao disparou:', e); }); // CTXPROJRUN01: vincula o run ao projeto recem-criado
       projClose();
       // reabre a LISTA ja com o card novo (feedback imediato no lugar do alert)
       if(typeof window.projOpen==='function') window.projOpen();
@@ -5037,6 +5037,18 @@ window.oqNovag = {
       +'criado&nbsp;&nbsp;&nbsp;'+fmtDate(p.createdAt)
       +'</div>'
       +(p.description?'<div style="color:#6b7280;font-size:11px;border-top:1px solid #1a2230;padding-top:6px">'+esc(p.description).slice(0,120)+'</div>':'')
+      // CTXPROJCARD01: badge mesh + etiquetas de acao
+      +(function(){
+        var novo=(Date.now()-new Date(p.createdAt||0).getTime())<15*60*1000;
+        var building=(p._docsCount===0 && novo && p.status==='draft');
+        var atual=(function(){try{return localStorage.getItem('oq_proj_current')||'orquestrai'}catch(e){return 'orquestrai'}})();
+        var h='<div style="display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid #1a2230;padding-top:8px;margin-top:2px">';
+        if(building) h+='<span style="font-size:9px;padding:2px 8px;border-radius:10px;border:1px solid #f59e0b;color:#fbbf24;animation:licpulse 1.2s ease-in-out infinite">\uD83D\uDD28 mesh trabalhando...</span>';
+        h+='<button onclick="window.proj2Docs(\''+p.slug+'\')" style="font-size:10px;padding:3px 10px;border-radius:10px;border:1px solid #2a3f55;background:#0a1119;color:#7dd3fc;cursor:pointer">\uD83D\uDCC4 docs '+(p._docsCount==null?'?':p._docsCount)+'</button>';
+        if(p.slug===atual) h+='<span style="font-size:10px;padding:3px 10px;border-radius:10px;border:1px solid #22c55e66;color:#22c55e">\u25B6 ativo</span>';
+        else h+='<button onclick="window.proj2Activate(\''+p.slug+'\')" style="font-size:10px;padding:3px 10px;border-radius:10px;border:1px solid #2a3340;background:#0a1119;color:#94a3b8;cursor:pointer">\u25B6 ativar</button>';
+        return h+'</div>';
+      })()
       +'</div>';
   }
 
@@ -5065,6 +5077,38 @@ window.oqNovag = {
     else alert('wizard indisponivel (projOpen original nao capturado)');
   };
   window.proj2Close = function(){ var m=document.getElementById('proj2-modal'); if(m) m.style.display='none'; };
+  // CTXPROJCARD01: ativa o projeto no cockpit (o que o seletor faz, via card)
+  window.proj2Activate = function(slug){
+    try{ localStorage.setItem('oq_proj_current', slug); }catch(e){}
+    location.reload();
+  };
+  // painel de docs inline: substitui o grid pela leitura do plano
+  window.proj2Docs = function(slug){
+    var list=document.getElementById('proj2-list'); if(!list) return;
+    list.innerHTML='<span style="color:#6b7280;font:11px ui-monospace,monospace">carregando docs de '+slug+'...</span>';
+    fetch('/api/projects/'+encodeURIComponent(slug),{credentials:'include'}).then(function(r){return r.json();}).then(function(d){
+      var docs=d.docs||[];
+      var h='<div style="grid-column:1/-1"><button onclick="window.projOpen()" style="margin-bottom:10px;font-size:11px;padding:4px 12px;border-radius:8px;border:1px solid #2a3340;background:#0a1119;color:#94a3b8;cursor:pointer">\u2190 voltar</button>';
+      h+='<b style="color:#7dd3fc;font-size:14px;margin-left:8px">\uD83D\uDCC4 '+slug+' / docs ('+docs.length+')</b>';
+      if(!docs.length) h+='<div style="color:#6b7280;font-size:12px;padding:16px">Nenhum doc ainda. Se o projeto acabou de nascer, o mesh esta trabalhando -- o plano aparece aqui ao concluir.</div>';
+      h+='<div id="proj2-docs-list" style="display:flex;flex-direction:column;gap:6px;margin-top:10px">'+docs.map(function(dc){
+        return '<div onclick="window.proj2DocRead(\''+slug+'\',\''+dc.file+'\')" style="cursor:pointer;border:1px solid #2a3340;border-radius:8px;padding:10px 14px;background:#0a1119"><b style="color:#7dd3fc;font:12px ui-monospace,monospace">'+dc.file+'</b> <span style="color:#4b5563;font-size:10px">'+(dc.size||0)+' bytes \u00b7 '+String(dc.mtime||'').slice(0,16).replace('T',' ')+'</span><div class="docBody" style="display:none;margin-top:8px"></div></div>';
+      }).join('')+'</div></div>';
+      list.innerHTML=h;
+    }).catch(function(e){ list.innerHTML='<span style="color:#f87171">erro: '+e+'</span>'; });
+  };
+  window.proj2DocRead = function(slug,file){
+    var cards=document.querySelectorAll('#proj2-docs-list > div');
+    cards.forEach(function(c){ if(c.textContent.indexOf(file)>=0){
+      var body=c.querySelector('.docBody');
+      if(body.style.display==='block'){ body.style.display='none'; return; }
+      body.style.display='block'; body.innerHTML='<span style="color:#6b7280;font-size:10px">carregando...</span>';
+      fetch('/api/projects/'+encodeURIComponent(slug)+'/docs/'+encodeURIComponent(file),{credentials:'include'})
+        .then(function(r){return r.json();}).then(function(j){
+          body.innerHTML='<pre style="white-space:pre-wrap;color:#94a3b8;font:11px ui-monospace,monospace;max-height:400px;overflow:auto">'+String(j.content||'').replace(/</g,'&lt;')+'</pre>';
+        }).catch(function(e){ body.innerHTML='<span style="color:#f87171">erro: '+e+'</span>'; });
+    }});
+  };
 
   // dono do botao PROJETOS agora e a LISTA (wizard vira 2a camada)
   window.projOpen = function(){
@@ -5074,7 +5118,13 @@ window.oqNovag = {
     var list=document.getElementById('proj2-list');
     if(list) list.innerHTML='<span style="color:#6b7280;font:11px ui-monospace,monospace">carregando...</span>';
     fetch('/api/projects',{credentials:'include'}).then(function(r){return r.json();}).then(function(j){
-      render(j.projects||[]);
+      var ps=j.projects||[];
+      // CTXPROJCARD01: docsCount por card (fetch paralelo; falha vira '?')
+      return Promise.all(ps.map(function(p){
+        return fetch('/api/projects/'+encodeURIComponent(p.slug),{credentials:'include'})
+          .then(function(r){return r.json();}).then(function(d){ p._docsCount=(d.docs||[]).length; return p; })
+          .catch(function(){ p._docsCount=null; return p; });
+      })).then(render);
     }).catch(function(e){ if(list) list.innerHTML='<span style="color:#f87171">erro: '+esc(e)+'</span>'; });
   };
 })();
