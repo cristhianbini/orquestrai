@@ -1,9 +1,25 @@
-// [B315] /api/projects — base inicial para Projetos, Modos e Scorecard dos Agentes
+// ATUALIZADO: 2026-07-08 22:54:19 -03:00 (auto, git pre-commit)
+// [B315] /api/projects — Projetos, Modos e Scorecard dos Agentes
+// [CTXPROJPERSIST01 2026-07-09] Persistencia em DISCO substitui o Map
+// em memoria do B315 original.
+// POR QUE: o Map perdia todos os projetos a cada restart do container
+// (restart e rotina aqui: todo deploy de agents.mjs/providers.cjs).
+// O wizard (B273) prometia "salva project.json" mas a rota nunca
+// escrevia nada. Alem disso a rota ignorava stack/db/features que o
+// wizard envia, e devolvia {ok,project} enquanto o front le j.slug.
+// COMO: cada projeto = /app/projects/{slug}/project.json (volume ja
+// montado no compose: ./projects -> /app/projects). GET / varre o
+// diretorio a cada chamada (dezenas de projetos, nao milhares --
+// leitura direta e mais simples e sempre fresca; otimizar so se doer).
+// PROXIMO DEV: container/custo/deploy por projeto chegam em S20/S21;
+// o front mostra "-" ate la (nao inventar dado).
 const express = require('express');
-const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 
 const router = express.Router();
-const projects = new Map();
+// __dirname no container = /app (arquivo montado em /app/projectsRoutes.cjs)
+const PROJ_DIR = process.env.PROJECTS_DIR || path.join(__dirname, 'projects');
 
 const MODES = [
   {
@@ -80,28 +96,59 @@ function slugify(s) {
     .slice(0, 60) || 'projeto';
 }
 
+// Le todos os project.json do disco. Arquivo corrompido nao derruba a
+// lista: entra como {slug, corrupted:true} p/ o front sinalizar.
+function loadAll() {
+  let dirs = [];
+  try { dirs = fs.readdirSync(PROJ_DIR, { withFileTypes: true }).filter(d => d.isDirectory()); }
+  catch (e) { return []; }
+  return dirs.map(d => {
+    const p = path.join(PROJ_DIR, d.name, 'project.json');
+    try { return JSON.parse(fs.readFileSync(p, 'utf8')); }
+    catch (e) { return fs.existsSync(p) ? { slug: d.name, name: d.name, corrupted: true } : null; }
+  }).filter(Boolean);
+}
+
 router.get('/', (req, res) => {
-  res.json({ ok: true, projects: [...projects.values()] });
+  const projects = loadAll().sort((a, b) => String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
+  res.json({ ok: true, count: projects.length, projects });
 });
 
 router.post('/', express.json({ limit: '1mb' }), (req, res) => {
   const body = req.body || {};
-  const name = String(body.name || 'Projeto sem nome').trim();
-  const mode = String(body.mode || 'build').trim();
-  const id = crypto.randomUUID ? crypto.randomUUID() : crypto.randomBytes(12).toString('hex');
-
+  const name = String(body.name || '').trim();
+  if (!name) return res.status(400).json({ ok: false, error: 'nome obrigatorio' });
+  const slug = slugify(body.slug || name);
+  const dir = path.join(PROJ_DIR, slug);
+  // path traversal guard: slug ja e [a-z0-9-], mas cinto e suspensorio
+  if (!dir.startsWith(PROJ_DIR + path.sep)) return res.status(400).json({ ok: false, error: 'slug invalido' });
+  if (fs.existsSync(path.join(dir, 'project.json'))) {
+    return res.status(409).json({ ok: false, error: 'projeto "' + slug + '" ja existe' });
+  }
   const project = {
-    id,
+    slug,
     name,
-    slug: slugify(body.slug || name),
-    mode,
+    stack: String(body.stack || 'node-express'),
+    db: String(body.db || 'none'),
+    description: String(body.description || ''),
+    features: Array.isArray(body.features) ? body.features.map(String) : [],
+    mode: String(body.mode || 'build'),
     status: 'draft',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
-
-  projects.set(id, project);
-  res.json({ ok: true, project });
+  try {
+    fs.mkdirSync(path.join(dir, 'docs'), { recursive: true });
+    // escrita atomica: tmp + rename (evita project.json truncado se o
+    // container cair no meio do write)
+    const tmp = path.join(dir, '.project.json.tmp');
+    fs.writeFileSync(tmp, JSON.stringify(project, null, 2));
+    fs.renameSync(tmp, path.join(dir, 'project.json'));
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: 'falha ao gravar: ' + e.message });
+  }
+  // slug no topo: o wizard (B273) le j.slug direto
+  res.json({ ok: true, slug, project });
 });
 
 router.get('/modes', (req, res) => {
