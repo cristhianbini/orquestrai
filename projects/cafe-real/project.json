@@ -1,0 +1,12 @@
+{
+  "slug": "cafe-real",
+  "name": "cafe-real",
+  "stack": "static-html",
+  "db": "none",
+  "description": "",
+  "features": [],
+  "mode": "build",
+  "status": "draft",
+  "createdAt": "2026-07-09T10:03:24.189Z",
+  "updatedAt": "2026-07-09T10:03:24.189Z"
+}

@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-09 07:02:11 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-09 07:29:38 -03:00 (auto, git pre-commit)
 
 // [B220-LOG]
 import { appendFileSync as _appB220 } from "node:fs";
@@ -374,7 +374,8 @@ function buildMemorialistaContext(runResults){
         if(fsN2.existsSync(pjPath)){
           const proj=JSON.parse(fsN2.readFileSync(pjPath,'utf8'));
           if(proj.stack==='static-html'){
-            const built = await buildStaticSite(goal, projectSlug);
+            const sitePrompt = 'Crie uma pagina web para: '+(proj.name||projectSlug)+'. '+(proj.description||'')+((proj.features&&proj.features.length)?(' Elementos a incluir: '+proj.features.join(', ')+'.'):'');
+            const built = await buildStaticSite(sitePrompt, projectSlug);
             const html = built.html||'';
             const hits = hardVeto(html); // mesmas regras universais do Guardian
             const htmlChecks = [];
@@ -460,7 +461,11 @@ export async function buildStaticSite(goal, slug){
   const j=await r.json();
   if(!r.ok) throw new Error('claude '+r.status+': '+JSON.stringify(j).slice(0,300));
   let html=(j.content&&j.content[0]&&j.content[0].text)||'';
-  html=html.replace(/^\s*```html\s*/i,'').replace(/\s*```\s*$/,'').trim();
+  html=html.replace(/^\s*```(?:html)?\s*/i,'').replace(/\s*```\s*$/,'').trim();
+  if(!/^<!doctype html/i.test(html)){
+    const di = html.search(/<!doctype html/i);
+    if(di > 0){ html = html.slice(di); console.warn('[buildStaticSite] preambulo removido antes do DOCTYPE'); }
+  }
   const p=PRICE[model]||PRICE[HAIKU];
   const u=j.usage||{};
   const inT=u.input_tokens||0, outT=u.output_tokens||0;
