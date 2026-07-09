@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-09 07:32:15 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-09 07:59:22 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -3480,6 +3480,7 @@ else{setTimeout(ensure,200);setTimeout(ensure,1500);}
   const STEPS = ['Nome','Stack','Features','Banco','Confirmar'];
   let step = 0;
   const data = { name:'', stack:'node-express', description:'', features:[], db:'none' };
+  let existingSlugs = [];
   const $ = id => document.getElementById(id);
   function renderSteps(){
     $('proj-steps').innerHTML = STEPS.map((s,i)=>`<span style="padding:4px 10px;border-radius:12px;background:${i===step?'#1e3a5f':'#1a2230'};color:${i===step?'#7dd3fc':'#6b7280'};border:1px solid ${i===step?'#3b82f6':'#2a3340'}">${i+1}. ${s}</span>`).join('');
@@ -3490,7 +3491,7 @@ else{setTimeout(ensure,200);setTimeout(ensure,1500);}
       // CTXWIZ4: passo Nome no padrao visual dos passos 2/4/5
       h = '<div style="background:#0a0e13;border:1px solid #2a3340;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px">'
         + '<label style="font-size:12px;color:#7dd3fc;font-weight:600">\u{1F4DD} Nome do projeto</label>'
-        + '<input id="pf-name" value="'+String(data.name||'').replace(/"/g,'&quot;')+'" placeholder="meu-app-incrivel" style="width:100%;box-sizing:border-box;background:#0e1622;border:1px solid #2a3f55;color:#e2e8f0;border-radius:8px;padding:12px 14px;font:14px ui-monospace,monospace" autofocus>'
+        + '<input id="pf-name" value="'+String(data.name||'').replace(/"/g,'&quot;')+'" placeholder="meu-app-incrivel" style="width:100%;box-sizing:border-box;background:#0e1622;border:1px solid #2a3f55;color:#e2e8f0;border-radius:8px;padding:12px 14px;font:14px ui-monospace,monospace" autofocus oninput="window.__projNameCheck(this.value)">'
         + '<span style="color:#6b7280;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">vira projects/{slug} \u00b7 s\u00f3 letras, n\u00fameros e h\u00edfen</span>'
         + '</div>';
     }
@@ -3536,19 +3537,48 @@ else{setTimeout(ensure,200);setTimeout(ensure,1500);}
         + (data.description?'<div style="color:#94a3b8;font-size:11px;border-top:1px solid #1a2230;padding-top:6px">'+E(data.description)+'</div>':'')
         + ((data.features||[]).length?'<div style="display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid #1a2230;padding-top:6px">'+(data.features||[]).map(function(f){return '<span style="font-size:10px;border:1px solid #2a3340;border-radius:10px;padding:2px 8px;color:#7dd3fc">'+E(f)+'</span>';}).join('')+'</div>':'')
         + '</div>'
-        + '<p style="color:#6b7280;font-size:11px;margin-top:10px">Ao confirmar: cria o diretorio, salva project.json (persistencia real via CTXPROJPERSIST01) e dispara o mesh dos 9 agentes para gerar plano + arquitetura em projects/'+E(data.name)+'/docs/.</p>';
+        + '<div style="display:flex;gap:8px;margin-top:12px">'
+        + '<div onclick="window.__projMode(\'automatico\')" style="flex:1;cursor:pointer;border:1px solid '+(data.buildMode!=='acompanhado'?'#3b82f6':'#2a3340')+';border-radius:8px;padding:10px;background:'+(data.buildMode!=='acompanhado'?'#1e3a5f33':'#0a0e13')+';text-align:center">'
+          + '<b style="font-size:11px;color:'+(data.buildMode!=='acompanhado'?'#7dd3fc':'#94a3b8')+'">Automatico</b>'
+          + '<div style="color:#6b7280;font-size:9px;margin-top:2px">mesh constroi e grava direto</div>'
+        + '</div>'
+        + '<div style="flex:1;cursor:not-allowed;border:1px dashed #2a3340;border-radius:8px;padding:10px;background:#0a0e1355;text-align:center;opacity:.6" title="Em breve: preview antes de gravar">'
+          + '<b style="font-size:11px;color:#6b7280">Acompanhado</b> <span style="font-size:8px;border:1px solid #f59e0b55;color:#f59e0b;border-radius:8px;padding:1px 5px">EM BREVE</span>'
+          + '<div style="color:#4b5563;font-size:9px;margin-top:2px">revisar antes de gravar</div>'
+        + '</div>'
+      + '</div>'
+      + '<p style="color:#6b7280;font-size:11px;margin-top:10px">Ao confirmar: cria o diretorio, salva project.json (persistencia real via CTXPROJPERSIST01) e dispara o mesh dos 9 agentes para gerar plano + arquitetura em projects/'+E(data.name)+'/docs/.</p>';
     }
     $('proj-body').innerHTML = h;
+    if(step===0){
+      var __inp=$('pf-name');
+      if(__inp && !document.getElementById('pf-name-warn')){
+        var __w=document.createElement('div');
+        __w.id='pf-name-warn';
+        __w.style.cssText='color:#f87171;font-size:11px;margin-top:-6px;display:none';
+        __inp.insertAdjacentElement('afterend', __w);
+      }
+      window.__projNameCheck(__inp?__inp.value:'');
+    }
     $('proj-back').style.visibility = step===0?'hidden':'visible';
     $('proj-next').textContent = step===STEPS.length-1?'🚀 Criar projeto':'Próximo →';
   }
+  window.__projNameCheck = function(v){
+    var warn=document.getElementById('pf-name-warn'); if(!warn) return;
+    var slug=String(v||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+    if(slug && existingSlugs.indexOf(slug)>=0){ warn.textContent='Ja existe um projeto "'+slug+'" -- escolha outro nome'; warn.style.display='block'; }
+    else { warn.style.display='none'; }
+  };
+  window.__projMode = function(m){ data.buildMode=m; renderBody(); };
   window.__projStack = v => { data.stack=v; renderBody(); };
   window.__projDb = v => { data.db=v; renderBody(); };
-  window.projOpen = ()=>{ step=0; Object.assign(data,{name:'',stack:'node-express',description:'',features:[],db:'none'}); $('proj-modal').style.display='flex'; renderSteps(); renderBody(); };
+  window.projOpen = ()=>{ step=0; Object.assign(data,{name:'',stack:'node-express',description:'',features:[],db:'none',buildMode:'automatico'}); $('proj-modal').style.display='flex'; renderSteps(); renderBody();
+    fetch('/api/projects',{credentials:'include'}).then(function(r){return r.json();}).then(function(j){ existingSlugs=(j.projects||[]).map(function(p){return p.slug;}); }).catch(function(){ existingSlugs=[]; });
+  };
   window.projClose = ()=>{ $('proj-modal').style.display='none'; };
   window.projBack = ()=>{ if(step>0){step--;renderSteps();renderBody();} };
   window.projNext = async ()=>{
-    if (step===0){ const v=$('pf-name').value.trim(); if(!v){alert('Informe um nome');return;} data.name=v; }
+    if (step===0){ const v=$('pf-name').value.trim(); if(!v){alert('Informe um nome');return;} const __slug=v.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); if(existingSlugs.indexOf(__slug)>=0){ alert('Ja existe um projeto "'+__slug+'". Escolha outro nome.'); return; } data.name=v; }
     if (step===2){ data.description=$('pf-desc').value.trim(); data.features=$('pf-feat').value.split('\n').map(x=>x.trim()).filter(Boolean); }
     if (step<STEPS.length-1){ step++; renderSteps(); renderBody(); return; }
     // submit
