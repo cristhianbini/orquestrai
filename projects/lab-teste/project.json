@@ -1,0 +1,12 @@
+{
+  "slug": "lab-teste",
+  "name": "lab-teste",
+  "stack": "static-html",
+  "db": "none",
+  "description": "",
+  "features": [],
+  "mode": "build",
+  "status": "draft",
+  "createdAt": "2026-07-09T03:11:16.979Z",
+  "updatedAt": "2026-07-09T03:11:16.979Z"
+}
