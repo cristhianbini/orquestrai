@@ -411,3 +411,34 @@ oq-proj-trash (L3653): remove projeto do seletor + blocos do localStorage.
 PROBLEMA: nao toca projects/{slug}/ no disco nem a API — pos-CTXPROJSEL01
 o projeto "removido" RESSUSCITA no proximo sync. Fase B deve unificar:
 arquivar de verdade (API move p/ _arquivados) ou remover o botao.
+
+## ADENDO 2 CHAT 8 (2026-07-09, fechamento do expediente estendido)
+### ENTREGUE na extensao
+- CTXTRASH01: lixeira B289 removida (decisao Bini: historia do projeto e sagrada).
+- CTXPROJRUN01 f1: run<->projeto PROVADO (plano-{runid}.md gravado em docs/).
+- CTXGOALFIX01: BUG HISTORICO -- wizard enviava {prompt}, rota le goal; todo
+  mesh de projeto rodava 'Auditoria geral rapida' desde o B273. Corrigido;
+  AINDA NAO REVALIDADO com projeto novo (fazer lab-teste-3 no chat 9).
+- CTXPROJDOCS01: GET /:slug (detalhe+docs) e /:slug/docs/:file (anti-traversal).
+- CTXPROJCARD01+V2: cards com rodape grid FIXO 3 colunas (docs N/ativar|ativo/
+  excluir; cockpit='fixo'), badge 'mesh trabalhando' (docs=0+<15min), desc 1
+  linha ellipsis, visualizador de docs inline.
+- CTXPROJDEL01: DELETE com quarentena (_arquivados), orquestrai imune,
+  {confirm:slug} obrigatorio. PROVADO: 400/403/200 via node fetch.
+- Licao L-BUSYBOXVERBS01 (wget so GET/POST; DELETE/PUT = node fetch;
+  saida tipo usage = comando NEM RODOU).
+### GOSTO DO BINI (aplicar em toda UI futura)
+Alinhamento rigido (grids fixos) | frases 1 linha | menos texto mais botoes |
+acoes rapidas visiveis no card | confirmacao digitada p/ acao irreversivel.
+### PROXIMO GRANDE PASSO (pedido explicito do Bini, empolgado p/ ver)
+CTXPROJRUN02 (fracao 2): mesh MATERIALIZA CODIGO no projeto --
+p/ goal BUILD + stack static-html, SMITH gera index.html e o run persiste
+em projects/{slug}/site/ (mesmo mecanismo provado do f1). DEPOIS disso:
+botao PREVIEW no card (alias nginx /projects/{slug}/ -> nova aba).
+CUIDADOS: prompt do SMITH muda (Guardian deve validar codigo destinado a
+disco); escrita atomica; nunca sobrescrever site/ existente sem versionar.
+NAO criar o botao Preview antes do conteudo existir (sem mentira na UI).
+### ABERTOS (herdados)
+E2E do goal fix (lab-teste-3) | passo 1 do wizard | GET /api/projects sem
+auth | MEMORIALISTA context budget | TESTE RESTORE LITESTREAM (o mais
+critico da fila -- nao deixar p/ depois de novo).
