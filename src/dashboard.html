@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-09 07:59:22 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-09 08:27:01 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -5067,6 +5067,7 @@ window.oqNovag = {
     return '<div style="background:#0a0e13;border:1px solid #2a3340;border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px">'
       +'<div style="display:flex;justify-content:space-between;align-items:center"><b style="color:#7dd3fc;font-size:14px">'+ico+' '+esc(p.name)+'</b>'
       +'<span style="font-size:9px;padding:2px 8px;border-radius:10px;border:1px solid '+(p.status==='draft'?'#f59e0b66':'#22c55e66')+';color:'+(p.status==='draft'?'#fbbf24':'#22c55e')+'">'+esc(p.status||'draft')+'</span></div>'
+      +(p.slug!=='orquestrai'?('<button onclick="window.proj2TogglePublic(\''+p.slug+'\','+(!!p.public)+')" style="font-size:9px;padding:2px 8px;border-radius:10px;border:1px solid '+(p.public?'#22c55e66':'#4b556366')+';background:none;color:'+(p.public?'#22c55e':'#6b7280')+';cursor:pointer;margin-top:4px">'+(p.public?'\uD83C\uDF10 publico':'\uD83D\uDD12 privado')+'</button>'):'')
       +'<div style="font:11px ui-monospace,monospace;color:#94a3b8;line-height:1.8">'
       +'stack&nbsp;&nbsp;&nbsp;&nbsp;'+esc(p.stack||'—')+'<br>'
       +'db&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+esc(p.db||'—')+'<br>'
@@ -5137,6 +5138,13 @@ window.oqNovag = {
         }
         window.projOpen(); // lista recarrega sem o excluido
       }).catch(function(e){ alert('Falha: '+e); });
+  };
+  window.proj2TogglePublic = function(slug, isPublic){
+    fetch('/api/projects/'+encodeURIComponent(slug),{method:'PATCH',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({public:!isPublic})})
+      .then(function(r){return r.json();}).then(function(j){
+        if(!j.ok){ alert('Erro: '+(j.error||'falha')); return; }
+        window.projOpen();
+      }).catch(function(e){ alert('Falha: '+e.message); });
   };
   window.proj2Activate = function(slug){
     try{ localStorage.setItem('oq_proj_current', slug); }catch(e){}
