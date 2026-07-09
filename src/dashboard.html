@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-09 07:02:11 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-09 07:32:15 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -5055,6 +5055,7 @@ window.oqNovag = {
         var bt='font-size:10px;padding:4px 0;border-radius:8px;cursor:pointer;text-align:center;';
         var h='';
         if(building) h+='<div style="font-size:9px;padding:2px 8px;border-radius:10px;border:1px solid #f59e0b;color:#fbbf24;animation:licpulse 1.2s ease-in-out infinite;text-align:center;margin-top:2px">\uD83D\uDD28 mesh trabalhando</div>';
+        if(p._hasSite) h+='<a href="/projects/'+p.slug+'/site/" target="_blank" rel="noopener" style="display:block;text-align:center;font-size:10px;padding:4px 0;border-radius:8px;border:1px solid #22c55e;color:#22c55e;text-decoration:none;background:#052e1622;margin-top:2px">\uD83D\uDC41 Preview</a>';
         h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;border-top:1px solid #1a2230;padding-top:8px;margin-top:2px">';
         h+='<button onclick="window.proj2Docs(\''+p.slug+'\')" style="'+bt+'border:1px solid #2a3f55;background:#0a1119;color:#7dd3fc">\uD83D\uDCC4 docs '+(p._docsCount==null?'?':p._docsCount)+'</button>';
         if(p.slug===atual) h+='<span style="'+bt+'border:1px solid #22c55e66;color:#22c55e;cursor:default">\u25B6 ativo</span>';
@@ -5151,7 +5152,7 @@ window.oqNovag = {
       // CTXPROJCARD01: docsCount por card (fetch paralelo; falha vira '?')
       return Promise.all(ps.map(function(p){
         return fetch('/api/projects/'+encodeURIComponent(p.slug),{credentials:'include'})
-          .then(function(r){return r.json();}).then(function(d){ p._docsCount=(d.docs||[]).length; return p; })
+          .then(function(r){return r.json();}).then(function(d){ p._docsCount=(d.docs||[]).length; p._hasSite=!!d.hasSite; return p; })
           .catch(function(){ p._docsCount=null; return p; });
       })).then(render);
     }).catch(function(e){ if(list) list.innerHTML='<span style="color:#f87171">erro: '+esc(e)+'</span>'; });
@@ -5209,7 +5210,23 @@ window.oqNovag = {
       if(pb){ var pc=pb.querySelector('#proj-count');
         if(pc){ pc.textContent=slugs.length; }
         else { pb.innerHTML='\uD83D\uDE80 PROJETOS <span id="proj-count" style="opacity:.8">'+slugs.length+'</span>'; } }
-    }).catch(function(e){ /* offline/erro: mantem o que ha, sem quebrar o header */ });
+          // CTXPREVIEW02: botao Preview no header, ligado ao projeto ATIVO
+      var curSlug=(function(){try{return localStorage.getItem('oq_proj_current')||'orquestrai'}catch(e){return 'orquestrai'}})();
+      fetch('/api/projects/'+encodeURIComponent(curSlug),{credentials:'include'}).then(function(r){return r.json();}).then(function(d){
+        var pvBtn=document.getElementById('proj-preview-btn');
+        if(!pvBtn){
+          pvBtn=document.createElement('a');
+          pvBtn.id='proj-preview-btn'; pvBtn.target='_blank'; pvBtn.rel='noopener';
+          pvBtn.className='hdr-btn';
+          pvBtn.style.cssText='display:none;text-decoration:none;margin-right:6px;color:#22c55e;border-color:#22c55e66';
+          pvBtn.textContent='\uD83D\uDC41 PREVIEW';
+          var pb2=document.getElementById('proj-btn');
+          if(pb2&&pb2.parentNode) pb2.parentNode.insertBefore(pvBtn, pb2);
+        }
+        if(d && d.hasSite){ pvBtn.href='/projects/'+curSlug+'/site/'; pvBtn.style.display='inline-flex'; }
+        else { pvBtn.style.display='none'; }
+      }).catch(function(){});
+}).catch(function(e){ /* offline/erro: mantem o que ha, sem quebrar o header */ });
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', sync); else sync();
 })();

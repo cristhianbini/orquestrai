@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-09 00:35:26 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-09 07:32:15 -03:00 (auto, git pre-commit)
 // [B315] /api/projects — Projetos, Modos e Scorecard dos Agentes
 // [CTXPROJPERSIST01 2026-07-09] Persistencia em DISCO substitui o Map
 // em memoria do B315 original.
@@ -166,7 +166,8 @@ router.get('/:slug', (req, res) => {
       .map(f=>({ file:f, size:fs.statSync(path.join(dir,'docs',f)).size,
                  mtime:fs.statSync(path.join(dir,'docs',f)).mtime.toISOString() }));
   } catch(e){}
-  res.json({ ok:true, project, docs });
+  const hasSite = fs.existsSync(path.join(dir,'site','index.html'));
+  res.json({ ok:true, project, docs, hasSite });
 });
 
 router.get('/:slug/docs/:file', (req, res) => {
