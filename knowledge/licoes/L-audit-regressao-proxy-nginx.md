@@ -1,3 +1,5 @@
+PROJETO: orquestrai
+APROVADA: 2026-07-09 por Bini (curadoria humana -- ciclo completo: proposta Memorialista -> pre-aprovacao Guardian -> humano)
 # L-PROP-audit-regressao-proxy-nginx
 
 _Proposta por Memorialista, pre-aprovada por Guardian em 2026-07-09T03:28:15.030Z. Aguardando revisao humana._
