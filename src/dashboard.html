@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-08 23:47:49 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-08 23:49:33 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -3487,9 +3487,33 @@ else{setTimeout(ensure,200);setTimeout(ensure,1500);}
   function renderBody(){
     let h='';
     if (step===0) h = `<label style="display:block;font-size:12px;color:#7dd3fc;margin-bottom:6px">Nome do projeto</label><input id="pf-name" value="${data.name}" placeholder="meu-app-incrivel" style="width:100%;background:#0a0e13;border:1px solid #2a3340;color:#cfd6dd;border-radius:6px;padding:10px;font-family:monospace"><p style="color:#6b7280;font-size:11px;margin-top:6px">Vira diretório /var/www/orquestrai/projects/{slug}</p>`;
-    else if (step===1) h = ['node-express','nextjs','python-fastapi','static-html'].map(s=>`<label style="display:flex;gap:10px;padding:10px;border:1px solid ${data.stack===s?'#3b82f6':'#2a3340'};border-radius:6px;margin-bottom:6px;cursor:pointer;background:${data.stack===s?'#1e3a5f33':'transparent'}"><input type="radio" name="pf-stack" value="${s}" ${data.stack===s?'checked':''} onchange="window.__projStack(this.value)"><span><b>${s}</b></span></label>`).join('');
+    else if (step===1){
+      // CTXWIZ1: cards com icone (linguagem visual do CTXPROJ2) no lugar dos radios
+      var ICO={'node-express':'\u{1F7E2}','nextjs':'\u25B2','python-fastapi':'\u{1F40D}','static-html':'\u{1F4C4}'};
+      var DSC={'node-express':'API Express + Node 20','nextjs':'React SSR/SSG','python-fastapi':'API Python assincrona','static-html':'Site estatico simples'};
+      h = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px">'
+        + ['node-express','nextjs','python-fastapi','static-html'].map(function(v){
+            var on=(data.stack===v);
+            return '<div onclick="window.__projStack(\''+v+'\')" style="cursor:pointer;border:1px solid '+(on?'#3b82f6':'#2a3340')+';border-radius:10px;padding:12px;background:'+(on?'#1e3a5f33':'#0a0e13')+';display:flex;flex-direction:column;gap:4px">'
+              + '<span style="font-size:20px">'+ICO[v]+'</span>'
+              + '<b style="color:'+(on?'#7dd3fc':'#cfd6dd')+';font-size:12px">'+v+'</b>'
+              + '<span style="color:#6b7280;font-size:10px">'+DSC[v]+'</span></div>';
+          }).join('') + '</div>';
+    }
     else if (step===2) h = `<label style="display:block;font-size:12px;color:#7dd3fc;margin-bottom:6px">Descrição / objetivo</label><textarea id="pf-desc" rows="3" placeholder="Sistema de gestão de..." style="width:100%;background:#0a0e13;border:1px solid #2a3340;color:#cfd6dd;border-radius:6px;padding:10px;margin-bottom:12px">${data.description}</textarea><label style="display:block;font-size:12px;color:#7dd3fc;margin-bottom:6px">Features principais (1 por linha)</label><textarea id="pf-feat" rows="5" placeholder="login com email&#10;dashboard de vendas&#10;export CSV" style="width:100%;background:#0a0e13;border:1px solid #2a3340;color:#cfd6dd;border-radius:6px;padding:10px">${(data.features||[]).join('\n')}</textarea>`;
-    else if (step===3) h = ['none','sqlite','mysql','postgres'].map(s=>`<label style="display:flex;gap:10px;padding:10px;border:1px solid ${data.db===s?'#3b82f6':'#2a3340'};border-radius:6px;margin-bottom:6px;cursor:pointer;background:${data.db===s?'#1e3a5f33':'transparent'}"><input type="radio" name="pf-db" value="${s}" ${data.db===s?'checked':''} onchange="window.__projDb(this.value)"><span><b>${s}</b></span></label>`).join('');
+    else if (step===3){
+      // CTXWIZ1: mesmo padrao de cards p/ escolha de banco
+      var DICO={'none':'\u{1F6AB}','sqlite':'\u{1FAB6}','mysql':'\u{1F42C}','postgres':'\u{1F418}'};
+      var DDSC={'none':'Sem banco (estatico/API externa)','sqlite':'Arquivo local, zero config','mysql':'Relacional classico','postgres':'Relacional avancado'};
+      h = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px">'
+        + ['none','sqlite','mysql','postgres'].map(function(v){
+            var on=(data.db===v);
+            return '<div onclick="window.__projDb(\''+v+'\')" style="cursor:pointer;border:1px solid '+(on?'#3b82f6':'#2a3340')+';border-radius:10px;padding:12px;background:'+(on?'#1e3a5f33':'#0a0e13')+';display:flex;flex-direction:column;gap:4px">'
+              + '<span style="font-size:20px">'+DICO[v]+'</span>'
+              + '<b style="color:'+(on?'#7dd3fc':'#cfd6dd')+';font-size:12px">'+v+'</b>'
+              + '<span style="color:#6b7280;font-size:10px">'+DDSC[v]+'</span></div>';
+          }).join('') + '</div>';
+    }
     else if (step===4) h = `<div style="background:#0a0e13;border:1px solid #2a3340;border-radius:6px;padding:14px;font-family:monospace;font-size:12px;line-height:1.7"><b style="color:#7dd3fc">Nome:</b> ${data.name}<br><b style="color:#7dd3fc">Stack:</b> ${data.stack}<br><b style="color:#7dd3fc">DB:</b> ${data.db}<br><b style="color:#7dd3fc">Descrição:</b> ${data.description||'-'}<br><b style="color:#7dd3fc">Features:</b><br>${(data.features||[]).map(f=>'  • '+f).join('<br>')||'  -'}</div><p style="color:#6b7280;font-size:11px;margin-top:10px">Ao confirmar: cria diretório, salva project.json, e dispara mesh dos 8 agentes para gerar plano + arquitetura (.md) em /projects/${data.name}/docs/.</p>`;
     $('proj-body').innerHTML = h;
     $('proj-back').style.visibility = step===0?'hidden':'visible';
