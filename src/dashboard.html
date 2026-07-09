@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-08 22:41:47 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-08 22:47:33 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -3020,15 +3020,15 @@ window.OQ_BLOCKS={list:function(){return BLOCKS},clear:function(){BLOCKS=[];seen
     // dependendo da aba ativa (mesmo padrao do bug corrigido no
     // CTXSPOT05/refresh()). setInterval(sync,2500) rodava sem parar
     // e gerava erro repetido toda vez que a aba atual nao tinha o modal.
-    if(!mlist || !chip || !n) return;
+    if(!chip || !n) return; // CTXLIC2-chip: mlist removido, modal e do CTXLIC2
     var ul=document.getElementById('licoes');if(!ul)return;
     var items=ul.querySelectorAll('li');var c=items.length;
     if(c>0){chip.style.display='inline-flex';n.textContent=c;}
     if(c>last&&last>0){chip.classList.remove('pulse');void chip.offsetWidth;chip.classList.add('pulse');}
     last=c;
-    mlist.innerHTML=Array.from(items).map(function(li){return '<li>'+li.innerHTML+'</li>';}).join('')||'<li style="opacity:.6">sem lições</li>';
+    // CTXLIC2-chip: repaint removido (L-SINGLEOWNER01) -- render e do window.licOpen/licPremiumRender
   }
-  chip.addEventListener('click',function(){sync();modal.classList.add('open');});
+  chip.addEventListener('click',function(){ window.licOpen(); }); // CTXLIC2-chip: delega ao dono unico
   // poll narrow no #licoes (evita L-B70: sem observer em document.body)
   setInterval(sync,2500);
   setTimeout(sync,800);
@@ -4859,6 +4859,94 @@ window.oqNovag = {
   }
   paint();
   setInterval(paint, 3000);
+})();
+</script>
+
+
+<script id="CTXLIC2">
+/* ============================================================
+   CTXLIC2 (2026-07-09) -- LICOES PREMIUM, dono unico do modal.
+   POR QUE: window.licOpen era definida 2x (B265 e B268; B268
+   vencia e pintava lista crua) e o render premium do B258
+   apontava p/ #lic-modal-list / #lic-modal-n, que NAO existem
+   no DOM -- nunca rodou. Este script carrega por ULTIMO, entao
+   a definicao daqui VENCE (L-SINGLEOWNER01). Script inteiro e
+   independente, sem wrapper por ancora (L-WRAPPERANCHOR01).
+   DOM real: #lic-modal (.open = visivel, CSS do B268),
+   corpo #lic-list, contador #lic-modal-count.
+   DADOS: /api/licoes/list (pos CTXLICCLEAN01, sem BLOCO-*)
+   + /api/licoes/read/:id sob demanda ao expandir card.
+   PROXIMO DEV: estilo inline de proposito (modal legado);
+   na migracao React (S9+) extrair p/ componente.
+   ============================================================ */
+(function(){
+  var items=[];
+  function famOf(id){ if(/^L-B\d/.test(id))return 'L-B*'; if(/^L-CTX/i.test(id))return 'L-CTX*'; return 'OUTRAS'; }
+
+  // Render puro: le estado (items + window.__licQ/__licFam) e pinta.
+  // Re-render nos filtros chama ESTA funcao (nao refaz fetch).
+  window.licPremiumRender = function(){
+    var list=document.getElementById('lic-list');
+    var nEl=document.getElementById('lic-modal-count');
+    if(!list) return;
+    if(nEl) nEl.textContent=items.length;
+    var q=(window.__licQ||''), fam=(window.__licFam||'TODAS');
+    var fams={'TODAS':items.length,'L-B*':0,'L-CTX*':0,'OUTRAS':0};
+    items.forEach(function(it){ fams[famOf(it.id||'')]++; });
+    var bar='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center">'
+      +'<input id="licQ" type="search" placeholder="&#128269; buscar licao... (ESC limpa)" value="'+q.replace(/"/g,'&quot;')+'" style="flex:1;min-width:200px;background:#0a1119;border:1px solid #2a3f55;border-radius:6px;padding:7px 12px;color:#e2e8f0;font:12px ui-monospace,monospace">'
+      +['TODAS','L-B*','L-CTX*','OUTRAS'].map(function(f){ var on=(f===fam); return '<button class="licFam" data-f="'+f+'" style="background:'+(on?'#1e3a5f':'#0a1119')+';border:1px solid '+(on?'#58a6ff':'#2a3f55')+';border-radius:12px;padding:4px 12px;color:'+(on?'#93c5fd':'#6b7280')+';font:10px ui-monospace,monospace;cursor:pointer">'+f+' '+fams[f]+'</button>'; }).join('')
+      +'</div>';
+    var ql=q.toLowerCase();
+    var vis=items.filter(function(it){ var id=(it.id||''), ti=(it.title||'');
+      if(fam!=='TODAS' && famOf(id)!==fam) return false;
+      if(ql && id.toLowerCase().indexOf(ql)<0 && ti.toLowerCase().indexOf(ql)<0) return false;
+      return true; });
+    list.innerHTML = bar + (vis.length ? vis.map(function(it){
+      var id=(it.id||''), ti=(it.title||id);
+      return '<div class="licCard" data-id="'+id+'" style="background:#0a1119;border:1px solid #2a3f5555;border-radius:8px;padding:10px 14px;margin-bottom:6px;cursor:pointer">'
+        +'<div style="color:#7dd3fc;font:12px ui-monospace,monospace;font-weight:bold">'+ti+'</div>'
+        +'<div style="color:#4b5563;font:9px ui-monospace,monospace;margin-top:2px">'+id+'</div>'
+        +'<div class="licBody" style="display:none;margin-top:8px"></div></div>';
+    }).join('') : '<div style="color:#6b7280;font:12px ui-monospace,monospace;padding:20px;text-align:center">Nenhuma licao encontrada p/ o filtro</div>');
+    var inp=document.getElementById('licQ');
+    if(inp){ inp.oninput=function(){ window.__licQ=inp.value; window.licPremiumRender(); var i2=document.getElementById('licQ'); if(i2){ i2.focus(); i2.setSelectionRange(i2.value.length,i2.value.length); } };
+      inp.onkeydown=function(e){ if(e.key==='Escape'){ window.__licQ=''; window.licPremiumRender(); } }; }
+    list.querySelectorAll('.licFam').forEach(function(b){ b.onclick=function(){ window.__licFam=b.dataset.f; window.licPremiumRender(); }; });
+    list.querySelectorAll('.licCard').forEach(function(c){ c.onclick=function(ev){
+      if(ev.target.closest('.licBody')) return;
+      var body=c.querySelector('.licBody');
+      if(body.style.display==='block'){ body.style.display='none'; return; }
+      body.style.display='block'; body.innerHTML='<span style="color:#6b7280;font:10px ui-monospace,monospace">carregando...</span>';
+      fetch('/api/licoes/read/'+encodeURIComponent(c.dataset.id),{credentials:'include'}).then(function(r){return r.json();}).then(function(j){
+        var t=(j.content||'');
+        var aprov=/APROVADA:/i.test(t);
+        function grab(rx){ var m=t.match(rx); return m?m[1].trim():''; }
+        var ctx=grab(/CONTEXTO:\s*([\s\S]*?)(?=\nREGRA:|$)/i), regra=grab(/REGRA:\s*([\s\S]*?)(?=\nEVIDENCIA:|$)/i), evid=grab(/EVIDENCIA:\s*([\s\S]*?)(?=\n---|$)/i);
+        var h='';
+        if(aprov) h+='<span style="background:#052e16;border:1px solid #22c55e66;color:#22c55e;border-radius:10px;padding:2px 8px;font:9px ui-monospace,monospace">&#10003; ciclo completo: proposta &#8594; guardian &#8594; curadoria humana</span>';
+        if(ctx) h+='<div style="margin-top:6px;color:#94a3b8;font:11px ui-monospace,monospace"><b style="color:#6b7280">CONTEXTO</b> '+ctx+'</div>';
+        if(regra) h+='<div style="margin-top:6px;background:#1c1408;border-left:3px solid #f59e0b;padding:6px 10px;color:#fbbf24;font:11px ui-monospace,monospace"><b>REGRA</b> '+regra+'</div>';
+        if(evid) h+='<div style="margin-top:6px;color:#4b5563;font:10px ui-monospace,monospace"><b>EVIDENCIA</b> '+evid+'</div>';
+        if(!ctx&&!regra) h+='<pre style="white-space:pre-wrap;color:#94a3b8;font:10px ui-monospace,monospace;margin-top:6px">'+t.slice(0,900).replace(/</g,'&lt;')+'</pre>';
+        body.innerHTML=h;
+      }).catch(function(e){ body.innerHTML='<span style="color:#f87171">erro: '+e+'</span>'; });
+    }; });
+  };
+
+  // Dono unico do abrir: fetch fresco + render premium.
+  // Definido por ultimo no arquivo => vence B265 e B268.
+  window.licOpen = function(){
+    var m=document.getElementById('lic-modal');
+    if(!m) return;
+    m.classList.add('open');
+    var list=document.getElementById('lic-list');
+    if(list) list.innerHTML='<span style="color:#6b7280;font:11px ui-monospace,monospace">carregando...</span>';
+    fetch('/api/licoes/list',{credentials:'include'}).then(function(r){return r.json();}).then(function(j){
+      items=j.items||j.licoes||j.list||[];
+      window.licPremiumRender();
+    }).catch(function(e){ if(list) list.innerHTML='<span style="color:#f87171">erro: '+e+'</span>'; });
+  };
 })();
 </script>
 
