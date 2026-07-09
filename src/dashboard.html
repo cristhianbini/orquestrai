@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-09 00:32:00 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-09 00:35:26 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -5036,17 +5036,22 @@ window.oqNovag = {
       +'deploy&nbsp;&nbsp;&nbsp;<span style="color:#6b7280">manual</span><br>'
       +'criado&nbsp;&nbsp;&nbsp;'+fmtDate(p.createdAt)
       +'</div>'
-      +(p.description?'<div style="color:#6b7280;font-size:11px;border-top:1px solid #1a2230;padding-top:6px">'+esc(p.description).slice(0,120)+'</div>':'')
-      // CTXPROJCARD01: badge mesh + etiquetas de acao
+      +(p.description?'<div style="color:#6b7280;font-size:11px;border-top:1px solid #1a2230;padding-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+esc(p.description)+'">'+esc(p.description)+'</div>':'')
+      // CTXPROJCARDV2: rodape em grid FIXO 3 colunas (alinhamento identico
+      // em todos os cards); badge mesh acima do grid quando ativo.
       +(function(){
         var novo=(Date.now()-new Date(p.createdAt||0).getTime())<15*60*1000;
         var building=(p._docsCount===0 && novo && p.status==='draft');
         var atual=(function(){try{return localStorage.getItem('oq_proj_current')||'orquestrai'}catch(e){return 'orquestrai'}})();
-        var h='<div style="display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid #1a2230;padding-top:8px;margin-top:2px">';
-        if(building) h+='<span style="font-size:9px;padding:2px 8px;border-radius:10px;border:1px solid #f59e0b;color:#fbbf24;animation:licpulse 1.2s ease-in-out infinite">\uD83D\uDD28 mesh trabalhando...</span>';
-        h+='<button onclick="window.proj2Docs(\''+p.slug+'\')" style="font-size:10px;padding:3px 10px;border-radius:10px;border:1px solid #2a3f55;background:#0a1119;color:#7dd3fc;cursor:pointer">\uD83D\uDCC4 docs '+(p._docsCount==null?'?':p._docsCount)+'</button>';
-        if(p.slug===atual) h+='<span style="font-size:10px;padding:3px 10px;border-radius:10px;border:1px solid #22c55e66;color:#22c55e">\u25B6 ativo</span>';
-        else h+='<button onclick="window.proj2Activate(\''+p.slug+'\')" style="font-size:10px;padding:3px 10px;border-radius:10px;border:1px solid #2a3340;background:#0a1119;color:#94a3b8;cursor:pointer">\u25B6 ativar</button>';
+        var bt='font-size:10px;padding:4px 0;border-radius:8px;cursor:pointer;text-align:center;';
+        var h='';
+        if(building) h+='<div style="font-size:9px;padding:2px 8px;border-radius:10px;border:1px solid #f59e0b;color:#fbbf24;animation:licpulse 1.2s ease-in-out infinite;text-align:center;margin-top:2px">\uD83D\uDD28 mesh trabalhando</div>';
+        h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;border-top:1px solid #1a2230;padding-top:8px;margin-top:2px">';
+        h+='<button onclick="window.proj2Docs(\''+p.slug+'\')" style="'+bt+'border:1px solid #2a3f55;background:#0a1119;color:#7dd3fc">\uD83D\uDCC4 docs '+(p._docsCount==null?'?':p._docsCount)+'</button>';
+        if(p.slug===atual) h+='<span style="'+bt+'border:1px solid #22c55e66;color:#22c55e;cursor:default">\u25B6 ativo</span>';
+        else h+='<button onclick="window.proj2Activate(\''+p.slug+'\')" style="'+bt+'border:1px solid #2a3340;background:#0a1119;color:#94a3b8">\u25B6 ativar</button>';
+        if(p.slug==='orquestrai') h+='<span style="'+bt+'border:1px solid #1a2230;color:#374151;cursor:default" title="o cockpit nao se auto-exclui">\uD83D\uDD12 fixo</span>';
+        else h+='<button onclick="window.proj2Delete(\''+p.slug+'\')" style="'+bt+'border:1px solid #7f1d1d;background:#0a1119;color:#f87171">\u2715 excluir</button>';
         return h+'</div>';
       })()
       +'</div>';
@@ -5078,6 +5083,21 @@ window.oqNovag = {
   };
   window.proj2Close = function(){ var m=document.getElementById('proj2-modal'); if(m) m.style.display='none'; };
   // CTXPROJCARD01: ativa o projeto no cockpit (o que o seletor faz, via card)
+  // CTXPROJCARDV2: exclusao com confirmacao digitada (o backend confere
+  // de novo via {confirm} -- CTXPROJDEL01). Quarentena, nunca rm real.
+  window.proj2Delete = function(slug){
+    var typed=prompt('EXCLUIR o projeto "'+slug+'"?\n\nO projeto vai para a quarentena (projects/_arquivados/).\nPara confirmar, digite o nome exato do projeto:');
+    if(typed===null) return;
+    if(typed!==slug){ alert('Nome nao confere -- exclusao cancelada.'); return; }
+    fetch('/api/projects/'+encodeURIComponent(slug),{method:'DELETE',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({confirm:slug})})
+      .then(function(r){return r.json();}).then(function(j){
+        if(!j.ok){ alert('Erro: '+(j.error||'falha')); return; }
+        if((function(){try{return localStorage.getItem('oq_proj_current')}catch(e){return null}})()===slug){
+          try{ localStorage.setItem('oq_proj_current','orquestrai'); }catch(e){}
+        }
+        window.projOpen(); // lista recarrega sem o excluido
+      }).catch(function(e){ alert('Falha: '+e); });
+  };
   window.proj2Activate = function(slug){
     try{ localStorage.setItem('oq_proj_current', slug); }catch(e){}
     location.reload();

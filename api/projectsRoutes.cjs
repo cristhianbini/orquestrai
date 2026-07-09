@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-09 00:32:00 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-09 00:35:26 -03:00 (auto, git pre-commit)
 // [B315] /api/projects — Projetos, Modos e Scorecard dos Agentes
 // [CTXPROJPERSIST01 2026-07-09] Persistencia em DISCO substitui o Map
 // em memoria do B315 original.
@@ -178,6 +178,24 @@ router.get('/:slug/docs/:file', (req, res) => {
   const p = path.join(PROJ_DIR, slug, 'docs', file);
   try { res.json({ ok:true, file, content: fs.readFileSync(p,'utf8').slice(0,200000) }); }
   catch(e){ return res.status(404).json({ ok:false, error:'doc nao encontrado' }); }
+});
+
+// [CTXPROJDEL01 2026-07-09] exclusao com quarentena (nunca rm real)
+router.delete('/:slug', express.json({ limit: '10kb' }), (req, res) => {
+  const slug = String(req.params.slug||'');
+  if (!/^[a-z0-9-]{1,60}$/.test(slug)) return res.status(400).json({ ok:false, error:'slug invalido' });
+  if (slug === 'orquestrai') return res.status(403).json({ ok:false, error:'o cockpit nao pode se auto-excluir' });
+  const confirm = String((req.body&&req.body.confirm)||'');
+  if (confirm !== slug) return res.status(400).json({ ok:false, error:'confirmacao invalida: envie {confirm:"'+slug+'"}' });
+  const dir = path.join(PROJ_DIR, slug);
+  if (!fs.existsSync(path.join(dir,'project.json'))) return res.status(404).json({ ok:false, error:'projeto nao encontrado' });
+  try {
+    const qdir = path.join(PROJ_DIR, '_arquivados');
+    fs.mkdirSync(qdir, { recursive: true });
+    const dst = path.join(qdir, slug + '-' + new Date().toISOString().replace(/[:.]/g,'-'));
+    fs.renameSync(dir, dst);
+    return res.json({ ok:true, archived: dst.replace(PROJ_DIR + path.sep, 'projects/') });
+  } catch(e) { return res.status(500).json({ ok:false, error:'falha ao arquivar: '+e.message }); }
 });
 
 router.get('/modes', (req, res) => {
