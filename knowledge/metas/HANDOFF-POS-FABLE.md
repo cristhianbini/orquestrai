@@ -459,3 +459,12 @@ REQUISITO NOVO DO S20 (container por projeto):
    proprios com validacao do Guardian.
 4. UI: ao trocar projeto no seletor, o painel TERMINAL deve indicar o
    escopo atual (evitar a ilusao de que ja esta isolado -- sem mentira na UI).
+
+## ENCERRAMENTO CHAT 8 (2026-07-09, fim do tempo)
+Ultimos 2 itens da sessao: L-PROP-STATIC-PROJECT-BINDMOUNT rejeitada
+(arquivada com motivo) + CTXPUBTOGGLE01 (badge publico/privado no card,
+funcional, grava project.json.public). Preview em si SEGUE 403 total ate
+o auth_request ser refeito (nginx tem 2 server{} blocks -- ver secao 12
+do PROTOCOLO-ANTICONTAMINACAO). Sistema estavel, tudo commitado e
+pushado, containers de pe. Chat 9 pode comecar direto pelo auth_request
+ou por qualquer item da lista de pendentes -- nenhum bloqueia o outro.
