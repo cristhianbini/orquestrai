@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-08 23:49:33 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-09 00:00:38 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -4998,59 +4998,7 @@ window.oqNovag = {
    POR QUE: o botao PROJETOS abria direto o wizard (B273); nao
    havia LISTA. Agora que /api/projects persiste em disco
    (CTXPROJPERSIST01), a lista tem dado real p/ mostrar.
-   PADRAO: mesmo do CTXLIC2 -- script novo independente antes do
-   
-<script id="CTXPROJSEL01">
-/* ============================================================
-   CTXPROJSEL01 (2026-07-09) -- seletor de projetos do header
-   sincronizado com /api/projects (fonte real, CTXPROJPERSIST01).
-   POR QUE: o oq288 semeava o localStorage (oq_projects) com
-   ['orquestrai','xmonex','hello-world-vps'] -- xmonex e projeto
-   de OUTRO cliente (contaminacao leve, pega pelo grep do
-   PROTOCOLO-ANTICONTAMINACAO na 1a execucao) e hello-world-vps
-   nunca existiu. Alem de semear fake, o seletor nunca refletia
-   projetos criados de verdade pelo wizard.
-   COMO: (a) limpa uma unica vez os fakes do localStorage legado;
-   (b) busca /api/projects e mescla os slugs reais nas <option>
-   do #oq-proj-sel, preservando a selecao atual; (c) regrava
-   oq_projects para os proximos boots. NAO edita o oq288 por
-   dentro (L-WRAPPERANCHOR01) -- so a linha DEF foi trocada la.
-   PROXIMO DEV: quando a migracao React chegar no header, este
-   script e o oq288 viram um ProjectSelector unico.
-   ============================================================ */
-(function(){
-  var KL='oq_projects', FAKES=['xmonex','hello-world-vps'];
-
-  // (a) limpeza unica dos fakes semeados pelo DEF antigo
-  try{
-    var v=JSON.parse(localStorage.getItem(KL)||'null');
-    if(Array.isArray(v)){
-      var clean=v.filter(function(p){ return FAKES.indexOf(p)<0; });
-      if(!clean.length) clean=['orquestrai'];
-      if(clean.length!==v.length) localStorage.setItem(KL, JSON.stringify(clean));
-    }
-  }catch(e){}
-
-  // (b)+(c) mescla slugs reais da API no select (espera o oq288 montar)
-  function sync(){
-    var sel=document.getElementById('oq-proj-sel');
-    if(!sel){ setTimeout(sync,500); return; }
-    fetch('/api/projects',{credentials:'include'}).then(function(r){return r.json();}).then(function(j){
-      var slugs=(j.projects||[]).map(function(p){return p.slug;}).filter(Boolean);
-      if(slugs.indexOf('orquestrai')<0) slugs.unshift('orquestrai'); // o cockpit sempre presente
-      var have={}; Array.from(sel.options).forEach(function(o){ have[o.value]=true; });
-      // remove fakes que sobraram no DOM deste boot
-      Array.from(sel.options).forEach(function(o){ if(FAKES.indexOf(o.value)>=0) o.remove(); });
-      // adiciona reais que faltam
-      slugs.forEach(function(sl){ if(!have[sl]){ var o=document.createElement('option'); o.value=sl; o.textContent='\uD83D\uDCC1 '+sl; sel.appendChild(o); } });
-      localStorage.setItem(KL, JSON.stringify(slugs));
-    }).catch(function(e){ /* offline/erro: mantem o que ha, sem quebrar o header */ });
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', sync); else sync();
-})();
-</script>
-
-</body> (L-SINGLEOWNER01/L-WRAPPERANCHOR01). Carrega DEPOIS do
+   PADRAO: mesmo do CTXLIC2 -- script novo independente antes do fechamento do body (L-SINGLEOWNER01/L-WRAPPERANCHOR01). Carrega DEPOIS do
    B273, entao captura o projOpen original (wizard) numa var e
    redefine window.projOpen p/ abrir a lista; o card "+ Novo
    Projeto" chama o wizard capturado. B273 fica 100% intacto.
@@ -5136,6 +5084,61 @@ window.oqNovag = {
 })();
 </script>
 
+
+<script id="CTXPROJSEL01">
+/* ============================================================
+   CTXPROJSEL01 (2026-07-09) -- seletor de projetos do header
+   sincronizado com /api/projects (fonte real, CTXPROJPERSIST01).
+   POR QUE: o oq288 semeava o localStorage (oq_projects) com
+   ['orquestrai','xmonex','hello-world-vps'] -- xmonex e projeto
+   de OUTRO cliente (contaminacao leve, pega pelo grep do
+   PROTOCOLO-ANTICONTAMINACAO na 1a execucao) e hello-world-vps
+   nunca existiu. Alem de semear fake, o seletor nunca refletia
+   projetos criados de verdade pelo wizard.
+   COMO: (a) limpa uma unica vez os fakes do localStorage legado;
+   (b) busca /api/projects e mescla os slugs reais nas <option>
+   do #oq-proj-sel, preservando a selecao atual; (c) regrava
+   oq_projects para os proximos boots. NAO edita o oq288 por
+   dentro (L-WRAPPERANCHOR01) -- so a linha DEF foi trocada la.
+   PROXIMO DEV: quando a migracao React chegar no header, este
+   script e o oq288 viram um ProjectSelector unico.
+   ============================================================ */
+(function(){
+  var KL='oq_projects', FAKES=['xmonex','hello-world-vps'];
+
+  // (a) limpeza unica dos fakes semeados pelo DEF antigo
+  try{
+    var v=JSON.parse(localStorage.getItem(KL)||'null');
+    if(Array.isArray(v)){
+      var clean=v.filter(function(p){ return FAKES.indexOf(p)<0; });
+      if(!clean.length) clean=['orquestrai'];
+      if(clean.length!==v.length) localStorage.setItem(KL, JSON.stringify(clean));
+    }
+  }catch(e){}
+
+  // (b)+(c) mescla slugs reais da API no select (espera o oq288 montar)
+  function sync(){
+    var sel=document.getElementById('oq-proj-sel');
+    if(!sel){ setTimeout(sync,500); return; }
+    fetch('/api/projects',{credentials:'include'}).then(function(r){return r.json();}).then(function(j){
+      var slugs=(j.projects||[]).map(function(p){return p.slug;}).filter(Boolean);
+      if(slugs.indexOf('orquestrai')<0) slugs.unshift('orquestrai'); // o cockpit sempre presente
+      var have={}; Array.from(sel.options).forEach(function(o){ have[o.value]=true; });
+      // remove fakes que sobraram no DOM deste boot
+      Array.from(sel.options).forEach(function(o){ if(FAKES.indexOf(o.value)>=0) o.remove(); });
+      // adiciona reais que faltam
+      slugs.forEach(function(sl){ if(!have[sl]){ var o=document.createElement('option'); o.value=sl; o.textContent='\uD83D\uDCC1 '+sl; sel.appendChild(o); } });
+      localStorage.setItem(KL, JSON.stringify(slugs));
+      // CTXPROJCOUNT01: contador no botao do header (paridade c/ LICOES N); reusa este fetch.
+      var pb=document.getElementById('proj-btn');
+      if(pb){ var pc=pb.querySelector('#proj-count');
+        if(pc){ pc.textContent=slugs.length; }
+        else { pb.innerHTML='\uD83D\uDE80 PROJETOS <span id="proj-count" style="opacity:.8">'+slugs.length+'</span>'; } }
+    }).catch(function(e){ /* offline/erro: mantem o que ha, sem quebrar o header */ });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', sync); else sync();
+})();
+</script>
 </body>
 </html>
 <style id="B381_SPOTLIGHT">
