@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-08 23:47:31 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-08 23:47:49 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -4904,8 +4904,10 @@ window.oqNovag = {
       return true; });
     list.innerHTML = bar + (vis.length ? vis.map(function(it){
       var id=(it.id||''), ti=(it.title||id);
+      var fm=famOf(id), fc=fm==='L-B*'?'#a78bfa':(fm==='L-CTX*'?'#60a5fa':'#94a3b8');
+      // CTXLIC3: badge de familia no proprio card (antes so no filtro)
       return '<div class="licCard" data-id="'+id+'" style="background:#0a1119;border:1px solid #2a3f5555;border-radius:8px;padding:10px 14px;margin-bottom:6px;cursor:pointer">'
-        +'<div style="color:#7dd3fc;font:12px ui-monospace,monospace;font-weight:bold">'+ti+'</div>'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div style="color:#7dd3fc;font:12px ui-monospace,monospace;font-weight:bold">'+ti+'</div><span style="font-size:8px;border:1px solid '+fc+'55;color:'+fc+';border-radius:8px;padding:1px 7px;white-space:nowrap">'+fm+'</span></div>'
         +'<div style="color:#4b5563;font:9px ui-monospace,monospace;margin-top:2px">'+id+'</div>'
         +'<div class="licBody" style="display:none;margin-top:8px"></div></div>';
     }).join('') : '<div style="color:#6b7280;font:12px ui-monospace,monospace;padding:20px;text-align:center">Nenhuma licao encontrada p/ o filtro</div>');
