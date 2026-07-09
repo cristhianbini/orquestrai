@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-08 22:47:33 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-08 22:56:28 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -4946,6 +4946,115 @@ window.oqNovag = {
       items=j.items||j.licoes||j.list||[];
       window.licPremiumRender();
     }).catch(function(e){ if(list) list.innerHTML='<span style="color:#f87171">erro: '+e+'</span>'; });
+  };
+})();
+</script>
+
+
+<div id="proj2-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:9998;align-items:center;justify-content:center" onclick="if(event.target===this)window.proj2Close()">
+  <div style="background:#0e1116;border:1px solid #2a3340;border-radius:12px;padding:22px;width:min(860px,94vw);max-height:88vh;overflow:auto;color:#cfd6dd;font-family:system-ui">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <h3 style="margin:0;color:#7dd3fc;font-size:17px">🚀 Projetos OrquestrAI</h3>
+      <button onclick="window.proj2Close()" style="background:transparent;border:1px solid #2a3340;color:#cfd6dd;border-radius:6px;padding:4px 10px;cursor:pointer">✕</button>
+    </div>
+    <p style="margin:2px 0 14px;color:#6b7280;font-size:12px">Fábrica CBini — cada projeto nasce aqui e ganha sua esteira de agentes.</p>
+    <div id="proj2-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px">carregando…</div>
+    <div style="margin-top:18px;border-top:1px solid #1a2230;padding-top:12px">
+      <div style="color:#6b7280;font-size:11px;letter-spacing:.08em;margin-bottom:8px">EM BREVE — visão da fábrica (sem mentira na UI: badge = ainda não existe)</div>
+      <div id="proj2-soon" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+    </div>
+  </div>
+</div>
+
+<script id="CTXPROJ2">
+/* ============================================================
+   CTXPROJ2 (2026-07-09) -- TELA PROJETOS Fase A (lista/cockpit).
+   POR QUE: o botao PROJETOS abria direto o wizard (B273); nao
+   havia LISTA. Agora que /api/projects persiste em disco
+   (CTXPROJPERSIST01), a lista tem dado real p/ mostrar.
+   PADRAO: mesmo do CTXLIC2 -- script novo independente antes do
+   </body> (L-SINGLEOWNER01/L-WRAPPERANCHOR01). Carrega DEPOIS do
+   B273, entao captura o projOpen original (wizard) numa var e
+   redefine window.projOpen p/ abrir a lista; o card "+ Novo
+   Projeto" chama o wizard capturado. B273 fica 100% intacto.
+   HONESTIDADE DE DADO: container/custo/deploy por projeto ainda
+   NAO existem (S20/S21) -- o card mostra "-" com a sigla da
+   sprint, nunca numero inventado. Secao EM BREVE = badges.
+   PROXIMO DEV: na migracao React (S9+) isto vira ProjectsGrid;
+   quando S20 entregar container por projeto, trocar o campo
+   container do card pelo status real (docker ps via API).
+   ============================================================ */
+(function(){
+  // captura o wizard ANTES de redefinir (B273 ja carregou)
+  var wizardOpen = window.projOpen;
+
+  var SOON = [
+    ['📦','Import GitHub','S25 — traz repo do Lovable já estruturado'],
+    ['🐳','Container isolado','S20 — cada projeto no seu espaço'],
+    ['☁️','VPS dedicada','multi-cloud — visão longa'],
+    ['🧬','DNA de projeto','S21 — manifesto que a esteira audita'],
+    ['🚀','Deploy automatizado','~100% — build+deploy sem toque']
+  ];
+
+  var STACK_ICO = {'node-express':'🟢','nextjs':'▲','python-fastapi':'🐍','static-html':'📄'};
+
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function fmtDate(iso){ try{ return new Date(iso).toLocaleDateString('pt-BR'); }catch(e){ return '—'; } }
+
+  function card(p){
+    if(p.corrupted) return '<div style="background:#1a0e0e;border:1px solid #7f1d1d;border-radius:10px;padding:14px"><b style="color:#f87171">⚠ '+esc(p.slug)+'</b><div style="color:#9ca3af;font-size:11px;margin-top:4px">project.json corrompido — verificar em projects/'+esc(p.slug)+'/</div></div>';
+    var ico = STACK_ICO[p.stack]||'📁';
+    return '<div style="background:#0a0e13;border:1px solid #2a3340;border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center"><b style="color:#7dd3fc;font-size:14px">'+ico+' '+esc(p.name)+'</b>'
+      +'<span style="font-size:9px;padding:2px 8px;border-radius:10px;border:1px solid '+(p.status==='draft'?'#f59e0b66':'#22c55e66')+';color:'+(p.status==='draft'?'#fbbf24':'#22c55e')+'">'+esc(p.status||'draft')+'</span></div>'
+      +'<div style="font:11px ui-monospace,monospace;color:#94a3b8;line-height:1.8">'
+      +'stack&nbsp;&nbsp;&nbsp;&nbsp;'+esc(p.stack||'—')+'<br>'
+      +'db&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+esc(p.db||'—')+'<br>'
+      +'container&nbsp;<span style="color:#6b7280">— (S20)</span><br>'
+      +'custo&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6b7280">— (S21)</span><br>'
+      +'deploy&nbsp;&nbsp;&nbsp;<span style="color:#6b7280">manual</span><br>'
+      +'criado&nbsp;&nbsp;&nbsp;'+fmtDate(p.createdAt)
+      +'</div>'
+      +(p.description?'<div style="color:#6b7280;font-size:11px;border-top:1px solid #1a2230;padding-top:6px">'+esc(p.description).slice(0,120)+'</div>':'')
+      +'</div>';
+  }
+
+  function newCard(){
+    return '<div onclick="window.proj2NewProject()" style="border:1px dashed #3b82f6;border-radius:10px;padding:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;min-height:150px;background:#1e3a5f11">'
+      +'<span style="font-size:28px">＋</span><b style="color:#7dd3fc;font-size:13px">Novo Projeto</b>'
+      +'<span style="color:#6b7280;font-size:10px;text-align:center">wizard 5 passos → mesh gera<br>plano + arquitetura</span></div>';
+  }
+
+  function render(projects){
+    var list=document.getElementById('proj2-list');
+    if(!list) return;
+    list.innerHTML = newCard() + projects.map(card).join('');
+    var soon=document.getElementById('proj2-soon');
+    if(soon && !soon.dataset.done){
+      soon.dataset.done='1';
+      soon.innerHTML = SOON.map(function(s){
+        return '<span title="'+esc(s[2])+'" style="display:inline-flex;gap:6px;align-items:center;font-size:11px;padding:5px 12px;border:1px solid #2a3340;border-radius:14px;color:#6b7280;background:#0a0e13;cursor:help">'+s[0]+' '+esc(s[1])+' <span style="font-size:8px;border:1px solid #f59e0b55;color:#f59e0b;border-radius:8px;padding:1px 5px">EM BREVE</span></span>';
+      }).join('');
+    }
+  }
+
+  window.proj2NewProject = function(){
+    window.proj2Close();
+    if(typeof wizardOpen==='function') wizardOpen();
+    else alert('wizard indisponivel (projOpen original nao capturado)');
+  };
+  window.proj2Close = function(){ var m=document.getElementById('proj2-modal'); if(m) m.style.display='none'; };
+
+  // dono do botao PROJETOS agora e a LISTA (wizard vira 2a camada)
+  window.projOpen = function(){
+    var m=document.getElementById('proj2-modal');
+    if(!m){ if(typeof wizardOpen==='function') wizardOpen(); return; }
+    m.style.display='flex';
+    var list=document.getElementById('proj2-list');
+    if(list) list.innerHTML='<span style="color:#6b7280;font:11px ui-monospace,monospace">carregando...</span>';
+    fetch('/api/projects',{credentials:'include'}).then(function(r){return r.json();}).then(function(j){
+      render(j.projects||[]);
+    }).catch(function(e){ if(list) list.innerHTML='<span style="color:#f87171">erro: '+esc(e)+'</span>'; });
   };
 })();
 </script>
