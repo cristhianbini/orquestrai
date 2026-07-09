@@ -442,3 +442,20 @@ NAO criar o botao Preview antes do conteudo existir (sem mentira na UI).
 E2E do goal fix (lab-teste-3) | passo 1 do wizard | GET /api/projects sem
 auth | MEMORIALISTA context budget | TESTE RESTORE LITESTREAM (o mais
 critico da fila -- nao deixar p/ depois de novo).
+
+## ADENDO 3 CHAT 8 — pergunta do Bini vira requisito do S20 (terminal por projeto)
+ESTADO ATUAL (sem ilusao): seletor de projeto muda SO o namespace dos BLOCOs
+no localStorage; o terminal (oqterm, /opt/oqterm:7654) e SEMPRE um PTY root
+na VPS inteira, independente do projeto ativo. Nao ha isolamento hoje.
+Aceitavel enquanto: 1 operador (Bini) + mesh NUNCA toca o PTY (agentes so
+geram BLOCO; humano executa -- gate LAVE e a protecao real).
+REQUISITO NOVO DO S20 (container por projeto):
+1. Terminal de projeto = docker exec no container do projeto: usuario
+   nao-root, ve so /app do projeto, sem docker socket, sem rede p/ outros
+   containers alem do necessario.
+2. Terminal root de admin continua existindo mas SEPARADO e rotulado
+   explicitamente na UI ("VPS - root" vs "{slug} - container").
+3. REGRA DE OURO: automacao (mesh/runs/deploy) jamais usa PTY -- canais
+   proprios com validacao do Guardian.
+4. UI: ao trocar projeto no seletor, o painel TERMINAL deve indicar o
+   escopo atual (evitar a ilusao de que ja esta isolado -- sem mentira na UI).
