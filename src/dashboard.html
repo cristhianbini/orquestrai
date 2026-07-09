@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-09 00:35:26 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-09 00:43:29 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -3486,7 +3486,14 @@ else{setTimeout(ensure,200);setTimeout(ensure,1500);}
   }
   function renderBody(){
     let h='';
-    if (step===0) h = `<label style="display:block;font-size:12px;color:#7dd3fc;margin-bottom:6px">Nome do projeto</label><input id="pf-name" value="${data.name}" placeholder="meu-app-incrivel" style="width:100%;background:#0a0e13;border:1px solid #2a3340;color:#cfd6dd;border-radius:6px;padding:10px;font-family:monospace"><p style="color:#6b7280;font-size:11px;margin-top:6px">Vira diretório /var/www/orquestrai/projects/{slug}</p>`;
+    if (step===0){
+      // CTXWIZ4: passo Nome no padrao visual dos passos 2/4/5
+      h = '<div style="background:#0a0e13;border:1px solid #2a3340;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px">'
+        + '<label style="font-size:12px;color:#7dd3fc;font-weight:600">\u{1F4DD} Nome do projeto</label>'
+        + '<input id="pf-name" value="'+String(data.name||'').replace(/"/g,'&quot;')+'" placeholder="meu-app-incrivel" style="width:100%;box-sizing:border-box;background:#0e1622;border:1px solid #2a3f55;color:#e2e8f0;border-radius:8px;padding:12px 14px;font:14px ui-monospace,monospace" autofocus>'
+        + '<span style="color:#6b7280;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">vira projects/{slug} \u00b7 s\u00f3 letras, n\u00fameros e h\u00edfen</span>'
+        + '</div>';
+    }
     else if (step===1){
       // CTXWIZ1: cards com icone (linguagem visual do CTXPROJ2) no lugar dos radios
       var ICO={'node-express':'\u{1F7E2}','nextjs':'\u25B2','python-fastapi':'\u{1F40D}','static-html':'\u{1F4C4}'};
