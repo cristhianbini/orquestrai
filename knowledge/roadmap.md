@@ -491,3 +491,12 @@ Fonte de inspiracao classificada como NAO-CANONICA no PROTOCOLO-ANTICONTAMINACAO
 - S20/S21/S25 (citados em CTXPROJSCREEN01/handoffs) nao tinham espelho formal
   aqui. Mapeamento: S20=container isolado (ja em "Distante"), S21=CTXDNA01,
   S25=CTXIMPORT01+CTXRAG01. Usar codigos CTX* daqui em diante.
+
+## VISAO AMPLIADA: Import GitHub (2026-07-09, fim de sessao)
+CTXIMPORT01 ganhou visao mais ampla -- ver
+knowledge/decisoes/VISAO-IMPORT-MIGRACAO-INFRA.md. Resumo: nao e' so
+"importar codigo pra referencia", e' "trazer sistema de terceiro pra
+dentro do OrquestrAI, melhorar aqui, hospedar aqui ou exportar pra VPS
+dedicada/outro provedor". Conecta com S20 (container deve nascer
+portavel) e com o gatilho de promocao ja absorvido do Plano Mestre CBini
+(N clientes pagantes como sinal de quando vale VPS dedicada).
