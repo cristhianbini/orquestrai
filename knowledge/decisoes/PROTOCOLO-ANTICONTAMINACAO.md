@@ -87,3 +87,15 @@ Mesmo tratamento: afirmacao sobre o sistema que o grep nao confirma =
 PARE TUDO passo 3. Regra de ouro operacional ja vigente que este protocolo
 formaliza: NUNCA propor mudanca sem ler o estado atual primeiro
 (L-CTXHANDOFFVERIFY01), e NUNCA "lembrar" de codigo — sempre reler.
+
+## 9. EXCECOES CONHECIDAS do grep periodico (falsos positivos classificados)
+Verificacao 2026-07-09 (1a execucao do protocolo):
+- mas/routes.mjs L39: comentario com 'xmonex' como exemplo de fala do usuario. BENIGNO.
+- mas/kb.cjs L15/L44: as PROPRIAS defesas anticontaminacao (texto "NAO E MySQL"
+  e referencia ao bug XMONEX_STACK fechado). BENIGNO — e o antidoto.
+- dashboard.html L3492: mysql/postgres como OPCOES de DB no wizard de projetos
+  futuros. BENIGNO — opcao de produto, nao stack do OrquestrAI.
+- dashboard.html L3583: var DEF=['orquestrai','xmonex','hello-world-vps'] —
+  RESOLVIDO 2026-07-09: contaminacao leve CONFIRMADA (oq288 semeava
+  projetos fake no localStorage). Corrigido via CTXPROJSEL01: DEF=[orquestrai],
+  limpeza unica do localStorage legado, seletor sincroniza com /api/projects.

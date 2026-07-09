@@ -1,0 +1,12 @@
+{
+  "slug": "orquestrai",
+  "name": "OrquestrAI",
+  "stack": "node-express",
+  "db": "sqlite",
+  "description": "O proprio cockpit: orquestracao multi-agente self-hosted (dogfooding — o sistema e o primeiro projeto da propria fabrica)",
+  "features": ["pipeline MAS 9 agentes", "protocolo LAVE", "KB versionada", "blackboard SQLite"],
+  "mode": "build",
+  "status": "producao",
+  "createdAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-07-09T00:00:00.000Z"
+}
