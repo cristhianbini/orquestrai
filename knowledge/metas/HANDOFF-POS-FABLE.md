@@ -468,3 +468,8 @@ o auth_request ser refeito (nginx tem 2 server{} blocks -- ver secao 12
 do PROTOCOLO-ANTICONTAMINACAO). Sistema estavel, tudo commitado e
 pushado, containers de pe. Chat 9 pode comecar direto pelo auth_request
 ou por qualquer item da lista de pendentes -- nenhum bloqueia o outro.
+
+## PAUSA NO MEIO DO FIX (2026-07-09, chat travando)
+Causa raiz do 404 do preview: orquestrai-proxy sem projects/ montado.
+docker-compose.yml ja editado (bind-mount adicionado), NAO aplicado ainda.
+Falta: docker compose config --quiet && docker compose up -d proxy + reteste completo.
