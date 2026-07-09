@@ -283,3 +283,36 @@ CTXLEARNTEST01 inaugurado (janela anonima, \$0.19 -> \$0.001) |
 CTXEARLYEXIT01 (resposta no meio = encerra) | PENEIRA + DeepSeek/MiniMax/
 QWEN \$5-10 | CTXBLOCONUM01 | CTXPIPECLOSE01 (#10/#11) | L-SELF* |
 CTXLEARNTEST01 suite completa | ADMIN_PASSWORD placeholder (primo do A8).
+
+## HANDOFF CHAT 7 -> CHAT 8 (2026-07-09)
+### Estado REAL da tela LICOES (leia antes de mexer!)
+- Backend PRONTO e VALIDADO: /api/licoes/list filtra BLOCO-* (80 limpas),
+  GET /read/:id criado (sanitizado, \n literais tratados). NAO refazer.
+- Frontend: render premium (CTXLICPREMIUM01) esta NO ARQUIVO dentro do
+  openModal do B258 -- mas o B258 NUNCA ganha o clique. O botao real do
+  header (#lic-card, L1491) chama licOpen(); o chip (#lic-chip, script
+  L3015) tem sync com setInterval(2500) que REPINTAVA a lista crua.
+- Tentativa CTXLICFIX01 (wrapper global) REVERTIDA: o fechamento do
+  wrapper usou ancora '}; });' que era unica NO ARQUIVO mas nao
+  necessariamente no script certo -- licPremiumRender ficou undefined
+  (script morre em runtime). Backup: .bak-licfix-*.
+### O FIX CERTO p/ o Chat 8 (desenho pronto, so executar com calma)
+1. Localizar a funcao licOpen() REAL (grep -n "function licOpen").
+2. Extrair o corpo premium do B258 p/ um <script> NOVO e independente
+   (id proprio, ex CTXLIC2), definindo window.licPremiumRender la --
+   sem wrapper por ancora textual: script novo inteiro, colado antes
+   do </body>, com o codigo ja pronto no B258 como fonte.
+3. licOpen() e o chip chamam window.licPremiumRender(mlist).
+4. Manter o poll do L3015 SO como contador (o edit A do CTXLICFIX01
+   estava CERTO -- reaplicar so ele).
+LICAO: L-SINGLEOWNER01 (3 scripts donos do mesmo modal = ultimo interval
+vence) + L-WRAPPERANCHOR01 (nunca fechar funcao por ancora textual --
+criar script novo inteiro e' mais seguro que envolver codigo existente).
+### Rodada de hoje (Chat 7 parte 2) -- ENTREGUE
+b358 duplicada desativada | cabecalho premium CTXPROJSCREEN01 no wizard |
+CTXLICCLEAN01 backend (80 licoes limpas) | GET /read/:id | inventario
+completo PROJETOS Fase A (S20/S21/S25 + multi-cloud + Lovable->GitHub)
+### PROJETOS Fase A (a tela que o Bini mais espera) -- desenho fechado
+Cards mini-cockpit (nome/stack/container/custo/deploy) + secao EM BREVE
+honesta: Import GitHub (S25) | Container isolado (S20) | VPS dedicada
+(multi-cloud) | DNA de projeto (S21) | Deploy automatizado (~100%).

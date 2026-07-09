@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-08 22:41:47 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-08 22:32:02 -03:00 (auto, git pre-commit)
 // B259 — lista lições da KB para o chip do header
 const express = require('express');
 const fs = require('fs');
@@ -6,21 +6,6 @@ const path = require('path');
 const router = express.Router();
 
 const KB_DIR = '/app/knowledge/licoes';
-
-// CTXLICPREMIUM01 (2026-07-09): leitura de 1 licao sob demanda (o expandir
-// do card busca aqui). Sob demanda > carregar 80 arquivos de uma vez.
-// Sanitiza o id (so [A-Za-z0-9._-]) p/ impedir path traversal.
-router.get('/read/:id', (req, res) => {
-  try {
-    const id = String(req.params.id||'').replace(/[^A-Za-z0-9._-]/g,'');
-    const full = path.join(KB_DIR, id + '.md');
-    if (!fs.existsSync(full)) return res.status(404).json({ error: 'licao nao encontrada' });
-    let txt = fs.readFileSync(full, 'utf8');
-    // Licoes antigas tem \n LITERAL no texto (heranca de escaping) -- converter
-    txt = txt.replace(/\\n/g, '\n');
-    res.json({ id, content: txt });
-  } catch(e){ res.status(500).json({ error: String(e.message||e) }); }
-});
 
 router.get('/list', (req, res) => {
   try {
