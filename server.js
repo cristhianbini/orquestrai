@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-07 15:35:08 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-10 14:33:33 -03:00 (auto, git pre-commit)
 // OQ46Z-v1
 import { createRequire as _oqReq } from "module";
 const _oqRequire = _oqReq(import.meta.url);
@@ -356,7 +356,9 @@ const retentionRoutes = require('./api/retentionRoutes.cjs');
 app.use('/api/mas/retention', authMiddleware, retentionRoutes);
 // B273 projects
 const projectsRoutes = require('./projectsRoutes.cjs');
-app.use('/api/projects', projectsRoutes);
+// [CTXPROJAUTH01] factory recebe authMiddleware -- protege tudo exceto
+// preview-auth (gate dentro do router). Ver projectsRoutes.cjs.
+app.use('/api/projects', projectsRoutes(authMiddleware));
 
 // B339_AGENT_CARDS — expõe AGENT_CARDs como JSON
 /* CTXFEEDBACK01 — aprovação humana do BLOCO LAVE

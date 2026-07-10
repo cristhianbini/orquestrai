@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-10 00:31:29 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-10 14:33:33 -03:00 (auto, git pre-commit)
 // [B315] /api/projects — Projetos, Modos e Scorecard dos Agentes
 // [CTXPROJPERSIST01 2026-07-09] Persistencia em DISCO substitui o Map
 // em memoria do B315 original.
@@ -20,7 +20,16 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'orquestrai-secret-change-me-2025';
 if (!process.env.JWT_SECRET) console.warn('[CTXPREVIEWAUTH01] JWT_SECRET ausente no .env -- usando fallback fraco.');
 
+// [CTXPROJAUTH01] factory: recebe authMiddleware do server.js e protege
+// todas as rotas EXCETO preview-auth (chamada pelo nginx sem Authorization).
+module.exports = function(authMiddleware){
 const router = express.Router();
+// gate de auth: preview-auth fica ABERTA (seguranca via token interno);
+// todo o resto exige Bearer token valido.
+router.use(function(req, res, next){
+  if (/\/preview-auth$/.test(req.path)) return next();
+  return authMiddleware(req, res, next);
+});
 // __dirname no container = /app (arquivo montado em /app/projectsRoutes.cjs)
 const PROJ_DIR = process.env.PROJECTS_DIR || path.join(__dirname, 'projects');
 
@@ -254,4 +263,5 @@ router.get('/scorecard', (req, res) => {
   res.json({ ok: true, scorecard: SCORECARD });
 });
 
-module.exports = router;
+return router;
+};

@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-10 04:36:59 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-10 14:33:33 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -101,6 +101,17 @@ body :is(header,.header,.topbar,.navbar,.dashboard-header,.dash-header,.app-head
 function oqAuthKeys(){ return ['oq_token','token','authToken','jwt','orq_jwt','orquestrai_token','OQ_TOKEN']; }
 function oqClearAuth(){ try { oqAuthKeys().forEach(function(k){ localStorage.removeItem(k); sessionStorage.removeItem(k); }); } catch(e){} }
 function oqGetAuthToken(){ try { for (var i=0;i<oqAuthKeys().length;i++){ var k=oqAuthKeys()[i]; var v=localStorage.getItem(k)||sessionStorage.getItem(k); if(v) return v; } } catch(e){} return ''; }
+// [CTXPROJAUTH02] wrapper de fetch autenticado p/ rotas /api/projects.
+// Injeta Authorization: Bearer <token> em cima de qualquer opts passado,
+// preservando method/body/headers existentes. Preview-auth nao passa por
+// aqui (e chamada pelo nginx, nao pelo front).
+function projFetch(url, opts){
+  opts = opts || {};
+  var h = Object.assign({}, opts.headers || {});
+  var tk = oqGetAuthToken();
+  if (tk) h['Authorization'] = 'Bearer ' + tk;
+  return fetch(url, Object.assign({}, opts, { headers: h }));
+}
 /*OQ46R-START*/ /*OQ46R-v1*/
 window.OQ46R={
   icons:{groq:'\u26A1',gemini:'\u2728',openrouter:'\u{1F310}',cerebras:'\u{1F9E0}',openai:'\u{1F916}',anthropic:'\u{1F7E7}',user:'\u{1F464}'},
@@ -3573,7 +3584,7 @@ else{setTimeout(ensure,200);setTimeout(ensure,1500);}
   window.__projStack = v => { data.stack=v; renderBody(); };
   window.__projDb = v => { data.db=v; renderBody(); };
   window.projOpen = ()=>{ step=0; Object.assign(data,{name:'',stack:'node-express',description:'',features:[],db:'none',buildMode:'automatico'}); $('proj-modal').style.display='flex'; renderSteps(); renderBody();
-    fetch('/api/projects',{credentials:'include'}).then(function(r){return r.json();}).then(function(j){ existingSlugs=(j.projects||[]).map(function(p){return p.slug;}); }).catch(function(){ existingSlugs=[]; });
+    projFetch('/api/projects',{credentials:'include'}).then(function(r){return r.json();}).then(function(j){ existingSlugs=(j.projects||[]).map(function(p){return p.slug;}); }).catch(function(){ existingSlugs=[]; });
   };
   window.projClose = ()=>{ $('proj-modal').style.display='none'; };
   window.projBack = ()=>{ if(step>0){step--;renderSteps();renderBody();} };
@@ -3585,7 +3596,7 @@ else{setTimeout(ensure,200);setTimeout(ensure,1500);}
     $('proj-next').textContent='Criando...'; $('proj-next').disabled=true;
     try {
       const tok = localStorage.getItem('oq_token')||localStorage.getItem('token')||'';
-      const r = await fetch('/api/projects',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify(data)});
+      const r = await projFetch('/api/projects',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
       const j = await r.json();
       if(!j.ok){ alert('Erro: '+j.error); $('proj-next').disabled=false; $('proj-next').textContent='🚀 Criar projeto'; return; }
       // CTXWIZ3: mesh em background (sem await) -- o 1o E2E real provou
@@ -5130,7 +5141,7 @@ window.oqNovag = {
     var typed=prompt('EXCLUIR o projeto "'+slug+'"?\n\nO projeto vai para a quarentena (projects/_arquivados/).\nPara confirmar, digite o nome exato do projeto:');
     if(typed===null) return;
     if(typed!==slug){ alert('Nome nao confere -- exclusao cancelada.'); return; }
-    fetch('/api/projects/'+encodeURIComponent(slug),{method:'DELETE',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({confirm:slug})})
+    projFetch('/api/projects/'+encodeURIComponent(slug),{method:'DELETE',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({confirm:slug})})
       .then(function(r){return r.json();}).then(function(j){
         if(!j.ok){ alert('Erro: '+(j.error||'falha')); return; }
         if((function(){try{return localStorage.getItem('oq_proj_current')}catch(e){return null}})()===slug){
@@ -5140,7 +5151,7 @@ window.oqNovag = {
       }).catch(function(e){ alert('Falha: '+e); });
   };
   window.proj2TogglePublic = function(slug, isPublic){
-    fetch('/api/projects/'+encodeURIComponent(slug),{method:'PATCH',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({public:!isPublic})})
+    projFetch('/api/projects/'+encodeURIComponent(slug),{method:'PATCH',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({public:!isPublic})})
       .then(function(r){return r.json();}).then(function(j){
         if(!j.ok){ alert('Erro: '+(j.error||'falha')); return; }
         window.projOpen();
@@ -5154,7 +5165,7 @@ window.oqNovag = {
   window.proj2Docs = function(slug){
     var list=document.getElementById('proj2-list'); if(!list) return;
     list.innerHTML='<span style="color:#6b7280;font:11px ui-monospace,monospace">carregando docs de '+slug+'...</span>';
-    fetch('/api/projects/'+encodeURIComponent(slug),{credentials:'include'}).then(function(r){return r.json();}).then(function(d){
+    projFetch('/api/projects/'+encodeURIComponent(slug),{credentials:'include'}).then(function(r){return r.json();}).then(function(d){
       var docs=d.docs||[];
       var h='<div style="grid-column:1/-1"><button onclick="window.projOpen()" style="margin-bottom:10px;font-size:11px;padding:4px 12px;border-radius:8px;border:1px solid #2a3340;background:#0a1119;color:#94a3b8;cursor:pointer">\u2190 voltar</button>';
       h+='<b style="color:#7dd3fc;font-size:14px;margin-left:8px">\uD83D\uDCC4 '+slug+' / docs ('+docs.length+')</b>';
@@ -5171,7 +5182,7 @@ window.oqNovag = {
       var body=c.querySelector('.docBody');
       if(body.style.display==='block'){ body.style.display='none'; return; }
       body.style.display='block'; body.innerHTML='<span style="color:#6b7280;font-size:10px">carregando...</span>';
-      fetch('/api/projects/'+encodeURIComponent(slug)+'/docs/'+encodeURIComponent(file),{credentials:'include'})
+      projFetch('/api/projects/'+encodeURIComponent(slug)+'/docs/'+encodeURIComponent(file),{credentials:'include'})
         .then(function(r){return r.json();}).then(function(j){
           body.innerHTML='<pre style="white-space:pre-wrap;color:#94a3b8;font:11px ui-monospace,monospace;max-height:400px;overflow:auto">'+String(j.content||'').replace(/</g,'&lt;')+'</pre>';
         }).catch(function(e){ body.innerHTML='<span style="color:#f87171">erro: '+e+'</span>'; });
@@ -5185,11 +5196,11 @@ window.oqNovag = {
     m.style.display='flex';
     var list=document.getElementById('proj2-list');
     if(list) list.innerHTML='<span style="color:#6b7280;font:11px ui-monospace,monospace">carregando...</span>';
-    fetch('/api/projects',{credentials:'include'}).then(function(r){return r.json();}).then(function(j){
+    projFetch('/api/projects',{credentials:'include'}).then(function(r){return r.json();}).then(function(j){
       var ps=j.projects||[];
       // CTXPROJCARD01: docsCount por card (fetch paralelo; falha vira '?')
       return Promise.all(ps.map(function(p){
-        return fetch('/api/projects/'+encodeURIComponent(p.slug),{credentials:'include'})
+        return projFetch('/api/projects/'+encodeURIComponent(p.slug),{credentials:'include'})
           .then(function(r){return r.json();}).then(function(d){ p._docsCount=(d.docs||[]).length; p._hasSite=!!d.hasSite; return p; })
           .catch(function(){ p._docsCount=null; return p; });
       })).then(render);
@@ -5234,7 +5245,7 @@ window.oqNovag = {
   function sync(){
     var sel=document.getElementById('oq-proj-sel');
     if(!sel){ setTimeout(sync,500); return; }
-    fetch('/api/projects',{credentials:'include'}).then(function(r){return r.json();}).then(function(j){
+    projFetch('/api/projects',{credentials:'include'}).then(function(r){return r.json();}).then(function(j){
       var slugs=(j.projects||[]).map(function(p){return p.slug;}).filter(Boolean);
       if(slugs.indexOf('orquestrai')<0) slugs.unshift('orquestrai'); // o cockpit sempre presente
       var have={}; Array.from(sel.options).forEach(function(o){ have[o.value]=true; });
@@ -5250,7 +5261,7 @@ window.oqNovag = {
         else { pb.innerHTML='\uD83D\uDE80 PROJETOS <span id="proj-count" style="opacity:.8">'+slugs.length+'</span>'; } }
           // CTXPREVIEW02: botao Preview no header, ligado ao projeto ATIVO
       var curSlug=(function(){try{return localStorage.getItem('oq_proj_current')||'orquestrai'}catch(e){return 'orquestrai'}})();
-      fetch('/api/projects/'+encodeURIComponent(curSlug),{credentials:'include'}).then(function(r){return r.json();}).then(function(d){
+      projFetch('/api/projects/'+encodeURIComponent(curSlug),{credentials:'include'}).then(function(r){return r.json();}).then(function(d){
         var pvBtn=document.getElementById('proj-preview-btn');
         if(!pvBtn){
           pvBtn=document.createElement('a');
