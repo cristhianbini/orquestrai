@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-09 08:18:33 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-10 00:31:29 -03:00 (auto, git pre-commit)
 // [B315] /api/projects — Projetos, Modos e Scorecard dos Agentes
 // [CTXPROJPERSIST01 2026-07-09] Persistencia em DISCO substitui o Map
 // em memoria do B315 original.
@@ -203,16 +203,25 @@ router.delete('/:slug', express.json({ limit: '10kb' }), (req, res) => {
   } catch(e) { return res.status(500).json({ ok:false, error:'falha ao arquivar: '+e.message }); }
 });
 
-// [CTXPREVIEWAUTH01 2026-07-09] usada pelo nginx auth_request (subrequest).
-// Responde SO com status (200/401/400/404) -- corpo e ignorado pelo nginx.
+// [CTXPREVIEWAUTH01] CONTRATO com o nginx (auth_request subrequest):
+// esta rota responde SO com status; o corpo e' ignorado pelo nginx.
+//   200 -> libera o preview   |   401 -> nega (sem token / token invalido)
+//   400 -> slug malformado     |   404 -> projeto nao existe
+// IMPORTANTE: o nginx auth_request so entende 2xx (libera) e 401/403 (nega);
+// QUALQUER outro status vira 500 pro cliente. Por isso os returns sao
+// estritamente esses 4. O slug vem do PATH e o token do HEADER X-Preview-
+// Token (o nginx seta ambos na location de preview -- ver proxy.conf,
+// LOCATION 1/2). A query ?_t= fica so como fallback de compatibilidade.
 router.get('/:slug/preview-auth', (req, res) => {
-  const slug = String(req.params.slug||'');
+  // [CTXPREVIEWAUTHFIX01b] slug sempre do path (nginx manda o real via set).
+  const slug = String(req.params.slug || '');
   if (!/^[a-z0-9-]{1,60}$/.test(slug)) return res.status(400).end();
   let project;
   try { project = JSON.parse(fs.readFileSync(path.join(PROJ_DIR, slug, 'project.json'),'utf8')); }
   catch(e){ return res.status(404).end(); }
   if (project.public === true) return res.status(200).end();
-  const tk = String(req.query._t || '');
+  // [CTXPREVIEWAUTHFIX01] token: header tem prioridade, fallback pra query.
+  const tk = String(req.headers['x-preview-token'] || req.query._t || '');
   if (!tk) return res.status(401).end();
   try { jwt.verify(tk, JWT_SECRET); return res.status(200).end(); }
   catch(e){ return res.status(401).end(); }

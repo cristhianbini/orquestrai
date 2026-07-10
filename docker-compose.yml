@@ -50,6 +50,9 @@ services:
       - ./nginx/logs:/var/log/nginx
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - /var/www/certbot:/var/www/certbot:ro
+      # [CTXPREVIEWMOUNT01 2026-07-09] preview do mesh: nginx precisa
+      # enxergar projects/{slug}/site/ para servir os arquivos estaticos
+      - ./projects:/var/www/orquestrai/projects:ro
     depends_on:
       - web
       - api
