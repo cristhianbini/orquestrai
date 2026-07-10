@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-10 14:38:55 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-10 14:42:04 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -105,6 +105,15 @@ function oqGetAuthToken(){ try { for (var i=0;i<oqAuthKeys().length;i++){ var k=
 // Injeta Authorization: Bearer <token> em cima de qualquer opts passado,
 // preservando method/body/headers existentes. Preview-auth nao passa por
 // aqui (e chamada pelo nginx, nao pelo front).
+async function openPreview(slug, evt){
+  if(evt) evt.preventDefault();
+  try{
+    var r = await projFetch('/api/projects/'+encodeURIComponent(slug)+'/preview-token');
+    var d = await r.json();
+    if(d && d.token) window.open('/projects/'+encodeURIComponent(slug)+'/site/?_t='+encodeURIComponent(d.token), '_blank', 'noopener');
+    else window.open('/projects/'+encodeURIComponent(slug)+'/site/', '_blank', 'noopener');
+  }catch(e){ window.open('/projects/'+encodeURIComponent(slug)+'/site/', '_blank', 'noopener'); }
+}
 function projFetch(url, opts){
   opts = opts || {};
   var h = Object.assign({}, opts.headers || {});
@@ -5109,7 +5118,7 @@ window.oqNovag = {
         var bt='font-size:10px;padding:4px 0;border-radius:8px;cursor:pointer;text-align:center;';
         var h='';
         if(building) h+='<div style="font-size:9px;padding:2px 8px;border-radius:10px;border:1px solid #f59e0b;color:#fbbf24;animation:licpulse 1.2s ease-in-out infinite;text-align:center;margin-top:2px">\uD83D\uDD28 mesh trabalhando</div>';
-        if(p._hasSite) h+='<a href="/projects/'+p.slug+'/site/?_t='+encodeURIComponent(oqGetAuthToken())+'" target="_blank" rel="noopener" style="display:block;text-align:center;font-size:10px;padding:4px 0;border-radius:8px;border:1px solid #22c55e;color:#22c55e;text-decoration:none;background:#052e1622;margin-top:2px">\uD83D\uDC41 Preview</a>';
+        if(p._hasSite) h+='<a href="#" onclick="openPreview(\''+p.slug+'\',event)" style="display:block;text-align:center;font-size:10px;padding:4px 0;border-radius:8px;border:1px solid #22c55e;color:#22c55e;text-decoration:none;background:#052e1622;margin-top:2px">\uD83D\uDC41 Preview</a>';
         h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;border-top:1px solid #1a2230;padding-top:8px;margin-top:2px">';
         h+='<button onclick="window.proj2Docs(\''+p.slug+'\')" style="'+bt+'border:1px solid #2a3f55;background:#0a1119;color:#7dd3fc">\uD83D\uDCC4 docs '+(p._docsCount==null?'?':p._docsCount)+'</button>';
         if(p.slug===atual) h+='<span style="'+bt+'border:1px solid #22c55e66;color:#22c55e;cursor:default">\u25B6 ativo</span>';
@@ -5284,7 +5293,7 @@ window.oqNovag = {
           var pb2=document.getElementById('proj-btn');
           if(pb2&&pb2.parentNode) pb2.parentNode.insertBefore(pvBtn, pb2);
         }
-        if(d && d.hasSite){ pvBtn.href='/projects/'+curSlug+'/site/?_t='+encodeURIComponent(oqGetAuthToken()); pvBtn.style.display='inline-flex'; }
+        if(d && d.hasSite){ pvBtn.href='#'; pvBtn.onclick=function(e){openPreview(curSlug,e)}; pvBtn.style.display='inline-flex'; }
         else { pvBtn.style.display='none'; }
       }).catch(function(){});
 }).catch(function(e){ /* offline/erro: mantem o que ha, sem quebrar o header */ });

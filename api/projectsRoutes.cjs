@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-10 14:33:33 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-10 14:42:04 -03:00 (auto, git pre-commit)
 // [B315] /api/projects — Projetos, Modos e Scorecard dos Agentes
 // [CTXPROJPERSIST01 2026-07-09] Persistencia em DISCO substitui o Map
 // em memoria do B315 original.
@@ -212,6 +212,16 @@ router.delete('/:slug', express.json({ limit: '10kb' }), (req, res) => {
   } catch(e) { return res.status(500).json({ ok:false, error:'falha ao arquivar: '+e.message }); }
 });
 
+// [CTXPREVIEWTOKEN02] emite token EFEMERO de preview (30min, escopo unico
+// ao slug). Protegida pelo gate de auth do router (exige sessao valida).
+router.get('/:slug/preview-token', (req, res) => {
+  const slug = String(req.params.slug || '');
+  if (!/^[a-z0-9-]{1,60}$/.test(slug)) return res.status(400).json({ok:false,error:'slug invalido'});
+  if (!fs.existsSync(path.join(PROJ_DIR, slug, 'project.json'))) return res.status(404).json({ok:false,error:'projeto nao encontrado'});
+  const tk = jwt.sign({ scope:'preview', slug }, JWT_SECRET, { expiresIn:'30m' });
+  res.json({ ok:true, token: tk, expiresIn: 1800 });
+});
+
 // [CTXPREVIEWAUTH01] CONTRATO com o nginx (auth_request subrequest):
 // esta rota responde SO com status; o corpo e' ignorado pelo nginx.
 //   200 -> libera o preview   |   401 -> nega (sem token / token invalido)
@@ -232,8 +242,13 @@ router.get('/:slug/preview-auth', (req, res) => {
   // [CTXPREVIEWAUTHFIX01] token: header tem prioridade, fallback pra query.
   const tk = String(req.headers['x-preview-token'] || req.query._t || '');
   if (!tk) return res.status(401).end();
-  try { jwt.verify(tk, JWT_SECRET); return res.status(200).end(); }
-  catch(e){ return res.status(401).end(); }
+  try {
+    const dec = jwt.verify(tk, JWT_SECRET);
+    // [CTXPREVIEWTOKEN02] se o token tem scope, precisa ser 'preview' E do slug certo.
+    // Tokens de sessao (sem scope) continuam validos -- fallback mantido.
+    if (dec.scope && (dec.scope !== 'preview' || dec.slug !== slug)) return res.status(401).end();
+    return res.status(200).end();
+  } catch(e){ return res.status(401).end(); }
 });
 
 // [CTXPREVIEWAUTH01] alterna publico/privado. SEM auth ainda (ver aviso
