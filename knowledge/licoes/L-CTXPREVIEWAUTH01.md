@@ -66,3 +66,9 @@ seja o mesmo que "e' negado".
   proprio em vez de 1 heredoc gigante (que embaralhou na colagem 2x).
 - Smoke-test (scripts/smoke-preview.sh) criado pra revalidar os 8 casos
   em segundos apos qualquer mudanca futura no proxy.conf.
+
+## Addendum 2026-07-10: dois server.js com mesmo nome
+Existiam ./server.js (raiz, 637 linhas, RODA) e ./api/server.js (271 linhas,
+FANTASMA -- montado e sobrescrito pelo mount seguinte no compose). Custou
+horas de confusao. Principio adotado: nunca dois arquivos com mesmo nome-base
+no projeto; nunca dois mounts do compose pro mesmo destino.
