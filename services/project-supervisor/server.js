@@ -1,5 +1,6 @@
-// ATUALIZADO: 2026-07-11 11:35:39 -03:00 (auto, git pre-commit)
-#!/usr/bin/env node
+// ATUALIZADO: 2026-07-11 12:06:48 -03:00 (auto, git pre-commit)
+// (sem shebang de proposito: o hook de pre-commit prependeria o header
+// ACIMA dele e quebraria o parse; a unit chama /usr/bin/node explicito)
 // project-supervisor — daemon que sobe/derruba UM container por projeto.
 // Fase B (Rodada 7) do Sprint 2. Ver services/project-supervisor/CONTRATO-B1.md
 // e knowledge/metas/RODADA-7-PLANO-CONTAINER-ISOLADO.md.
@@ -165,7 +166,9 @@ function doUp(slug, stackName, cb){
     return cb(429, { ok:false, error:`teto de ${MAX_CONTAINERS} containers vivos atingido (corrida detectada; container desfeito)` });
   }
   console.log(`[project-supervisor] up slug=${slug} stack=${stackName} id=${r.out.slice(0,12)}`);
-  cb(200, { ok:true, slug, stack: stackName, containerName: name, internalPort: stack.internalPort, state: 'running' });
+  // image na resposta: o api grava no runtime o que RODOU de fato (evita
+  // catalogo duplicado no api divergir do daqui) — B4-E2.
+  cb(200, { ok:true, slug, stack: stackName, containerName: name, internalPort: stack.internalPort, image: stack.image, state: 'running' });
 }
 
 function doDown(slug, cb){

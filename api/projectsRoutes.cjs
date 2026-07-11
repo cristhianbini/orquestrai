@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-11 06:44:58 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-11 12:06:48 -03:00 (auto, git pre-commit)
 // [B315] /api/projects — Projetos, Modos e Scorecard dos Agentes
 // [CTXPROJPERSIST01 2026-07-09] Persistencia em DISCO substitui o Map
 // em memoria do B315 original.
@@ -21,6 +21,9 @@ const http = require('http');
 // [A2 2026-07-11] daemon project-runner (fora do Docker, systemd). 172.18.0.1
 // e o IP do HOST na bridge app-net — mesmo padrao do oqterm (proxy.conf).
 const PR_URL = process.env.PROJECT_RUNNER_URL || 'http://172.18.0.1:7655';
+// [B4 2026-07-11] daemon project-supervisor (3o portao root, Fase B). Mesmo
+// padrao do project-runner: systemd fora do Docker, gateway da app-net.
+const PS_URL = process.env.PROJECT_SUPERVISOR_URL || 'http://172.18.0.1:7656';
 // [A2/S2-fix 2026-07-11] lacuna do S2: aqui restava o fallback fraco. Mesmo
 // padrao do server.js — ausencia e FATAL (hoje inalcancavel, pois server.js
 // ja sai antes; mantido por defesa em profundidade).
@@ -116,6 +119,15 @@ function slugify(s) {
     .toLowerCase().replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 60) || 'projeto';
+}
+
+// [B4] mapeamento project.stack -> runtime.stack (CONTRATO-B1 §3). O
+// supervisor RE-valida (allowlist propria); isto e' so fail-fast local.
+function runtimeStack(projectStack){
+  const s = String(projectStack || '');
+  if (s === 'static-html' || s === 'static') return 'static';
+  if (s === 'node-express' || s === 'node') return 'node';
+  return null;
 }
 
 // Le todos os project.json do disco. Arquivo corrompido nao derruba a
@@ -304,6 +316,154 @@ router.post('/:slug/import', express.json({ limit: '10kb' }), (req, res) => {
     if (!res.headersSent) res.status(502).json({ ok:false, error:'project-runner indisponivel: ' + e.message });
   });
   prReq.end(payload);
+});
+
+// [B4-E2] chamada interna ao supervisor (espelha o /import + project-runner):
+// token efemero 120s. Timeout 90s DE PROPOSITO > 60s do `docker run` do
+// daemon — o daemon desiste primeiro e devolve JSON de erro estruturado,
+// em vez de a api abortar a conexao no meio (mesmo desenho do /import,
+// 150s > 120s do clone).
+function callSupervisor(method, psPath, slug, body, cb){
+  const itk = jwt.sign({ sub:'api-deploy', role:'admin', slug }, JWT_SECRET, { expiresIn:'120s' });
+  const payload = body ? JSON.stringify(body) : '';
+  const headers = { authorization: 'Bearer ' + itk };
+  if (body) { headers['content-type'] = 'application/json'; headers['content-length'] = Buffer.byteLength(payload); }
+  let done = false;
+  const fin = (...a) => { if (!done) { done = true; cb(...a); } };
+  const q = http.request(PS_URL + psPath, { method, timeout: 90000, headers }, s => {
+    let b = '';
+    s.on('data', d => { b += d; if (b.length > 65536) q.destroy(new Error('resposta grande demais')); });
+    s.on('end', () => {
+      let out; try { out = JSON.parse(b); } catch(_) { out = null; }
+      fin(null, s.statusCode, out);
+    });
+  });
+  q.on('timeout', () => q.destroy(new Error('timeout na chamada ao supervisor')));
+  q.on('error', e => fin(e));
+  if (body) q.write(payload);
+  q.end();
+}
+// repassa o codigo do supervisor se for HTTP valido; senao 502
+function passCode(code){ return (code >= 400 && code < 600) ? code : 502; }
+
+// [B4 2026-07-11] POST /:slug/deploy — sobe o container do projeto via
+// daemon project-supervisor (services/project-supervisor/, CONTRATO-B1).
+// Gate de promocao MANUAL (§2): so status==='producao'. Fail-fasts locais
+// espelham a validacao do daemon (mesmo desenho /import + project-runner);
+// o daemon RE-valida tudo e so aceita {slug, stack} da allowlist.
+router.post('/:slug/deploy', express.json({ limit: '10kb' }), (req, res) => {
+  if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'super_admin'))
+    return res.status(403).json({ ok:false, error:'apenas admin' });
+  const slug = String(req.params.slug || '');
+  if (!/^[a-z0-9-]{1,60}$/.test(slug)) return res.status(400).json({ ok:false, error:'slug invalido' });
+  const pjPath = path.join(PROJ_DIR, slug, 'project.json');
+  let project;
+  try { project = JSON.parse(fs.readFileSync(pjPath, 'utf8')); }
+  catch(_) { return res.status(404).json({ ok:false, error:'projeto nao encontrado' }); }
+  if (project.status !== 'producao')
+    return res.status(409).json({ ok:false,
+      error:'projeto nao promovido: deploy exige status "producao" (atual: "'+String(project.status||'')+'")' });
+  const stack = runtimeStack(project.stack);
+  if (!stack)
+    return res.status(422).json({ ok:false, error:'stack "'+String(project.stack||'')+'" nao suportada no runtime v1 (so static|node)' });
+  if (stack === 'static' && !fs.existsSync(path.join(PROJ_DIR, slug, 'site')))
+    return res.status(422).json({ ok:false, error:'site/ nao existe para '+slug });
+  callSupervisor('POST', '/up', slug, { slug, stack }, (err, code, out) => {
+    if (err) return res.status(502).json({ ok:false, error:'project-supervisor indisponivel: ' + err.message });
+    if (code !== 200 || !out || !out.ok)
+      // passthrough: 409 ja existe, 429 teto, 422 run falhou, 501 node (B2b), 502 docker
+      return res.status(passCode(code)).json({ ok:false,
+        error: (out && out.error) || ('supervisor respondeu ' + code),
+        detail: out && out.detail });
+    const now = new Date().toISOString();
+    const prev = project.runtime || {};
+    // bloco runtime do CONTRATO-B1 §1; image vem da RESPOSTA do supervisor
+    // (o que rodou de fato, nao um catalogo espelhado aqui)
+    project.runtime = {
+      stack,
+      image: out.image || null,
+      internalPort: out.internalPort,
+      containerName: out.containerName,
+      state: 'running',
+      promotedAt: prev.promotedAt || now,
+      lastDeployAt: now,
+      resources: prev.resources || { memoryMax: '256m', cpus: '0.5', pidsLimit: 128 }
+    };
+    project.updatedAt = now;
+    try {
+      const tmp = pjPath + '.tmp';
+      fs.writeFileSync(tmp, JSON.stringify(project, null, 2));
+      fs.renameSync(tmp, pjPath);
+    } catch(e) {
+      // container ESTA rodando; o json pode ser regravado numa retentativa
+      return res.status(500).json({ ok:false, error:'container subiu mas project.json falhou: ' + e.message, runtime: project.runtime });
+    }
+    res.json({ ok:true, slug, runtime: project.runtime });
+  });
+});
+
+// [B4] POST /:slug/stop — derruba o container via supervisor. Container ja
+// ausente: devolve 404 MAS sincroniza runtime.state='stopped' (self-healing
+// sem mascarar o erro — decisao CBini 2026-07-11).
+router.post('/:slug/stop', express.json({ limit: '10kb' }), (req, res) => {
+  if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'super_admin'))
+    return res.status(403).json({ ok:false, error:'apenas admin' });
+  const slug = String(req.params.slug || '');
+  if (!/^[a-z0-9-]{1,60}$/.test(slug)) return res.status(400).json({ ok:false, error:'slug invalido' });
+  const pjPath = path.join(PROJ_DIR, slug, 'project.json');
+  let project;
+  try { project = JSON.parse(fs.readFileSync(pjPath, 'utf8')); }
+  catch(_) { return res.status(404).json({ ok:false, error:'projeto nao encontrado' }); }
+  callSupervisor('POST', '/down', slug, { slug }, (err, code, out) => {
+    if (err) return res.status(502).json({ ok:false, error:'project-supervisor indisponivel: ' + err.message });
+    // sincroniza runtime.state -> stopped (tmp+rename); devolve erro de
+    // escrita como string para o chamador decidir
+    const syncStopped = () => {
+      if (!project.runtime || project.runtime.state === 'stopped') return null;
+      const now = new Date().toISOString();
+      project.runtime.state = 'stopped';
+      project.runtime.lastStoppedAt = now;
+      project.updatedAt = now;
+      try {
+        const tmp = pjPath + '.tmp';
+        fs.writeFileSync(tmp, JSON.stringify(project, null, 2));
+        fs.renameSync(tmp, pjPath);
+        return null;
+      } catch(e) { return e.message; }
+    };
+    if (code === 200 && out && out.ok) {
+      const werr = syncStopped();
+      if (werr) return res.status(500).json({ ok:false, error:'container parou mas project.json falhou: ' + werr });
+      return res.json({ ok:true, slug, runtime: project.runtime || null });
+    }
+    if (code === 404) {
+      // container ja ausente: 404 SEM mascarar, mas com self-healing do
+      // estado gravado (decisao CBini 2026-07-11)
+      const werr = syncStopped();
+      return res.status(404).json({ ok:false, error: (out && out.error) || 'container nao existe',
+        runtimeSynced: !werr, ...(werr ? { syncError: werr } : {}) });
+    }
+    return res.status(passCode(code)).json({ ok:false,
+      error: (out && out.error) || ('supervisor respondeu ' + code), detail: out && out.detail });
+  });
+});
+
+// [B4] GET /:slug/runtime — bloco runtime do project.json + estado VIVO do
+// container via supervisor. Read-only (nao grava reconciliacao em GET).
+// Auth de SESSAO (nao admin): sem dado sensivel — decisao CBini 2026-07-11.
+router.get('/:slug/runtime', (req, res) => {
+  const slug = String(req.params.slug || '');
+  if (!/^[a-z0-9-]{1,60}$/.test(slug)) return res.status(400).json({ ok:false, error:'slug invalido' });
+  let project;
+  try { project = JSON.parse(fs.readFileSync(path.join(PROJ_DIR, slug, 'project.json'), 'utf8')); }
+  catch(_) { return res.status(404).json({ ok:false, error:'projeto nao encontrado' }); }
+  callSupervisor('GET', '/status/' + slug, slug, null, (err, code, out) => {
+    // supervisor fora nao quebra o front: live='unknown' + aviso, 200 mesmo
+    if (err || code !== 200 || !out || !out.ok)
+      return res.json({ ok:true, slug, runtime: project.runtime || null, live: 'unknown',
+        supervisorError: err ? err.message : ((out && out.error) || ('status ' + code)) });
+    res.json({ ok:true, slug, runtime: project.runtime || null, live: out.state });
+  });
 });
 
 // [CTXPREVIEWTOKEN02] emite token EFEMERO de preview (30min, escopo unico
