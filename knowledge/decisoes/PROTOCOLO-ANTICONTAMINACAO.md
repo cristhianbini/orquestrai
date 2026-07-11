@@ -23,7 +23,9 @@ direcao errada.
 ## 3. FONTES CANONICAS (unicas fontes de verdade sobre o estado atual)
 1. O SISTEMA VIVO: arquivos em /var/www/orquestrai lidos NESTA sessao,
    saida de docker/curl/sqlite NESTA sessao. Nada supera isso.
-2. roadmap.md (planejamento vigente) e RODADA-N-PLANO.md (sprint vigente).
+2. knowledge/metas/ROADMAP-FUTURO.md (planejamento vigente — CANONICO desde
+   2026-07-11; o antigo knowledge/roadmap.md foi superado, hoje e so um
+   redirect) e RODADA-N-PLANO.md (sprint vigente).
 3. knowledge/metas/HANDOFF-POS-FABLE.md (estado entre sessoes — mas
    VERIFICAR no vivo antes de agir: L-CTXHANDOFFVERIFY01).
 4. knowledge/licoes/ com PROJETO: orquestrai.
