@@ -84,3 +84,25 @@ cada um for promovido a uma rodada:
   (benchmark padronizado de modelos por posicao).
 - Multi-tenant + billing + DPA/LGPD + docs publicas + hardening (fase GA,
   conecta com item #9 EXPANSAO).
+
+## Sprint 2 — Import GitHub (item #2, em andamento)
+Status 2026-07-11: **Fase A0 concluida** (daemon project-runner) — ver
+services/project-runner/ e commit 93a2bbf. Executor privilegiado isolado
+(usuario projrunner, nao-root, systemd hardening ProtectSystem=strict,
+score 3.9), valida JWT+path-guard, clona via git com --depth 1 + limite
+de tamanho + timeout, staging atomico em projects/.staging/. 5/5 testes
+de seguranca passaram.
+
+**Pendente:**
+- Fase A2: integracao com api/projectsRoutes.cjs (rota POST /:slug/import,
+  chamada ao daemon em 127.0.0.1:7655, mv atomico do staging para
+  projects/{slug}/repo/, criar project.json, ignorar .staging na listagem).
+  Vai exigir restart do container api -- tratar com o mesmo rigor do S1/S2
+  (validacao intermediaria, sem encadear mudancas).
+- Fase B (container isolado por projeto) e Fase C (preview conteinerizado):
+  ainda no desenho, nao iniciadas.
+- Melhoria pequena: adicionar UMask=0027 na unit project-runner.service
+  (eleva o score systemd-analyze; nao bloqueante). Fazer junto da Fase A2.
+- Achado do escopo: .staging/ dentro de projects/ e workaround para nao
+  mexer no compose agora -- api (Fase A2) precisa filtrar .staging da
+  listagem de projetos.
