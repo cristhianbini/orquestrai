@@ -119,11 +119,13 @@ Status 2026-07-11 (2a sessao): **Fases A0 e A2 concluidas.**
   - [BAIXA] mas/auth.mjs:27 -- codigo OK (sem fallback); so o COMENTARIO
     esta obsoleto (cita fallback do server.js que o S2 removeu) e o
     console.error poderia ser exit(1). Corrigir quando tocar no arquivo.
-  - [MEDIA] ADMIN_PASSWORD ausente no .env -- api sobe com senha padrao
-    hardcoded (versionada). Atenuante VERIFICADO: TOTP enabled=1 p/ admin
-    desde 2026-07-01 e o login exige o codigo (need_totp). Acao da CBini:
-    definir ADMIN_PASSWORD no .env + force-recreate (nao restart) na
-    proxima janela.
+  - [CORRIGIDO] ADMIN_PASSWORD -- definida no .env pela CBini (valor nunca
+    manuseado pelo assistente) + docker compose up -d --force-recreate api
+    (relê .env; restart NAO releria -- L-INFRA01). Validado: warning
+    CTXAUTH2FA01 sumiu do boot (senha do .env em uso); senha padrao antiga
+    'OrquestrAI@2025' agora da 401 "senha incorretos"; senha nova chega ao
+    gate TOTP (need_totp=true). Login exige Turnstile na 1a chamada +
+    TOTP -- defesa em 2 camadas alem da senha.
 - Rotas GET /modes e /scorecard de projectsRoutes.cjs sao inalcancaveis
   (sombreadas por GET /:slug, definidas depois) -- bug pre-existente,
   corrigir quando tocar no arquivo de novo.
