@@ -1,0 +1,872 @@
+
+======================================================================
+== META
+======================================================================
+gerado em 20260710-093624
+base: /var/www/orquestrai
+proposito: auditoria externa read-only
+
+======================================================================
+== SISTEMA
+======================================================================
+Linux cbini 6.8.0-117-generic #117-Ubuntu SMP PREEMPT_DYNAMIC Tue May  5 19:26:24 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        96G   12G   85G  12% /
+/dev/sda1        96G   12G   85G  12% /
+               total        used        free      shared  buff/cache   available
+Mem:           7.8Gi       2.0Gi       423Mi       1.6Mi       5.7Gi       5.8Gi
+Swap:             0B          0B          0B
+ 09:36:24 up 56 days, 44 min,  3 users,  load average: 0.13, 0.12, 0.09
+
+
+======================================================================
+== DOCKER: containers
+======================================================================
+NAMES              STATUS         PORTS
+orquestrai-proxy   Up 22 hours    0.0.0.0:80->80/tcp, [::]:80->80/tcp, 0.0.0.0:443->443/tcp, [::]:443->443/tcp
+orquestrai-api     Up 2 minutes   3000/tcp
+orquestrai-web     Up 8 days      80/tcp
+
+
+======================================================================
+== DOCKER: mounts REAIS por container (inspect, nao compose)
+======================================================================
+
+--- orquestrai-proxy ---
+/var/www/orquestrai/nginx/proxy.conf -> /etc/nginx/conf.d/default.conf (ro=false)
+/var/www/orquestrai/nginx/limits.conf -> /etc/nginx/conf.d/00-limits.conf (ro=false)
+/var/www/orquestrai/nginx/logs -> /var/log/nginx (ro=true)
+/etc/letsencrypt -> /etc/letsencrypt (ro=false)
+/var/www/certbot -> /var/www/certbot (ro=false)
+/var/www/orquestrai/projects -> /var/www/orquestrai/projects (ro=false)
+
+
+--- orquestrai-api ---
+/var/www/orquestrai/api/laveRoutes.cjs -> /app/laveRoutes.cjs (ro=false)
+/var/www/orquestrai/api/blocoMemoryRoutes.cjs -> /app/blocoMemoryRoutes.cjs (ro=false)
+/var/www/orquestrai/data -> /var/www/orquestrai/data (ro=true)
+/var/www/orquestrai/knowledge -> /app/knowledge (ro=true)
+/var/www/orquestrai/server.js -> /app/server.js (ro=false)
+/var/www/orquestrai/projects -> /app/projects (ro=true)
+/var/www/orquestrai/api/providers.cjs -> /app/providers.cjs (ro=false)
+/var/www/orquestrai/mas -> /app/mas (ro=false)
+/var/www/orquestrai/api/projectsRoutes.cjs -> /app/projectsRoutes.cjs (ro=false)
+/var/www/orquestrai/api/knowledgeRoutes.cjs -> /app/knowledgeRoutes.cjs (ro=false)
+/var/www/orquestrai/data -> /app/data (ro=true)
+/var/www/orquestrai/licoesRoutes.cjs -> /app/licoesRoutes.cjs (ro=false)
+/var/www/orquestrai/api/blocosRoutes.cjs -> /app/blocosRoutes.cjs (ro=false)
+/var/www/orquestrai/api/clusterRoutes.cjs -> /app/clusterRoutes.cjs (ro=false)
+/var/www/orquestrai/api -> /app/api (ro=false)
+
+
+--- orquestrai-web ---
+/var/www/orquestrai/src -> /usr/share/nginx/html (ro=false)
+/var/www/orquestrai/nginx-web/default.conf -> /etc/nginx/conf.d/default.conf (ro=false)
+
+
+
+======================================================================
+== DOCKER-COMPOSE (arquivo)
+======================================================================
+services:
+  web:
+    image: nginx:alpine
+    container_name: orquestrai-web
+    restart: unless-stopped
+    volumes:
+      - ./src:/usr/share/nginx/html:ro
+      - ./nginx-web/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - app-net
+
+  api:
+    environment:
+      - LAVE_BASE=/var/www/orquestrai
+    build: ./api
+    container_name: orquestrai-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - app-net
+
+    volumes:
+      - ./data:/var/www/orquestrai/data
+      - ./api:/app/api:ro
+      - ./api/knowledgeRoutes.cjs:/app/knowledgeRoutes.cjs:ro
+      - ./api/providers.cjs:/app/providers.cjs:ro
+      - ./api/server.js:/app/server.js:ro
+      - ./api/clusterRoutes.cjs:/app/clusterRoutes.cjs:ro
+      - ./api/blocosRoutes.cjs:/app/blocosRoutes.cjs:ro
+      - ./api/laveRoutes.cjs:/app/laveRoutes.cjs:ro
+      - ./api/blocoMemoryRoutes.cjs:/app/blocoMemoryRoutes.cjs:ro
+      - ./licoesRoutes.cjs:/app/licoesRoutes.cjs:ro
+      - ./api/projectsRoutes.cjs:/app/projectsRoutes.cjs:ro
+      - ./knowledge:/app/knowledge
+      - ./projects:/app/projects
+      - ./server.js:/app/server.js:ro
+      - ./mas:/app/mas:ro
+      - ./data:/app/data
+  proxy:
+    image: nginx:alpine
+    container_name: orquestrai-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/proxy.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/limits.conf:/etc/nginx/conf.d/00-limits.conf:ro
+      - ./nginx/logs:/var/log/nginx
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
+      # [CTXPREVIEWMOUNT01 2026-07-09] preview do mesh: nginx precisa
+      # enxergar projects/{slug}/site/ para servir os arquivos estaticos
+      - ./projects:/var/www/orquestrai/projects:ro
+    depends_on:
+      - web
+      - api
+    networks:
+      - app-net
+
+networks:
+  app-net:
+    driver: bridge
+
+
+======================================================================
+== ALERTA: mounts duplicados p/ mesmo destino no compose
+======================================================================
+: unless-stopped
+:/app/server.js:ro
+:/etc/nginx/conf.d/default.conf:ro
+:alpine
+
+
+======================================================================
+== ALERTA: arquivos com MESMO NOME-BASE (principio anti-duplicata)
+======================================================================
+server.js:
+  /var/www/orquestrai/server.js
+  /var/www/orquestrai/api/server.js
+index-SiFHkoEp.js:
+  /var/www/orquestrai/src/assets/index-SiFHkoEp.js
+  /var/www/orquestrai/frontend-vite/dist/assets/index-SiFHkoEp.js
+agent-panel-island.js:
+  /var/www/orquestrai/src/island/agent-panel-island.js
+  /var/www/orquestrai/frontend-vite/dist-island/agent-panel-island.js
+
+======================================================================
+== NGINX: proxy.conf
+======================================================================
+# S3/CTXNGINXQS01 (2026-07-07): formato de log SEM query string.
+# Usado nos locations onde o JWT viaja na URL (?_t=) -- term/ws e
+# mas/events|run. Loga $uri (path puro) no lugar de $request (que
+# inclui a query completa e vazava o token pro access.log; achado A7).
+log_format noquery '$remote_addr - $remote_user [$time_local] "$request_method $uri" $status $body_bytes_sent "$http_referer" "$http_user_agent"';
+
+
+resolver 127.0.0.11 valid=10s ipv6=off;
+
+# =====================================================================
+# ARQUITETURA DESTE PROXY (proxy.conf) -- leia antes de editar
+# =====================================================================
+# Dois server{} para o mesmo dominio:
+#   * server listen 80  (HTTP)  -> so ACME (certbot) + redirect 301 p/ HTTPS.
+#                                  Nao serve nada real; tudo vai pro 443.
+#   * server listen 443 (HTTPS) -> onde TUDO acontece (app, api, preview).
+#
+# UPSTREAMS:
+#   * web  = orquestrai-web:80    (nginx que serve o SPA/dashboard)
+#   * api  = orquestrai-api:3000  (Express: auth, mas, projects, etc)
+#   * oqterm = 172.18.0.1:7654    (PTY daemon, fora do Docker)
+#
+# PREVIEW DE PROJETOS (/projects/{slug}/site/) -- 3 locations no bloco 443,
+# nesta ordem (regex e' avaliada na ordem do arquivo, primeira que casa vence):
+#   1. location ~ ^/projects/([a-z0-9-]+)/site/  -> serve o site estatico do
+#      projeto, protegido por auth_request. Publico: libera; privado: exige
+#      ?_t=<jwt>. Usa 'root' + try_files (NAO 'alias' -- ver comentario la).
+#   2. location = /internal/preview-auth-443     -> subrequisicao interna de
+#      auth (match EXATO, nunca perde pro catch-all). Recebe slug/token por
+#      HEADER da location 1 e pergunta pra API se libera.
+#   3. location ~ ^/projects/([a-z0-9-]+)/        -> tudo que nao e' /site/
+#      (project.json, docs/) -> 403. Impede vazamento de dados do projeto.
+#
+# Historico do fix (sessao 2026-07-09/10): ver knowledge/licoes/ e os CTXIDs
+# CTXPREVIEWMOUNT01, CTXPREVIEWAUTHFIX02, CTXPREVIEWALIASFIX01, CTXPREVIEWBLOCK403.
+# =====================================================================
+
+
+server {
+    listen 80;
+    server_name orquestrai.cbini.com.br;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    # [CTXPREVIEWCLEANUP80 2026-07-10] preview so existe no bloco 443
+    # (HTTPS). Em HTTP, o 'location /' abaixo (301 https) cobre /projects/.
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+
+    # >>> OQ-58d LAVE CORS+SSE >>>
+    set $cors_ok ''; # CTXSEC02: regra Lovable removida -- nunca usada em producao
+    # B12_OQTERM_HEALTH
+    location = /api/oqterm/health {
+        proxy_pass http://172.18.0.1:7654/healthz;
+        proxy_http_version 1.1;
+        proxy_set_header Host 172.18.0.1:7654;
+        proxy_connect_timeout 3s;
+        proxy_read_timeout 3s;
+        add_header Cache-Control "no-store" always;
+    }
+    location ^~ /api/term/ws {
+        # S3/CTXNGINXQS01: token JWT viaja em ?_t= aqui -- log sem query
+        access_log /var/log/nginx/access.log noquery;
+        proxy_pass http://172.18.0.1:7654;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host 172.18.0.1:7654;
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+    }
+
+
+    location ~ ^/api/blocos/[^/]+/stream$ {
+        proxy_pass http://api:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Authorization $http_authorization;
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_read_timeout 24h;
+        chunked_transfer_encoding on;
+        add_header X-Accel-Buffering no always;
+        if ($cors_ok = 'yes') { add_header Access-Control-Allow-Origin $http_origin always; }
+        add_header Access-Control-Allow-Credentials true always;
+    }
+    location ^~ /api/blocos {
+        if ($request_method = OPTIONS) {
+            add_header Access-Control-Allow-Origin $http_origin always;
+            add_header Access-Control-Allow-Methods 'GET, POST, PUT, DELETE, OPTIONS' always;
+            add_header Access-Control-Allow-Headers 'Authorization, Content-Type, Accept, X-Requested-With' always;
+            add_header Access-Control-Max-Age 86400 always;
+            add_header Content-Length 0;
+            return 204;
+        }
+        proxy_pass http://api:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Authorization $http_authorization;
+        if ($cors_ok = 'yes') { add_header Access-Control-Allow-Origin $http_origin always; }
+        add_header Access-Control-Allow-Credentials true always;
+    }
+    # <<< OQ-58d LAVE CORS+SSE <<<
+}
+
+server {
+    listen 443 ssl; http2 on; # CTXNGINX01: sintaxe moderna (deprecation warning corrigido)
+    server_name orquestrai.cbini.com.br;
+
+    ssl_certificate /etc/letsencrypt/live/orquestrai.cbini.com.br/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/orquestrai.cbini.com.br/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers off;
+
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    gzip on;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types text/plain text/css text/xml application/json application/javascript application/xml+rss image/svg+xml;
+
+    # >>> OQ-67a21 WS canonical >>>
+    # B13_OQTERM_HEALTH
+    location = /api/oqterm/health {
+        proxy_pass http://172.18.0.1:7654/healthz;
+        proxy_http_version 1.1;
+        proxy_set_header Host 172.18.0.1:7654;
+        proxy_connect_timeout 3s;
+        proxy_read_timeout 3s;
+        add_header Cache-Control "no-store" always;
+    }
+    location = /api/term/ws {
+        # S3/CTXNGINXQS01: token JWT viaja em ?_t= aqui -- log sem query
+        access_log /var/log/nginx/access.log noquery;
+        limit_req zone=oq_term burst=15 nodelay;  # B28_TERM_RL
+        proxy_pass http://172.18.0.1:7654;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host 172.18.0.1:7654;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_buffering off;
+        proxy_read_timeout 24h;
+        proxy_send_timeout 24h;
+    }
+    # <<< OQ-67a21 WS canonical <<<
+
+    # [CTXPREVIEWAUTH03] LOCATION 1: serve o site estatico do projeto.
+    # Protegida por auth_request (subreq p/ a API decidir publico/privado).
+    # set $preview_slug/$preview_token: capturam slug e ?_t= AQUI para
+    # repassar por HEADER a location interna -- NAO usar $1 cru na diretiva
+    # auth_request (isso roteava a subreq pro catch-all web:80 em vez da
+    # location de auth; foi a causa raiz do bug de 2026-07-09, ver licao).
+    location ~ ^/projects/([a-z0-9-]+)/site/ {
+        set $preview_slug $1;
+        set $preview_token $arg__t;
+        auth_request /internal/preview-auth-443;
+        access_log /var/log/nginx/access.log noquery;
+        # ROOT, nao ALIAS: 'alias' + location regex + try_files e' antipadrao
+        # do nginx -- com alias, $uri no try_files vira o path completo da
+        # request, gerando caminho duplicado e 404 mesmo com o arquivo certo
+        # no disco. Com 'root', o path da URL e' anexado ao root e bate com
+        # o layout real (/var/www/orquestrai + /projects/{slug}/site/...).
+        root /var/www/orquestrai;
+        add_header Content-Security-Policy "default-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; frame-ancestors 'self'" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        try_files $uri $uri/ /projects/$preview_slug/site/index.html =404;
+    }
+    # [CTXPREVIEWBLOCK403] tudo sob /projects/ que NAO seja /site/ -> 403
+    # (project.json, docs/, etc). A location /site/ vem antes e vence por
+    # ordem de regex nos paths com /site/; o resto cai aqui.
+    location ~ ^/projects/([a-z0-9-]+)/ {
+        return 403;
+    }
+
+    # [CTXPREVIEWAUTH03] LOCATION 2: subrequisicao interna de auth, chamada
+    # pelo auth_request da LOCATION 1. 'internal' = inacessivel de fora.
+    # location = (MATCH EXATO): de proposito -- tem a maior precedencia do
+    # nginx, entao NUNCA perde a subreq pro catch-all 'location /' (era o
+    # que acontecia com regex+$1: a subreq caia no web:80 e o auth sempre
+    # "passava", liberando preview privado sem token). Recebe slug e token
+    # por HEADER (X-Preview-Slug/X-Preview-Token, setados na LOCATION 1) e
+    # repassa pra API, que responde 200 (libera) ou 401 (nega). Sufixo -443
+    # mantem o nome unico vs. o bloco 80 (nomes internos sao por server{}).
+    location = /internal/preview-auth-443 {
+        internal;
+        access_log off;
+        proxy_pass http://api:3000/api/projects/$preview_slug/preview-auth;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+        proxy_set_header X-Preview-Slug $preview_slug;
+        proxy_set_header X-Preview-Token $preview_token;
+    }
+
+    # B28_AUTH_RL — rate-limit para endpoints de autenticacao
+    location ^~ /api/auth/ {
+        limit_req zone=oq_auth burst=20 nodelay;
+        set $upstream_api http://orquestrai-api:3000;
+        proxy_pass $upstream_api;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 30s;
+    }
+
+    # CTXSSE01: SSE do MAS precisa de buffer off + timeout longo (runs de 1-2 min)
+    location ~* ^/api/mas/(events|run) {
+        # S3/CTXNGINXQS01: token JWT viaja em ?_t= aqui -- log sem query
+        access_log /var/log/nginx/access.log noquery;
+        set $upstream_api http://orquestrai-api:3000;
+        proxy_pass $upstream_api;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Connection '';
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_read_timeout 300s;
+        proxy_send_timeout 300s;
+        chunked_transfer_encoding on;
+        add_header X-Accel-Buffering no always;
+        add_header Cache-Control no-cache always;
+    }
+
+    location /api/ {
+        set $upstream_api http://orquestrai-api:3000;
+        proxy_pass $upstream_api;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 120s;
+        proxy_send_timeout 120s;
+    }
+location / {
+        set $upstream_web http://orquestrai-web:80;
+        proxy_pass $upstream_web;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    error_page 502 503 504 /50x.html;
+    location = /50x.html {
+        return 502 "upstream temporariamente indisponivel";
+    }
+}
+
+
+======================================================================
+== NGINX: limits.conf
+======================================================================
+# B29c — zonas de rate-limit
+limit_req_zone $binary_remote_addr zone=oq_auth:10m  rate=60r/m;
+limit_req_zone $binary_remote_addr zone=oq_login:10m rate=10r/m;
+limit_req_zone $binary_remote_addr zone=oq_term:10m  rate=30r/m;
+limit_req_status 429;
+limit_req_log_level warn;
+
+
+======================================================================
+== API: rotas definidas (todos os *Routes + server.js raiz)
+======================================================================
+/var/www/orquestrai/server.js:25:app.use(cors());
+/var/www/orquestrai/server.js:26:app.use(express.json());
+/var/www/orquestrai/server.js:67:app.use('/api/', limiter);
+/var/www/orquestrai/server.js:161:app.get('/api/auth/2fa/status', authMiddleware, (req,res)=>{
+/var/www/orquestrai/server.js:165:app.post('/api/auth/2fa/setup', authMiddleware, async (req,res)=>{
+/var/www/orquestrai/server.js:189:app.post('/api/auth/2fa/verify', authMiddleware, (req,res)=>{
+/var/www/orquestrai/server.js:197:app.post('/api/auth/2fa/disable', authMiddleware, (req,res)=>{
+/var/www/orquestrai/server.js:212:app.post('/api/login', async (req,res)=>{
+/var/www/orquestrai/server.js:269:app.get('/api/me', (req, res) => {
+/var/www/orquestrai/server.js:279:app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
+/var/www/orquestrai/server.js:280:app.get('/api/version', (req, res) => { // CTXVER01
+/var/www/orquestrai/server.js:290:app.post('/api/chat', authMiddleware, async (req,res)=>{
+/var/www/orquestrai/server.js:303:app.post('/api/execute', async (req, res) => {
+/var/www/orquestrai/server.js:321:app.post('/api/session/clear', (req, res) => {
+/var/www/orquestrai/server.js:332:app.get('/api/providers', authMiddleware, (req,res)=>{ try{ res.json(Providers.publicList()); }catch(e){ res.status(500).json({error:e.message}); } });
+/var/www/orquestrai/server.js:333:app.post('/api/providers/:id/key', kbLimiter, authMiddleware, (req,res)=>{ try{ Providers.setKey(req.params.id, req.body.key); res.json({ok:true}); }catch(e){ res.status(400).json({error:e.message}); } });
+/var/www/orquestrai/server.js:334:app.post('/api/providers/:id/test', kbLimiter, authMiddleware, async (req,res)=>{ try{ const r = await Providers.test(req.params.id); res.json({ok:true, sample: (r.content||'').slice(0,80)}); }catch(e){ res.status(400).json({error:e.message}); } });
+/var/www/orquestrai/server.js:338:app.use("/api/conversations", authMiddleware, conversationsRouter);
+/var/www/orquestrai/server.js:351:app.use('/api/mas', masRoutes);
+/var/www/orquestrai/server.js:352:app.use('/api/licoes', licoesRoutes); // B263
+/var/www/orquestrai/server.js:356:app.use('/api/mas/retention', authMiddleware, retentionRoutes);
+/var/www/orquestrai/server.js:361:app.use('/api/projects', projectsRoutes(authMiddleware));
+/var/www/orquestrai/server.js:368:app.post('/api/bloco/feedback', express.json(), (req, res) => {
+/var/www/orquestrai/server.js:395:app.get('/api/agents/cards', (req, res) => {
+/var/www/orquestrai/server.js:428:app.post('/api/agents/create', kbLimiter, authMiddleware, express.json(), (req, res) => { // CTXAGENTAUTH01: auth adicionado
+/var/www/orquestrai/server.js:543:app.post('/api/agents/train', kbLimiter, authMiddleware, express.json(), async (req, res) => {
+/var/www/orquestrai/server.js:570:app.get("/api/providers/:id/models", authMiddleware, async (req,res)=>{
+/var/www/orquestrai/server.js:584:app.post('/api/agents/position', kbLimiter, authMiddleware, (req, res) => {
+/var/www/orquestrai/server.js:628:app.get('/api/agents/positions', authMiddleware, (req, res) => {
+/var/www/orquestrai/api/blocosRoutes.cjs:98:  app.get('/api/agents/score', requireAuth, (req, res) => {
+/var/www/orquestrai/api/blocosRoutes.cjs:122:  app.post('/api/blocos/preparar', requireAuth, (req, res) => {
+/var/www/orquestrai/api/blocosRoutes.cjs:154:  app.post('/api/blocos/executar/:id', requireAuth, (req, res) => {
+/var/www/orquestrai/api/blocosRoutes.cjs:196:  app.get('/api/blocos/:id/stream', (req, res) => {
+/var/www/orquestrai/api/blocosRoutes.cjs:222:  app.get('/api/execucoes/verify-chain', requireAuth, (req, res) => {
+/var/www/orquestrai/api/blocosRoutes.cjs:243:  app.post('/api/blocos/oqterm-log', requireAuth, (req, res) => {
+/var/www/orquestrai/api/blocosRoutes.cjs:271:  app.get('/api/blocos/historico', requireAuth, (req, res) => {
+/var/www/orquestrai/api/blocosRoutes.cjs:277:  app.get('/api/blocos/:id', requireAuth, (req, res) => {
+/var/www/orquestrai/api/blocoMemoryRoutes.cjs:44:router.post('/bloco', express.json({limit:'8mb'}), (req,res)=>{
+/var/www/orquestrai/api/blocoMemoryRoutes.cjs:63:router.get('/recentes', (req,res)=>{ res.json({ok:true, licoes:readMdList('licoes',12), blocos:readMdList('blocos',8)}); });
+/var/www/orquestrai/api/blocoMemoryRoutes.cjs:64:router.get('/counter', (req,res)=>{ res.json({ok:true, counter:loadCounter()}); });
+/var/www/orquestrai/api/blocoMemoryRoutes.cjs:65:module.exports = function(app){ app.use('/api/memory', router); console.log('[BLOCO-1] /api/memory montado com auth propria'); };
+/var/www/orquestrai/api/clusterRoutes.cjs:44:  app.post('/api/cluster/meta', requireAuth, (req,res)=>{
+/var/www/orquestrai/api/clusterRoutes.cjs:67:  app.get('/api/cluster/meta/:id', requireAuth, (req,res)=>{
+/var/www/orquestrai/api/clusterRoutes.cjs:80:  app.get('/api/cluster/metas', requireAuth, (req,res)=>{
+/var/www/orquestrai/api/clusterRoutes.cjs:86:  app.post('/api/cluster/meta/:id/iterar', requireAuth, (req,res)=>{
+/var/www/orquestrai/api/clusterRoutes.cjs:109:  app.post('/api/cluster/meta/:id/licao', requireAuth, (req,res)=>{
+/var/www/orquestrai/api/clusterRoutes.cjs:124:  app.get('/api/cluster/meta/:id/stream', requireAuth, (req, res) => {
+/var/www/orquestrai/api/projectsRoutes.cjs:124:router.get('/', (req, res) => {
+/var/www/orquestrai/api/projectsRoutes.cjs:129:router.post('/', express.json({ limit: '1mb' }), (req, res) => {
+/var/www/orquestrai/api/projectsRoutes.cjs:169:router.get('/:slug', (req, res) => {
+/var/www/orquestrai/api/projectsRoutes.cjs:186:router.get('/:slug/docs/:file', (req, res) => {
+/var/www/orquestrai/api/projectsRoutes.cjs:198:router.delete('/:slug', express.json({ limit: '10kb' }), (req, res) => {
+/var/www/orquestrai/api/projectsRoutes.cjs:224:router.get('/:slug/preview-auth', (req, res) => {
+/var/www/orquestrai/api/projectsRoutes.cjs:241:router.patch('/:slug', express.json({ limit: '10kb' }), (req, res) => {
+/var/www/orquestrai/api/projectsRoutes.cjs:258:router.get('/modes', (req, res) => {
+/var/www/orquestrai/api/projectsRoutes.cjs:262:router.get('/scorecard', (req, res) => {
+/var/www/orquestrai/api/laveRoutes.cjs:151:  app.get('/api/lave/blocos', _a, (req,res)=>{
+/var/www/orquestrai/api/laveRoutes.cjs:156:  app.post('/api/lave/blocos', _a, (req,res)=>{
+/var/www/orquestrai/api/laveRoutes.cjs:167:  app.patch('/api/lave/blocos/:id', _a, (req,res)=>{
+/var/www/orquestrai/api/laveRoutes.cjs:175:  app.get('/api/lave/stream', (req,res)=>{
+/var/www/orquestrai/api/laveRoutes.cjs:184:  app.get('/api/lave/status', (req,res)=>{
+/var/www/orquestrai/api/knowledgeRoutes.cjs:18:  app.get('/api/knowledge/_cats',mw,(req,res)=>{const out=CATS.map(c=>{try{return{cat:c,count:fs.readdirSync(path.join(ROOT,c)).filter(f=>f.endsWith('.md')).length}}catch(e){return{cat:c,count:0}}});res.json({ok:true,root:ROOT,cats:out});});
+/var/www/orquestrai/api/knowledgeRoutes.cjs:19:  app.get('/api/knowledge/:cat',mw,(req,res)=>{
+/var/www/orquestrai/api/retentionRoutes.cjs:56:router.get('/status', (req, res) => {
+/var/www/orquestrai/api/retentionRoutes.cjs:67:router.post('/run', (req, res) => {
+
+
+======================================================================
+== API: cobertura de auth (linhas com authMiddleware)
+======================================================================
+/var/www/orquestrai/server.js:34:function authMiddleware(req,res,next){
+/var/www/orquestrai/server.js:161:app.get('/api/auth/2fa/status', authMiddleware, (req,res)=>{
+/var/www/orquestrai/server.js:165:app.post('/api/auth/2fa/setup', authMiddleware, async (req,res)=>{
+/var/www/orquestrai/server.js:189:app.post('/api/auth/2fa/verify', authMiddleware, (req,res)=>{
+/var/www/orquestrai/server.js:197:app.post('/api/auth/2fa/disable', authMiddleware, (req,res)=>{
+/var/www/orquestrai/server.js:290:app.post('/api/chat', authMiddleware, async (req,res)=>{
+/var/www/orquestrai/server.js:332:app.get('/api/providers', authMiddleware, (req,res)=>{ try{ res.json(Providers.publicList()); }catch(e){ res.status(500).json({error:e.message}); } });
+/var/www/orquestrai/server.js:333:app.post('/api/providers/:id/key', kbLimiter, authMiddleware, (req,res)=>{ try{ Providers.setKey(req.params.id, req.body.key); res.json({ok:true}); }catch(e){ res.status(400).json({error:e.message}); } });
+/var/www/orquestrai/server.js:334:app.post('/api/providers/:id/test', kbLimiter, authMiddleware, async (req,res)=>{ try{ const r = await Providers.test(req.params.id); res.json({ok:true, sample: (r.content||'').slice(0,80)}); }catch(e){ res.status(400).json({error:e.message}); } });
+/var/www/orquestrai/server.js:338:app.use("/api/conversations", authMiddleware, conversationsRouter);
+/var/www/orquestrai/server.js:341:if(typeof _oqKnowledge==="function"){ try{ _oqKnowledge(app, authMiddleware); console.log("[OQ46Z2] /api/knowledge montado via fn"); }catch(e){ console.error("[OQ46Z2] mount fail", e.message);} }
+/var/www/orquestrai/server.js:344:if(typeof _oqCluster==="function"){ try{ const _auth = (typeof authMiddleware==="function"?authMiddleware:(typeof authMiddleware==="function"?authMiddleware:(req,res,next)=>next())); _oqCluster(app, _auth); console.log("[OQ48A] /api/cluster montado"); }catch(e){ console.error("[OQ48A] mount fail", e.message);} }
+/var/www/orquestrai/server.js:345:if(typeof _oqBlocos==="function"){ try{ const _ab=(typeof authMiddleware==="function"?authMiddleware:(typeof authMiddleware==="function"?authMiddleware:(req,res,next)=>next())); _oqBlocos(app, _ab); console.log("[OQ58A] /api/blocos montado"); }catch(e){ console.error("[OQ58A] mount fail", e.message);} }
+/var/www/orquestrai/server.js:346:if(typeof _oqLave==="function"){ try{ const _al=(typeof authMiddleware==="function"?authMiddleware:(req,res,next)=>next()); _oqLave(app, _al); console.log("[OQ70] /api/lave montado"); }catch(e){ console.error("[OQ70] lave mount fail", e.message);} }
+/var/www/orquestrai/server.js:356:app.use('/api/mas/retention', authMiddleware, retentionRoutes);
+/var/www/orquestrai/server.js:359:// [CTXPROJAUTH01] factory recebe authMiddleware -- protege tudo exceto
+/var/www/orquestrai/server.js:361:app.use('/api/projects', projectsRoutes(authMiddleware));
+/var/www/orquestrai/server.js:428:app.post('/api/agents/create', kbLimiter, authMiddleware, express.json(), (req, res) => { // CTXAGENTAUTH01: auth adicionado
+/var/www/orquestrai/server.js:543:app.post('/api/agents/train', kbLimiter, authMiddleware, express.json(), async (req, res) => {
+/var/www/orquestrai/server.js:570:app.get("/api/providers/:id/models", authMiddleware, async (req,res)=>{
+/var/www/orquestrai/server.js:584:app.post('/api/agents/position', kbLimiter, authMiddleware, (req, res) => {
+/var/www/orquestrai/server.js:628:app.get('/api/agents/positions', authMiddleware, (req, res) => {
+/var/www/orquestrai/api/projectsRoutes.cjs:23:// [CTXPROJAUTH01] factory: recebe authMiddleware do server.js e protege
+/var/www/orquestrai/api/projectsRoutes.cjs:25:module.exports = function(authMiddleware){
+/var/www/orquestrai/api/projectsRoutes.cjs:31:  return authMiddleware(req, res, next);
+
+
+======================================================================
+== PORTAS abertas no host
+======================================================================
+State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess                                                    
+LISTEN 0      70         127.0.0.1:33060      0.0.0.0:*    users:(("mysqld",pid=1724871,fd=21))                      
+LISTEN 0      4096       127.0.0.1:65529      0.0.0.0:*    users:(("monarx-agent",pid=1885864,fd=8))                 
+LISTEN 0      4096         0.0.0.0:80         0.0.0.0:*    users:(("docker-proxy",pid=2170425,fd=8))                 
+LISTEN 0      511          0.0.0.0:4201       0.0.0.0:*    users:(("next-server (v1",pid=1532655,fd=23))             
+LISTEN 0      4096         0.0.0.0:22         0.0.0.0:*    users:(("sshd",pid=1478431,fd=3),("systemd",pid=1,fd=220))
+LISTEN 0      151        127.0.0.1:3306       0.0.0.0:*    users:(("mysqld",pid=1724871,fd=24))                      
+LISTEN 0      4096         0.0.0.0:443        0.0.0.0:*    users:(("docker-proxy",pid=2170445,fd=8))                 
+LISTEN 0      4096   127.0.0.53%lo:53         0.0.0.0:*    users:(("systemd-resolve",pid=1478430,fd=15))             
+LISTEN 0      4096      127.0.0.54:53         0.0.0.0:*    users:(("systemd-resolve",pid=1478430,fd=17))             
+LISTEN 0      511       172.18.0.1:7654       0.0.0.0:*    users:(("node",pid=2102588,fd=18))                        
+LISTEN 0      4096            [::]:80            [::]:*    users:(("docker-proxy",pid=2170431,fd=8))                 
+LISTEN 0      511                *:4200             *:*    users:(("PM2 v6.0.14: Go",pid=2914,fd=47))                
+LISTEN 0      511                *:4202             *:*    users:(("PM2 v6.0.14: Go",pid=2914,fd=41))                
+LISTEN 0      511                *:4100             *:*    users:(("PM2 v6.0.14: Go",pid=2914,fd=50))                
+LISTEN 0      511                *:4101             *:*    users:(("node /var/www/x",pid=1533903,fd=23))             
+LISTEN 0      511                *:4102             *:*    users:(("PM2 v6.0.14: Go",pid=2914,fd=49))                
+LISTEN 0      4096            [::]:22            [::]:*    users:(("sshd",pid=1478431,fd=4),("systemd",pid=1,fd=222))
+LISTEN 0      4096            [::]:443           [::]:*    users:(("docker-proxy",pid=2170450,fd=8))                 
+
+
+======================================================================
+== ENV: NOMES das variaveis (VALORES OMITIDOS de proposito)
+======================================================================
+JWT_SECRET
+GLM_API_KEY
+ANTHROPIC_API_KEY
+GROQ_API_KEY
+CEREBRAS_API_KEY
+PROVIDERS_ENC_KEY
+CLOUDFLARE_TURNSTILE_SECRET
+
+
+======================================================================
+== GIT: ultimos 25 commits
+======================================================================
+47106b6 fix(preview): botao Preview anexa ?_t= com token da sessao [CTXPREVIEWTOKEN01]
+7ccded2 fix(preview): auth_request via header + root/try_files + lockdown 403
+be79017 auto-sync knowledge 2026-07-10T00:29:16-03:00
+6c77a19 docs(handoff): pausa no meio do fix CTXPREVIEWMOUNT01 -- compose editado, falta aplicar
+103c125 docs(visao): registra visao estrategica do Bini sobre Import GitHub como resgate de infraestrutura -- trazer sistemas de terceiros pra dentro do OrquestrAI, melhorar e hospedar com portabilidade real (VPS propria hoje, exportavel pra outro provedor depois); conecta com S20 (container deve nascer portavel) e gatilho de promocao ja absorvido do Plano Mestre CBini (N clientes pagantes = sinal de VPS dedicada); captura de visao, nao spec fechado -- fica pra priorizar no Chat 9 com dados reais
+709a349 docs(handoff): encerramento chat8 -- estado final verificado (git limpo, containers saudaveis), ultimos itens registrados
+acd1688 feat(projetos): CTXPUBTOGGLE01 -- badge clicavel publico/privado no card, usa o PATCH /:slug ja testado e provado hoje; NOTA: Preview segue 403 p/ todos ate auth_request ser refeito na proxima sessao -- este toggle so grava a intencao no project.json, preparando terreno
+18f88ff chore(kb): rejeita L-PROP-STATIC-PROJECT-BINDMOUNT -- descrevia mecanismo (/src/<nome>/) incompativel com a arquitetura real (projects/{slug}/site/); arquivada com motivo, nao apagada
+07bb33f fix(seguranca CRITICO): CTXPREVIEWLOCKDOWN02 -- preview de sites ficou publicamente exposto por ~1h: nginx tem DOIS server{} (porta 80/443), o location+auth_request do preview so foi inserido no bloco 80 sem trafego real; HTTPS (producao de verdade) caia no location/ generico e era servido pelo orquestrai-web sem NENHUMA checagem; bloqueio 403 incondicional aplicado no bloco 443 real e CONFIRMADO via curl; auth_request correto fica pra proxima sessao com cabeca fresca; licao registrada no protocolo (secao 12): sempre confirmar QUANTOS server blocks existem antes de editar nginx/proxy.conf
+eeca3e5 feat(wizard): CTXWIZDEDUP01 -- aviso de nome duplicado em tempo real no passo 1 (checagem client-side + gate antes de avancar; a prevencao REAL ja existia via 409 no backend desde CTXPROJPERSIST01, isto so antecipa o aviso na UX); CTXWIZMODE01 -- toggle Automatico/Acompanhado no passo Confirmar, Acompanhado desabilitado com badge EM BREVE (mesmo padrao visual da tela PROJETOS, sem mentira na UI -- nao persiste nada no backend ainda, placeholder pro modo supervisionado futuro)
+0fffce1 feat(preview): CTXPREVIEW01+02 -- alias nginx /projects/{slug}/site/ (regex restrita a slugs validos, CSP restritiva connect-src none, so leitura); GET /api/projects/:slug ganha campo hasSite; botao Preview em DOIS lugares com papeis distintos (ideia do Bini): no card (escolhe qual projeto ver, pill verde acima do rodape de acoes) e no header ao lado do seletor (atalho pro projeto ATIVO, aparece/some conforme hasSite -- sem mentira na UI); ambos abrem em aba nova (target=_blank, arrastavel entre monitores, sem risco de popup blocker)
+ae83626 feat(mas): CTXPROJRUN02 PROVADO de ponta a ponta -- mesh gera site estatico real (13KB HTML/CSS valido, zero vetoes) e persiste em projects/{slug}/site/index.html; 2 bugs corrigidos no caminho: (1) buildStaticSite recebia o goal INTEIRO do run (instruia markdown, nao HTML) -- fix usa project.json real (name/description/features) pra montar prompt dedicado; (2) extracao de HTML sem defesa contra preambulo antes do DOCTYPE -- fix corta a partir do primeiro DOCTYPE encontrado; teste via HTTP real (/api/mas/run com token de servico) confirma auth+pipeline+persistencia funcionando junto; 1a pagina gerada pela fabrica: Cafe Real
+6f17f74 fix(wizard): CTXWIZERR01 -- catch do disparo do mesh (CTXWIZ3) era so console.warn, SILENCIOSO pro usuario; causa raiz confirmada: POST /api/mas/run exige authMiddleware (401 sem token), janela anonima nao tem token salvo, projeto ficava com badge 'mesh trabalhando' PARA SEMPRE sem nenhum aviso; agora alert explicito com status HTTP + dica de janela anonima quando r.ok===false
+03c807b ops(CTXOPSCHECK01): licao aprovada L-audit-regressao-proxy-nginx vira CHECK RECORRENTE no protocolo (grep proxy_pass.*8080 = vazio, senao 502 iminente); secao 11 consolida checks operacionais alimentados pela KB -- fecha o ciclo: mesh propos -> Bini aprovou -> virou verificacao automatica de Rodada
+75ac192 feat(kb): curadoria humana das 2 licoes propostas pelo mesh HOJE (L-audit-cascata-scout-guardian + L-audit-regressao-proxy-nginx) -- ciclo de autoaprendizagem completo fechado no mesmo dia em que a fabrica nasceu: mesh propos, Guardian pre-aprovou, Bini aprovou; frontmatter APROVADA garante badge verde no modal LICOES premium (CTXLIC2); originais quarentenados
+84ab40d feat(wizard): CTXWIZ4 -- passo 1 (Nome) uniformizado com a linguagem visual dos passos 2/4/5 (card+input grande+hint 1 linha ellipsis); wizard 100% consistente do inicio ao fim
+6626f37 ops(CTXOPSCHECK01): 1o teste de restore Litestream EXECUTADO -- restore p/ /tmp funcionou (WAL aplicado ate index 108), integridade verificada via container (better-sqlite3 vive so la -- host node nao tem o modulo, coerente com a regra SQLite path discipline); backup continuo PROVADO restauravel; proximo teste: out/2026; artefato quarentenado
+3bd61df docs(handoff adendo 3): pergunta do Bini sobre isolamento do terminal por projeto respondida com estado real (oqterm = PTY root na VPS, seletor nao afeta; sem isolamento hoje) e convertida em 4 requisitos formais do S20: terminal por container nao-root, terminal admin separado e rotulado, automacao nunca usa PTY, UI indica escopo do terminal
+5813cba docs(handoff adendo 2 chat8): expediente estendido fechado -- ciclo de vida completo do projeto na UI (nascer/trabalhar/entregar plano/ativar/excluir c/ quarentena, tudo provado); gosto de UI do Bini registrado p/ sessoes futuras; proximo grande passo especificado: CTXPROJRUN02 (mesh materializa index.html em projects/{slug}/site/) e SO ENTAO botao Preview; abertos herdados com restore Litestream em destaque
+36223ba test(projects)+docs: prova real do CTXPROJDEL01 via node fetch (400 sem confirm, 403 p/ orquestrai, 200+quarentena no valido) -- testes anteriores via busybox wget --method=DELETE nunca executaram (flag inexistente, saida era o help de uso); licao L-BUSYBOXVERBS01: verbos alem de GET/POST em container Alpine sempre via node -e fetch; sinal de alarme = saida tipo usage no lugar de status HTTP
+39744aa auto-sync knowledge 2026-07-09T00:36:56-03:00
+37edeff feat(projetos): CTXPROJDEL01 -- DELETE /api/projects/:slug com quarentena (move p/ projects/_arquivados, nunca rm), slug 'orquestrai' imune, exige {confirm:slug} no body; CTXPROJCARDV2 -- cards reformados no gosto registrado do Bini (alinhamento rigido, menos texto): rodape em grid fixo 3 colunas (docs/ativar|ativo/excluir, cockpit mostra 'fixo'), descricao truncada em 1 linha com ellipsis+title, exclusao exige digitar o nome exato (prompt nativo de proposito -- modal custom fica p/ React)
+7e56a1d fix(mas)+feat(projetos Fase B): CTXGOALFIX01 -- wizard enviava {prompt} mas /api/mas/run le goal: TODO mesh de projeto rodava com default 'Auditoria geral rapida' (bug desde B273, exposto pelo cabecalho do plano do CTXPROJRUN01); CTXPROJDOCS01 -- GET /api/projects/:slug (detalhe+docs) e /:slug/docs/:file (leitura sanitizada, regex estrita anti-traversal); CTXPROJCARD01 -- cards ganham etiquetas de acao (docs N / ativar / ativo), badge pulsante 'mesh trabalhando' (docs=0 + criado<15min) e visualizador de docs inline com voltar -- resolve o 'nao sei se foi feito' do fluxo de criacao
+866b100 feat(mas): CTXPROJRUN01 fracao 1 -- vinculo run<->projeto: /api/mas/run aceita project_slug (sanitizado na rota E no runMas, defesa em profundidade), wizard envia o slug do projeto recem-criado, e ao concluir 'done' o run persiste RELATOR+SMITH em projects/{slug}/docs/plano-{runid}.md (escrita atomica, falha nao derruba o run); fecha o gap provado no 1o E2E (docs/ vazio: esteira trabalhava mas nao entregava)
+70cf969 chore(header): CTXTRASH01 -- lixeira de blocos por projeto (B289) removida por decisao do Bini: apagava a historia do projeto (contra filosofia de contexto completo por projeto), ficou inconsistente pos-CTXPROJSEL01 (projeto ressuscitava no sync) e era acao destrutiva de 1 clique p/ ganho estetico; original quarentenado em _arquivados/ com comentario-lapide no HTML; alternativa futura documentada: arquivamento por bloco individual
+
+
+======================================================================
+== GIT: status
+======================================================================
+ M api/projectsRoutes.cjs
+ M server.js
+?? auditoria/
+?? scripts/gerar-dossie-auditoria.py
+
+
+======================================================================
+== KNOWLEDGE: estrutura
+======================================================================
+/var/www/orquestrai/knowledge/:
+total 240
+drwxr-xr-x 29 root root  4096 Jul  8 04:28 .
+drwxr-xr-x 21 root root  4096 Jul 10 09:36 ..
+drwxr-xr-x  2 root root  4096 Jun 27 00:46 .archive
+drwxr-xr-x  2 root root  4096 Jun 21 08:46 .bak-B171-20260627-004350
+drwxr-xr-x  3 root root  4096 Jul  4 23:04 AUDITORIA
+-rw-r--r--  1 root root  3943 Jun 27 03:47 INDEX.md
+-rw-r--r--  1 root root   817 Jul  3 00:03 PROTOCOLO-LAVE-F.md
+-rw-r--r--  1 root root  1682 Jun 19 16:37 README.md
+-rw-r--r--  1 root root    74 Jun 19 16:45 VERSION
+drwxr-xr-x  5 root root  4096 Jul  9 08:26 _arquivados
+drwxr-xr-x  2 root root  4096 Jun 27 03:34 _audit
+drwxr-xr-x  2 root root  4096 Jun 27 02:05 _manifesto
+drwxr-xr-x  2 root root  4096 Jul  9 08:26 _pending
+drwxr-xr-x  4 root root  4096 Jul  8 11:14 agents
+drwxr-xr-x  2 root root  4096 Jun 19 16:32 audit-logs
+drwxr-xr-x  2 root root  4096 Jun 19 16:32 avaliacoes
+drwxr-xr-x  2 root root 20480 Jul  8 17:01 blocos
+-rw-r--r--  1 root root 10756 Jul  3 05:13 changelog.md
+drwxr-xr-x  2 root root  4096 Jun 19 16:32 contexto-cliente
+drwxr-xr-x  2 root root  4096 Jun 22 01:48 contextos
+drwxr-xr-x  2 root root  4096 Jun 19 16:37 custo
+drwxr-xr-x  2 root root  4096 Jul  9 11:36 decisoes
+drwxr-xr-x  2 root root  4096 Jun 19 16:37 gateways
+drwxr-xr-x  2 root root  4096 Jun 19 16:32 incidentes
+drwxr-xr-x  2 root root 20480 Jul 10 00:29 licoes
+drwxr-xr-x  5 root root  4096 Jun 19 16:37 loops
+drwxr-xr-x  2 root root  4096 Jul  8 16:21 metas
+drwxr-xr-x  2 root root  4096 Jun 26 23:25 pendencias
+drwxr-xr-x  2 root root  4096 Jun 19 16:32 prompts
+-rw-r--r--  1 root root 25484 Jul  9 11:36 roadmap.md
+-rw-r--r--  1 root root   600 Jun 30 04:18 roadmap.md.bak-pre-consolidacao-20260630-041816
+drwxr-xr-x  2 root root  4096 Jun 19 16:32 sessoes
+drwxr-xr-x  8 root root  4096 Jun 30 15:31 skills
+drwxr-xr-x  2 root root  4096 Jun 19 16:32 snippets
+drwxr-xr-x  2 root root  4096 Jun 19 16:37 templates
+drwxr-xr-x  2 root root  4096 Jun 19 16:32 workflows
+
+/var/www/orquestrai/knowledge/metas/:
+total 268
+drwxr-xr-x  2 root root  4096 Jul  8 16:21 .
+drwxr-xr-x 29 root root  4096 Jul  8 04:28 ..
+-rw-r--r--  1 root root 29724 Jul  9 11:46 HANDOFF-POS-FABLE.md
+-rw-r--r--  1 root root  2924 Jul  8 16:21 INDICE-MESTRE-SPRINTS.md
+-rw-r--r--  1 root root  7896 Jul  7 04:26 META-AUDITORIA-FABLE.md
+-rw-r--r--  1 root root  6291 Jul  7 23:02 META-CTXAGENTSCORE01.md
+-rw-r--r--  1 root root  2258 Jul  7 04:21 META-CTXAGENTTRAIN01.md
+-rw-r--r--  1 root root  2047 Jul  7 09:17 META-CTXAGTUNIFY01.md
+-rw-r--r--  1 root root  1146 Jul  5 04:27 META-CTXARQDECISION01.md
+-rw-r--r--  1 root root   659 Jul  4 23:39 META-CTXBLOCODOC01.md
+-rw-r--r--  1 root root  1005 Jul  4 23:39 META-CTXBLOCONUM01.md
+-rw-r--r--  1 root root   805 Jul  4 23:39 META-CTXCOMMENTPASS01.md
+-rw-r--r--  1 root root  1529 Jul  5 04:27 META-CTXDNABASE01.md
+-rw-r--r--  1 root root  3873 Jul  7 22:29 META-CTXESTEIRA01.md
+-rw-r--r--  1 root root  1382 Jul  4 23:39 META-CTXFICHA01.md
+-rw-r--r--  1 root root  1222 Jul  5 04:27 META-CTXGOVAGENT01.md
+-rw-r--r--  1 root root  2095 Jul  7 22:51 META-CTXKBLOOP01.md
+-rw-r--r--  1 root root   841 Jul  7 09:21 META-CTXMASRUNLINK01.md
+-rw-r--r--  1 root root  2270 Jul  8 03:24 META-CTXNAVREDESIGN01.md
+-rw-r--r--  1 root root  1537 Jul  8 04:08 META-CTXPIPECLOSE01.md
+-rw-r--r--  1 root root  1403 Jul  5 04:27 META-CTXPROJDNA01.md
+-rw-r--r--  1 root root  2556 Jul  5 04:31 META-CTXPROJISO01.md
+-rw-r--r--  1 root root  1991 Jul  8 04:21 META-CTXROSTERUX01.md
+-rw-r--r--  1 root root  1700 Jul  8 04:21 META-CTXSELFKNOW01.md
+-rw-r--r--  1 root root  2310 Jul  5 14:37 META-CTXTEAMROSTER01.md
+-rw-r--r--  1 root root   659 Jul  4 23:39 META-CTXTOPBARCONSIST01.md
+-rw-r--r--  1 root root  2519 Jul  7 15:14 PLANO-POS-AUDITORIA-FABLE.md
+-rw-r--r--  1 root root 13608 Jul  8 16:07 RODADA-6-PLANO.md
+
+
+======================================================================
+== KNOWLEDGE: licoes (20 mais recentes)
+======================================================================
+L-CTXPREVIEWAUTH01.md
+L-audit-regressao-proxy-nginx.md
+L-audit-cascata-scout-guardian.md
+L-BUSYBOXVERBS01.md
+L-BASHHIST01.md
+L-ANCORACOMENT01.md
+L-CONTAMINACAO01.md
+BLOCO-207-usr-bin-env-bash-20260708-200101.md
+L-naming-sources-priority.md
+BLOCO-206-gerado-pelo-mas-orquestrai-run-mas-663ec-20260708-195602.md
+BLOCO-205-gerado-pelo-mas-orquestrai-run-mas-55ca8-20260708-195046.md
+L-cluster-vs-blackboard-dualismo.md
+L-docker-memory-oom-diagnostic.md
+L-nome-sistema-nao-precisa-bloco.md
+BLOCO-204-usr-bin-env-bash-20260708-194333.md
+BLOCO-203-usr-bin-env-bash-20260708-194039.md
+BLOCO-202-gerado-pelo-mas-orquestrai-run-mas-abfe7-20260708-193836.md
+L-bind-mount-validation-host-vs-container.md
+BLOCO-201-usr-bin-env-bash-20260708-191938.md
+BLOCO-200-usr-bin-env-bash-20260708-191000.md
+
+
+======================================================================
+== KNOWLEDGE: roadmap.md (se existir)
+======================================================================
+---
+documento: roadmap
+mantido_por: humano+ia
+ultima_atualizacao: 2026-07-01
+status: vivo
+---
+
+> **Como ler este documento:** 3 categorias com significado diferente.
+>
+> - **🔵 Rodada Ativa** = trabalho comprometido, ordem definida, sendo executado agora.
+> - **🟡 Achados Pendentes** = problemas descobertos no meio do trabalho (não
+>   estavam no plano original), aguardando decisão sobre quando entrar numa rodada.
+> - **🟢 Metas Futuras** = ideias/desejos registrados, sem timeline, sem
+>   compromisso de execução até serem promovidos para uma rodada.
+>
+> Histórico superado (planejamento antigo nunca sincronizado com a execução
+> real) fica em 📦 Arquivado, no final — não confiar em checkboxes lá.
+
+## 📊 Status do ciclo de sprints
+
+**Rodada 5 (ativa) -- 5/10 concluídos, 5 restantes.**
+
+| # | Item | Status |
+|---|---|---|
+| 1 | CTXPROVBRIDGE01 | ✅ Concluído |
+| 2 | CTXMASAUTH01 | ⬜ Escopo mapeado, aguardando sessão dedicada |
+| 3 | CTXHYGIENE01 | ✅ Concluído (1 sub-item adiado por decisão sua: `ADMIN_PASSWORD`) |
+| 4 | CTXCLOUDFLARE01 | ✅ Concluído |
+| 5 | CTXUNIFY01 | 🟡 Parcial: 8080→3000 corrigido (fix real, mantido) + endpoint /api/blocos/oqterm-log pronto e testado; hook oqterm→endpoint revertido (bug não identificado, ver L-CTXUNIFY01.md) |
+| 6 | CTXAGENTSCORE01 | ⬜ Bloqueado pelo item 5 |
+| 7 | CTXVITE02 | ✅ Concluído |
+| 8 | CTXCLEANURL01 | ⬜ Depende do item 5 (CTXUNIFY01) |
+| 9 | CTXPIPELINE01 | ⬜ Não iniciado |
+| 10 | CTXRAG01 | ⬜ Não iniciado |
+
+**Sessão de polish visual (2026-07-01, fora da contagem formal da Rodada 5,
+trabalho real concluído):** ver seção dedicada mais abaixo.
+
+**Histórico:** Rodada 1 ✅ · Rodada 2 ✅ 9/10 (ver `chat1.md`) · Rodada 3 ✅
+10/10 · Rodada 4 ✅ 10/10 (CTXVITE02 iniciado ali, fechado na Rodada 5)
+
+**Regra permanente:** ao fechar 10/10 de qualquer rodada, a próxima rodada
+de 10 é planejada automaticamente antes de aguardar novo pedido do humano.
+
+---
+
+## 🔵 Rodada Ativa (Rodada 5, iniciada 2026-07-01)
+
+1. [x] **CTXPROVBRIDGE01** -- Investigado. NÃO era bug: todos os 16 registros
+   de `execucoes` são origem='individual' (chat comum). O código já manda
+   `mas_run_id` corretamente quando o BLOCO vem do MAS -- só nunca houve
+   amostra real pra confirmar. Sem ação de código necessária. (ver L-PROVBRIDGE01)
+
+2. [ ] **CTXMASAUTH01** -- Tentado e **revertido**. Escopo real descoberto:
+   não é 1 chamador (como CTXAGENTAUTH01), são **9 pontos** espalhados no
+   dashboard.html chamando as 7 rotas de `mas/routes.mjs` sem token (2x
+   /models-last, 2x /run, 2x /last, 3x EventSource /events/). Precisa de
+   sessão dedicada mapeando os 9 pontos antes de qualquer patch no backend,
+   não ajuste incremental em produção. (ver L-MASAUTH01)
+
+3. [x] **CTXHYGIENE01** -- Concluído:
+   - [x] `knowledge/agentes/` (pastas mortas, nomenclatura divergente dos 9
+     titulares reais, zero uso no código) arquivado em `_arquivados/`
+   - [x] Esclarecido: `blocosRoutes.cjs` "duplicado" é mount intencional do
+     Docker Compose (mesmo padrão do `providers.cjs`), não é bug
+   - [ ] `ADMIN_PASSWORD` real no `.env` -- **decisão do usuário, adiada de
+     propósito**. Senha antiga (`OrquestrAI@2025`) continua ativa como
+     fallback até a troca acontecer.
+
+4. [x] **CTXCLOUDFLARE01** -- Concluído. Widget Turnstile na tela de login,
+   tema escuro, horizontal, com legenda "protegido por Cloudflare". Backend
+   com validação fail-open (se o Cloudflare cair, login segue -- defesa
+   primária já é senha+2FA). Fluxo completo testado em produção.
+
+5. [ ] **CTXUNIFY01** -- Decisão de arquitetura: unificar os 2 modelos de
+   execução (execBloco protegido vs oqterm root/interativo). Precisa de
+   você presente pra decidir junto, não só execução. (ver detalhe completo
+   na seção Achados Pendentes)
+
+6. [ ] **CTXAGENTSCORE01** -- Score real por agente. Desbloqueado após o
+   item 5 (hoje o endpoint `/api/agents/score` existe mas depende de dados
+   de `execucoes` com cobertura baixa/enviesada -- ver L-VITE02).
+
+7. [x] **CTXVITE02** -- Concluído. Componente `AgentPanel` (React) integrado
+   ao `dashboard.html` real via "React island" (montado fora do container
+   legado, sem substituí-lo). Dados SSE ao vivo confirmados em produção.
+   6 bugs encadeados resolvidos no processo (ver L-VITE02FINAL).
+
+8. [ ] **CTXCLEANURL01** -- URL sem `/dashboard.html`. Depende do item 5
+   (CTXUNIFY01) -- nasce naturalmente quando a SPA for unificada de vez.
+
+9. [ ] **CTXPIPELINE01** -- Pipeline MAS adaptativo: classificar tarefa
+   (simples/médio/complexo) e rodar 3/6/8 agentes -- redução estimada de
+   40-60% no custo de runs simples.
+
+10. [ ] **CTXRAG01** -- GitHub RAG básico, com sanitização anti-prompt-injection
+    desde o design (conteúdo externo indexado é sempre dado, nunca instrução).
+
+---
+
+
+
+======================================================================
+== PROJECTS: estrutura (2 niveis)
+======================================================================
+/var/www/orquestrai/projects
+/var/www/orquestrai/projects/_arquivados
+/var/www/orquestrai/projects/_arquivados/lab-teste-2026-07-09T03-36-52-998Z
+/var/www/orquestrai/projects/_arquivados/cafe-teste-2026-07-09T10-02-13-853Z
+/var/www/orquestrai/projects/cafe-real
+/var/www/orquestrai/projects/cafe-real/site
+/var/www/orquestrai/projects/cafe-real/docs
+/var/www/orquestrai/projects/cafe-real/project.json
+/var/www/orquestrai/projects/orquestrai
+/var/www/orquestrai/projects/orquestrai/docs
+/var/www/orquestrai/projects/orquestrai/project.json
+/var/www/orquestrai/projects/lab-teste-2
+/var/www/orquestrai/projects/lab-teste-2/docs
+/var/www/orquestrai/projects/lab-teste-2/project.json
+/var/www/orquestrai/projects/.gitkeep
+
+
+======================================================================
+== SYSTEMD: servicos custom (oq/orquestr)
+======================================================================
+  oqterm.service                                 loaded active running OrquestrAI host PTY daemon (oqterm)
+oqterm.service
+oqterm.service.bak-S3F1-20260707-150929
+oqterm.service.bak-b23-20260622-030031
+oqterm.service.bak-oq67a6
+
+
+======================================================================
+== SEGURANCA: processos escutando fora do docker
+======================================================================
+State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess                                                    
+LISTEN 0      70         127.0.0.1:33060      0.0.0.0:*    users:(("mysqld",pid=1724871,fd=21))                      
+LISTEN 0      4096       127.0.0.1:65529      0.0.0.0:*    users:(("monarx-agent",pid=1885864,fd=8))                 
+LISTEN 0      511          0.0.0.0:4201       0.0.0.0:*    users:(("next-server (v1",pid=1532655,fd=23))             
+LISTEN 0      4096         0.0.0.0:22         0.0.0.0:*    users:(("sshd",pid=1478431,fd=3),("systemd",pid=1,fd=220))
+LISTEN 0      151        127.0.0.1:3306       0.0.0.0:*    users:(("mysqld",pid=1724871,fd=24))                      
+LISTEN 0      4096   127.0.0.53%lo:53         0.0.0.0:*    users:(("systemd-resolve",pid=1478430,fd=15))             
+LISTEN 0      4096      127.0.0.54:53         0.0.0.0:*    users:(("systemd-resolve",pid=1478430,fd=17))             
+LISTEN 0      511       172.18.0.1:7654       0.0.0.0:*    users:(("node",pid=2102588,fd=18))                        
+LISTEN 0      511                *:4200             *:*    users:(("PM2 v6.0.14: Go",pid=2914,fd=47))                
+LISTEN 0      511                *:4202             *:*    users:(("PM2 v6.0.14: Go",pid=2914,fd=41))                
+LISTEN 0      511                *:4100             *:*    users:(("PM2 v6.0.14: Go",pid=2914,fd=50))                
+LISTEN 0      511                *:4101             *:*    users:(("node /var/www/x",pid=1533903,fd=23))             
+LISTEN 0      511                *:4102             *:*    users:(("PM2 v6.0.14: Go",pid=2914,fd=49))                
+LISTEN 0      4096            [::]:22            [::]:*    users:(("sshd",pid=1478431,fd=4),("systemd",pid=1,fd=222))
+
