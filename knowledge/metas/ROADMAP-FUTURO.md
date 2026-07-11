@@ -67,7 +67,21 @@ Ultima atualizacao: 2026-07-11. Ordem = alicerce antes do acabamento.
        auditoria: rede bridge separada para os proj-* (sem rota aos portoes),
        com o proxy participando das duas redes para o preview (B5).
 
-## ACABAMENTO
+5c. [ ] **Higiene: processos xmonex/PM2 escutando em 0.0.0.0 (achado B5
+   2026-07-11).** Na verificacao de exposicao do B5, `ss` revelou listeners
+   em 0.0.0.0/*: portas 4100-4102 e 4200-4202 — PM2 god daemon v6 rodando de
+   /root/.pm2 (ROOT), servindo xmonex-teste/back (4101), next-server 16
+   (4201) e afins. NAO tem relacao com a Fase B (docker port vazio, ufw
+   intocado). Unica barreira externa e' o default-deny do ufw — scan nmap DE
+   FORA (CBini, 2026-07-11) confirmou todas filtered; mas o bind em 0.0.0.0
+   significa que qualquer regra ALLOW futura mal escopada as expoe.
+   PERGUNTA A RESPONDER (pedido CBini): e' resquicio do incidente de
+   contaminacao documentado (L-CONTAMINACAO01) ou coisa separada?
+   Preliminar: SEPARADA — L-CONTAMINACAO01 e' contaminacao de CONTEXTO/KB
+   (docs do XMonex poluindo a base); isto sao processos REAIS do xmonex
+   co-hospedados na VPS (multi-tenancy, ver META-CTXPROJISO01, que ja cita
+   "PM2/XMonex antigo"). Confirmar na sessao dedicada: quem iniciou, se
+   ainda e' usado, e se cabe bind em 127.0.0.1 ou desligamento.
 6. [ ] Agente DESIGNER dedicado no pipeline — especializado em UI e consistencia
    visual. Encaixa mais naturalmente DEPOIS que a migracao Tailwind/React
    (strangler fig do dashboard) estiver madura, para o agente ter um sistema de
