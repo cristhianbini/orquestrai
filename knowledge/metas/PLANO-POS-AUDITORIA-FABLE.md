@@ -38,10 +38,13 @@ Pré-requisito: Fase 1 completa (KB limpa) -- CUMPRIDO nos itens 4-5.
 Método: botão "Treinar" no agtPane (Opus sugere, humano aprova, nunca salva
 sozinho) -- um agente por vez, diff revisado, 1 execução de teste antes do
 próximo. NUNCA em lote.
-- [ ] 13.1 scout   13.2 auditor   13.3 detetive   13.4 smith   13.5 guardian
-- [ ] 13.6 memorialista   13.7 rel   13.8 metrico   13.9 revisor
+- [x] 13.1 scout   13.2 auditor   13.3 detetive   13.4 smith   13.5 guardian
+- [x] 13.6 memorialista   13.7 rel   13.8 metrico   13.9 revisor
+
+> Reconciliado 2026-07-11: curadoria 9/9 concluída em 2026-07-08 (=S4 do
+> INDICE-MESTRE-SPRINTS e HANDOFF-POS-FABLE). Este tique havia ficado
+> desatualizado enquanto os outros docs já registravam a conclusão.
 
 ---
-**Próximo passo ao retomar:** item 6 (dedup + frontmatter), ou pular direto
-pra Fase 4 se a prioridade for curadoria -- não há dependência dura entre
-6-7 e 13, só ordem de prioridade recomendada.
+**Próximo passo ao retomar:** item 6 (dedup + frontmatter). A Fase 4
+(curadoria) já foi concluída -- ver acima.

@@ -1,6 +1,10 @@
 # INDEX OrquestrAI KB
 
-Total: 41 licoes
+Total: 114 arquivos em licoes/ (inclui BLOCO-* auto-gerados; ~80 lições curadas).
+
+> Reconciliado 2026-07-11: contagem antiga (41) estava desatualizada. A lista
+> abaixo também está defasada — regeneração automática do índice pendente
+> (item de higiene, Sprint 6).
 
 ## Licoes
 - **001-alpine-shell** —  `[]`

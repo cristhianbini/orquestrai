@@ -8,6 +8,11 @@
 [![stack](https://img.shields.io/badge/stack-Node.js%20%7C%20SQLite%20%7C%20Docker-22c55e?style=flat-square)]()
 [![licença](https://img.shields.io/badge/licença-privado-ef4444?style=flat-square)]()
 
+<!-- Nota de versionamento (2026-07-11): o badge vX.Y marca RELEASES públicos
+(marcos de produto). O versionamento incremental interno segue SemVer em
+knowledge/changelog.md (hoje 0.32.8). Os dois números são esquemas distintos,
+não divergência. -->
+
 ---
 
 ## O que é
