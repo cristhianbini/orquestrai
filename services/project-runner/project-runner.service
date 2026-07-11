@@ -1,6 +1,8 @@
 [Unit]
 Description=OrquestrAI project-runner (clone daemon, Fase A do import)
-After=network.target
+# docker.service: o bind e no IP da bridge app-net (172.18.0.1) — precisa
+# do docker de pe. Restart=on-failure cobre a corrida se ainda assim falhar.
+After=network.target docker.service
 
 [Service]
 Type=simple
@@ -32,6 +34,8 @@ AmbientCapabilities=
 # limites de recurso: clone raso e barato
 MemoryMax=256M
 TasksMax=64
+# arquivos do clone nascem 640/750 (grupo projrunner, sem world-read)
+UMask=0027
 
 [Install]
 WantedBy=multi-user.target

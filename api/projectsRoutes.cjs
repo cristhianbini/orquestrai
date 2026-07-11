@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-10 14:42:04 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-11 06:44:58 -03:00 (auto, git pre-commit)
 // [B315] /api/projects — Projetos, Modos e Scorecard dos Agentes
 // [CTXPROJPERSIST01 2026-07-09] Persistencia em DISCO substitui o Map
 // em memoria do B315 original.
@@ -17,8 +17,18 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET || 'orquestrai-secret-change-me-2025';
-if (!process.env.JWT_SECRET) console.warn('[CTXPREVIEWAUTH01] JWT_SECRET ausente no .env -- usando fallback fraco.');
+const http = require('http');
+// [A2 2026-07-11] daemon project-runner (fora do Docker, systemd). 172.18.0.1
+// e o IP do HOST na bridge app-net — mesmo padrao do oqterm (proxy.conf).
+const PR_URL = process.env.PROJECT_RUNNER_URL || 'http://172.18.0.1:7655';
+// [A2/S2-fix 2026-07-11] lacuna do S2: aqui restava o fallback fraco. Mesmo
+// padrao do server.js — ausencia e FATAL (hoje inalcancavel, pois server.js
+// ja sai antes; mantido por defesa em profundidade).
+if (!process.env.JWT_SECRET) {
+  console.error('[S2-fix] FATAL: JWT_SECRET ausente no ambiente -- recusando iniciar para nao emitir tokens inseguros.');
+  process.exit(1);
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // [CTXPROJAUTH01] factory: recebe authMiddleware do server.js e protege
 // todas as rotas EXCETO preview-auth (chamada pelo nginx sem Authorization).
@@ -112,7 +122,9 @@ function slugify(s) {
 // lista: entra como {slug, corrupted:true} p/ o front sinalizar.
 function loadAll() {
   let dirs = [];
-  try { dirs = fs.readdirSync(PROJ_DIR, { withFileTypes: true }).filter(d => d.isDirectory()); }
+  // [A2] filtro EXPLICITO de .staging (clone do project-runner) e _arquivados
+  // (quarentena do DELETE). Antes era implicito (sem project.json => null).
+  try { dirs = fs.readdirSync(PROJ_DIR, { withFileTypes: true }).filter(d => d.isDirectory() && !/^[._]/.test(d.name)); }
   catch (e) { return []; }
   return dirs.map(d => {
     const p = path.join(PROJ_DIR, d.name, 'project.json');
@@ -210,6 +222,88 @@ router.delete('/:slug', express.json({ limit: '10kb' }), (req, res) => {
     fs.renameSync(dir, dst);
     return res.json({ ok:true, archived: dst.replace(PROJ_DIR + path.sep, 'projects/') });
   } catch(e) { return res.status(500).json({ ok:false, error:'falha ao arquivar: '+e.message }); }
+});
+
+// [A2 2026-07-11] POST /:slug/import — importa repo GitHub via daemon
+// project-runner (systemd fora do Docker, ver services/project-runner/).
+// Fluxo: valida -> token interno admin 120s -> daemon clona p/ .staging ->
+// re-enraiza o path (daemon devolve path do HOST, nao do container — L-B199)
+// -> rename ATOMICO p/ projects/{slug}/repo (.staging e repo/ no mesmo bind
+// mount ./projects = mesmo fs) -> project.json: cria se nao existe; se ja
+// existe SO adiciona source + updatedAt (decisao CBini 2026-07-11).
+router.post('/:slug/import', express.json({ limit: '10kb' }), (req, res) => {
+  // daemon exige admin; espelhamos o gate aqui p/ falhar cedo e claro
+  if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'super_admin'))
+    return res.status(403).json({ ok:false, error:'apenas admin' });
+  const slug = String(req.params.slug || '');
+  if (!/^[a-z0-9-]{1,60}$/.test(slug)) return res.status(400).json({ ok:false, error:'slug invalido' });
+  const repoUrl = String((req.body && req.body.repoUrl) || '');
+  // mesma validacao do daemon (fail-fast local antes da chamada interna)
+  if (repoUrl.length > 300 || repoUrl.includes('..') ||
+      !/^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+?(\.git)?$/.test(repoUrl))
+    return res.status(400).json({ ok:false, error:'repoUrl invalida (so https://github.com/owner/repo)' });
+  const projDir = path.join(PROJ_DIR, slug);
+  const repoDir = path.join(projDir, 'repo');
+  if (fs.existsSync(repoDir)) return res.status(409).json({ ok:false, error:'projeto "'+slug+'" ja tem repo importado' });
+
+  const itk = jwt.sign({ sub:'api-import', role:'admin', slug }, JWT_SECRET, { expiresIn:'120s' });
+  const payload = JSON.stringify({ slug, repoUrl });
+  const prReq = http.request(PR_URL + '/clone', {
+    method: 'POST',
+    // > PR_CLONE_TIMEOUT_MS do daemon (120s): o daemon desiste primeiro
+    timeout: 150000,
+    headers: { 'content-type': 'application/json', authorization: 'Bearer ' + itk,
+               'content-length': Buffer.byteLength(payload) },
+  }, prRes => {
+    let body = '';
+    prRes.on('data', d => { body += d; if (body.length > 65536) prReq.destroy(); });
+    prRes.on('end', () => {
+      let out; try { out = JSON.parse(body); } catch(_) { out = null; }
+      if (!out || prRes.statusCode !== 200 || !out.ok)
+        return res.status(422).json({ ok:false, error:'clone falhou',
+          detail: (out && out.error) || ('daemon respondeu ' + prRes.statusCode) });
+      // basename validado + re-enraizado no PROJ_DIR do container
+      const base = path.basename(String(out.stagingPath || ''));
+      if (!new RegExp('^' + slug + '-[0-9a-f]{12}\\.tmp$').test(base))
+        return res.status(502).json({ ok:false, error:'stagingPath inesperado do daemon' });
+      const staging = path.join(PROJ_DIR, '.staging', base);
+      try {
+        fs.mkdirSync(projDir, { recursive: true });
+        fs.renameSync(staging, repoDir);
+      } catch(e) {
+        // corrida (repo surgiu durante o clone) ou falha real: limpa o tmp
+        try { fs.rmSync(staging, { recursive: true, force: true }); } catch(_) {}
+        const code = (e.code === 'ENOTEMPTY' || e.code === 'EEXIST') ? 409 : 500;
+        return res.status(code).json({ ok:false, error:'mv do staging falhou: ' + e.message });
+      }
+      const pjPath = path.join(projDir, 'project.json');
+      let project = null, created = false;
+      try { project = JSON.parse(fs.readFileSync(pjPath, 'utf8')); } catch(_) {}
+      if (!project) {
+        created = true;
+        project = { slug, name: slug, stack: 'imported', db: 'none', description: '',
+                    features: [], mode: 'build', status: 'imported', public: false,
+                    createdAt: new Date().toISOString() };
+      }
+      project.source = { type: 'github', repoUrl, importedAt: new Date().toISOString(),
+                         sizeBytes: out.sizeBytes || 0 };
+      project.updatedAt = new Date().toISOString();
+      try {
+        const tmp = pjPath + '.tmp';
+        fs.writeFileSync(tmp, JSON.stringify(project, null, 2));
+        fs.renameSync(tmp, pjPath);
+      } catch(e) {
+        // repo/ ja esta no lugar; o json pode ser regravado numa retentativa
+        return res.status(500).json({ ok:false, error:'repo importado mas project.json falhou: ' + e.message });
+      }
+      res.json({ ok: true, slug, created, sizeBytes: out.sizeBytes || 0, project });
+    });
+  });
+  prReq.on('timeout', () => prReq.destroy(new Error('timeout na chamada ao daemon')));
+  prReq.on('error', e => {
+    if (!res.headersSent) res.status(502).json({ ok:false, error:'project-runner indisponivel: ' + e.message });
+  });
+  prReq.end(payload);
 });
 
 // [CTXPREVIEWTOKEN02] emite token EFEMERO de preview (30min, escopo unico

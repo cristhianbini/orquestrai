@@ -86,23 +86,35 @@ cada um for promovido a uma rodada:
   conecta com item #9 EXPANSAO).
 
 ## Sprint 2 — Import GitHub (item #2, em andamento)
-Status 2026-07-11: **Fase A0 concluida** (daemon project-runner) — ver
-services/project-runner/ e commit 93a2bbf. Executor privilegiado isolado
-(usuario projrunner, nao-root, systemd hardening ProtectSystem=strict,
-score 3.9), valida JWT+path-guard, clona via git com --depth 1 + limite
-de tamanho + timeout, staging atomico em projects/.staging/. 5/5 testes
-de seguranca passaram.
+Status 2026-07-11 (2a sessao): **Fases A0 e A2 concluidas.**
+- A0 (daemon project-runner): ver services/project-runner/ e commit 93a2bbf.
+  Executor isolado (projrunner nao-root, ProtectSystem=strict, score 3.9),
+  JWT+path-guard, clone --depth 1 + limite + timeout, staging atomico.
+- A2 (integracao api): POST /api/projects/:slug/import em projectsRoutes.cjs.
+  Api gera JWT interno admin (120s) e chama o daemon; re-enraiza o
+  stagingPath (host->container, L-B199); rename ATOMICO .staging ->
+  projects/{slug}/repo/ (mesmo bind mount); project.json criado se nao
+  existe OU so recebe source+updatedAt se ja existe (decisao CBini);
+  listagem filtra ^[._] explicitamente. 12/12 testes E2E + verificacao
+  no host (perms 750/640, .staging sem orfaos). UMask=0027 na unit.
+- Rede (desvio aprovado do plano original): daemon NAO escuta mais em
+  127.0.0.1 -- do container, 127.0.0.1 e o proprio container. PR_HOST=
+  172.18.0.1 (IP do host na bridge app-net, padrao oqterm) + regra ufw
+  "7655/tcp ALLOW from 172.18.0.0/16" (sem ela: timeout silencioso; o
+  oqterm ja tinha a regra gemea p/ 7654). Unit ganhou After=docker.service.
+- Bonus S2: removido o ultimo fallback fraco de JWT_SECRET (hardcoded em
+  projectsRoutes.cjs:20, lacuna do S2 achada pela CBini) -- agora fatal,
+  mesmo padrao do server.js.
 
 **Pendente:**
-- Fase A2: integracao com api/projectsRoutes.cjs (rota POST /:slug/import,
-  chamada ao daemon em 127.0.0.1:7655, mv atomico do staging para
-  projects/{slug}/repo/, criar project.json, ignorar .staging na listagem).
-  Vai exigir restart do container api -- tratar com o mesmo rigor do S1/S2
-  (validacao intermediaria, sem encadear mudancas).
 - Fase B (container isolado por projeto) e Fase C (preview conteinerizado):
   ainda no desenho, nao iniciadas.
-- Melhoria pequena: adicionar UMask=0027 na unit project-runner.service
-  (eleva o score systemd-analyze; nao bloqueante). Fazer junto da Fase A2.
-- Achado do escopo: .staging/ dentro de projects/ e workaround para nao
-  mexer no compose agora -- api (Fase A2) precisa filtrar .staging da
-  listagem de projetos.
+- Achados de seguranca novos (backlog, nao bloqueantes):
+  - blocoMemoryRoutes.cjs:33 -- fallback de JWT_SECRET para '' (revisar se
+    permite verify com segredo vazio);
+  - mas/auth.mjs:27 -- comentario menciona outro fallback hardcoded (conferir);
+  - ADMIN_PASSWORD ausente no .env -- api sobe com senha padrao antiga
+    (warning CTXAUTH2FA01 no boot). Definir no .env + force-recreate.
+- Rotas GET /modes e /scorecard de projectsRoutes.cjs sao inalcancaveis
+  (sombreadas por GET /:slug, definidas depois) -- bug pre-existente,
+  corrigir quando tocar no arquivo de novo.

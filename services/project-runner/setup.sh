@@ -22,7 +22,9 @@ umask 077
 {
   # copia a linha JWT_SECRET=... de oqterm.env (mesma chave do api) sem imprimir o valor
   grep '^JWT_SECRET=' /etc/oqterm.env
-  echo 'PR_HOST=127.0.0.1'
+  # IP do host na bridge app-net (mesmo padrao do oqterm no proxy.conf):
+  # o container orquestrai-api alcanca o daemon por aqui. NUNCA 0.0.0.0.
+  echo 'PR_HOST=172.18.0.1'
   echo 'PR_PORT=7655'
   echo 'PR_STAGING=/var/www/orquestrai/projects/.staging'
   echo 'PR_MAX_MB=100'
@@ -40,4 +42,4 @@ systemctl enable --now project-runner
 sleep 1
 systemctl is-active project-runner && echo "  ATIVO" || { echo "  FALHOU"; journalctl -u project-runner -n 20 --no-pager; exit 1; }
 echo "OK. healthz:"
-curl -s http://127.0.0.1:7655/healthz && echo
+curl -s http://172.18.0.1:7655/healthz && echo
