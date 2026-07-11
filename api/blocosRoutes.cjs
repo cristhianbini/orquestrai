@@ -1,10 +1,17 @@
-// ATUALIZADO: 2026-07-07 15:01:12 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-11 01:35:42 -03:00 (auto, git pre-commit)
 // OQ-58a — Executor LAVE remoto
 const crypto = require('crypto');
 const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const Database = require('better-sqlite3');
+const jwt = require('jsonwebtoken');
+
+// OQ-58a-fix (2026-07-11): mesma JWT_SECRET do server.js/mas-auth. Usada so
+// na rota SSE de stream, que nao pode passar pelo requireAuth de header
+// (EventSource nao manda header custom). Ausente => jwt.verify falha =>
+// stream nega 401 (fail-closed), consistente com mas/auth.mjs.
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const DB_PATH = process.env.CLUSTER_DB || ((process.env.LAVE_BASE || process.cwd()) + '/data/cluster.db');
 const KB_DIR = (process.env.LAVE_BASE || process.cwd()) + '/data/knowledge/blocos';
@@ -194,11 +201,14 @@ module.exports = function(app, requireAuth){
 
   // GET /api/blocos/:id/stream  (SSE)
   app.get('/api/blocos/:id/stream', (req, res) => {
-    // auth via Bearer OU ?_t=<jwt>
+    // auth via Bearer OU ?_t=<jwt>. EventSource nao manda header custom, por
+    // isso o token vem na query -- mas com jwt.verify REAL (OQ-58a-fix,
+    // 2026-07-11). Antes aceitava qualquer string nao-vazia (vazava
+    // stdout/stderr de execucoes). Mesmo padrao do authMiddlewareSSE (mas/auth.mjs).
     const tk = req.query._t || (req.headers.authorization||'').replace(/^Bearer\s+/,'');
     if(!tk) return res.status(401).end();
-    // delega validacao pro requireAuth via fake header (simplificado: aceita se token nao vazio)
-    // TODO OQ-58a-fix: chamar verifyJwt aqui
+    try { jwt.verify(tk, JWT_SECRET); }
+    catch { return res.status(401).end(); }
     const row = db().prepare('SELECT id,status,exit_code,stdout,stderr,iniciado_em,finalizado_em FROM execucoes WHERE id=?').get(req.params.id);
     if(!row) return res.status(404).end();
     res.set({ 'Content-Type':'text/event-stream', 'Cache-Control':'no-cache', 'Connection':'keep-alive', 'X-Accel-Buffering':'no' });

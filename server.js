@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-10 14:33:33 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-11 01:35:42 -03:00 (auto, git pre-commit)
 // OQ46Z-v1
 import { createRequire as _oqReq } from "module";
 const _oqRequire = _oqReq(import.meta.url);
@@ -24,10 +24,15 @@ const app = express();
 const Providers = require('./providers.cjs');
 app.use(cors());
 app.use(express.json());
+// S2-fix (2026-07-11): ausencia de JWT_SECRET agora e FATAL, nao fallback.
+// Antes caia num segredo publico hardcoded ('orquestrai-secret-2025'), que
+// deixava tokens forjaveis se o .env falhasse no boot. Alinha com mas/auth.mjs
+// e /opt/oqterm/server.js, que ja tratam ausencia como erro grave (fail-closed).
 if (!process.env.JWT_SECRET) {
-  console.warn('[CTXAUTH2FA01] JWT_SECRET ausente no .env -- usando fallback fraco e publico. Tokens emitidos NAO SAO SEGUROS.');
+  console.error('[S2-fix] FATAL: JWT_SECRET ausente no ambiente -- recusando iniciar para nao emitir tokens inseguros.');
+  process.exit(1);
 }
-const JWT_SECRET = process.env.JWT_SECRET || 'orquestrai-secret-2025';
+const JWT_SECRET = process.env.JWT_SECRET;
 const PORT = 3000;
 
 app.set('trust proxy', 1);
