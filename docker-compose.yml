@@ -25,7 +25,6 @@ services:
       - ./api:/app/api:ro
       - ./api/knowledgeRoutes.cjs:/app/knowledgeRoutes.cjs:ro
       - ./api/providers.cjs:/app/providers.cjs:ro
-      - ./api/server.js:/app/server.js:ro
       - ./api/clusterRoutes.cjs:/app/clusterRoutes.cjs:ro
       - ./api/blocosRoutes.cjs:/app/blocosRoutes.cjs:ro
       - ./api/laveRoutes.cjs:/app/laveRoutes.cjs:ro
