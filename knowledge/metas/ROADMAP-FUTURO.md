@@ -107,7 +107,25 @@ Ultima atualizacao: 2026-07-11. Ordem = alicerce antes do acabamento.
    design coerente sobre o qual opinar. Entra pela PENEIRA (META-CTXESTEIRA01)
    como novo titular do elenco.
 7. [ ] Curadoria de elenco premium (GLM-5.2, MiniMax, OpenAI, Anthropic) — comparar custo x qualidade
-8. [ ] UI padrao janelas (menu lateral + conteudo a direita, estilo Claude) — manter modal Provedores como esta
+8. [~] UI padrao janelas (menu lateral + conteudo a direita, estilo Claude) —
+   **rodada dupla de telas EM ANDAMENTO (Rodada 8, plano aprovado 2026-07-11:**
+   knowledge/metas/RODADA-8-PLANO-TELAS-UI.md, escopo T1-T5). Decisao A3(i)
+   SUBSTITUI a nota antiga "manter modal Provedores como esta": Configuracoes
+   novo (sidebar de abas) absorve Provedores + Telemetria; o modal antigo
+   vira "Elenco" (Modelos + Agentes, form de agentes intocado).
+   8a. [ ] **Captacao de leads no portal** (registrado 2026-07-11, decisao
+      CBini — sub-item do portal, NAO entra na Rodada 8 / T1-T5 atual).
+      Formulario simples: nome/email/interesse + botao discreto no portal.
+      Requisitos de seguranca ja fechados na concepcao:
+      - Banco ISOLADO: SQLite dedicado (ex. leads.db) — NUNCA blackboard.db/
+        cluster.db; dado de formulario NUNCA vira prompt de agente (mesma
+        familia de risco do L-CONTAMINACAO01: input publico nao entra na KB
+        nem no pipeline).
+      - Validacao de schema no backend (nao confiar no front).
+      - Rate limiting por IP + honeypot anti-bot.
+      - Export CSV autenticado sob demanda — SEM escrita direta em planilha/
+        API externa.
+      Avaliar na hora: litestream p/ leads.db (mesma lacuna do item 0b).
 
 ## EXPANSAO (bem pro final)
 9. [ ] Cotas/multi-tenancy ("VPS dentro da VPS") — depende de container isolado maduro
