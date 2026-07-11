@@ -45,6 +45,16 @@ Ultima atualizacao: 2026-07-11. Ordem = alicerce antes do acabamento.
      e o plano de contencao unificado. Pre-requisito: Fase B concluida (o 3o
      portao existir de fato). Nao e' nota solta do plano da sprint -- e' item de
      roadmap.
+     - **[2026-07-11] NOTA B2 (insumo para esta auditoria): JWT admin unico
+       abre os 3 portoes.** Constatado ao escrever o project-supervisor: os
+       tres portoes root validam o MESMO JWT (mesmo JWT_SECRET, role
+       admin/super_admin), sem claim de escopo/`aud` por servico. Um unico
+       token admin vazado compromete oqterm (PTY root), project-runner e
+       project-supervisor (socket docker) de uma vez -- o raio de dano de um
+       vazamento e' a uniao dos tres, nao um portao isolado. Compartimentar
+       (claim `aud`/scope por portao, ou segredo distinto por servico) e'
+       decisao a tomar NESTA auditoria, nao antes. Nota espelhada em
+       comentario no services/project-supervisor/server.js (requireAdmin).
 
 ## ACABAMENTO
 6. [ ] Agente DESIGNER dedicado no pipeline — especializado em UI e consistencia

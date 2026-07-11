@@ -1,0 +1,53 @@
+[Unit]
+Description=OrquestrAI project-supervisor (docker por projeto, Fase B do Sprint 2)
+# precisa do Docker de pe (fala com o socket). After+Requires docker.service.
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=projsup
+Group=projsup
+# projsup PRECISA estar no grupo docker para acessar /var/run/docker.sock.
+# Isso e' root-equivalente na pratica (3o portao root, R1) -- a contencao
+# real e' a API allowlisted do server.js, nao o hardening deste processo.
+SupplementaryGroups=docker
+EnvironmentFile=/etc/project-supervisor.env
+ExecStart=/usr/bin/node /opt/project-supervisor/server.js
+Restart=on-failure
+RestartSec=3
+
+# --- Hardening systemd (limita vetores NAO-docker de um RCE no daemon) ---
+NoNewPrivileges=yes
+ProtectSystem=strict
+# nao escreve arquivo nenhum no host (o docker daemon e' quem escreve).
+# Sem ReadWritePaths. PROJECTS_DIR e' lido so para checar se site/ existe.
+ProtectHome=yes
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictNamespaces=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+RestrictRealtime=yes
+ProtectClock=yes
+ProtectHostname=yes
+# filtro de syscalls (node + docker CLI filho validados no teste real do B2).
+# Compensa o custo de score do AF_UNIX/grupo docker que este daemon exige;
+# meta: exposure <= 3.9 (paridade com o project-runner/A0).
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+# AF_UNIX = socket do docker; AF_INET/INET6 = o listener HTTP em 127.0.0.1
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+# o processo em si nao precisa de capability nenhuma (docker roda no daemon)
+CapabilityBoundingSet=
+AmbientCapabilities=
+MemoryMax=128M
+TasksMax=64
+# arquivos que por acaso criar nascem sem world-read
+UMask=0027
+
+[Install]
+WantedBy=multi-user.target

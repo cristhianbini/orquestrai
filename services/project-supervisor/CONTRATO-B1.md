@@ -78,7 +78,12 @@ execucoes nesta rodada. Wizard NUNCA cria container. Fluxo:
 - **image**: `nginx:1.27-alpine` (pinada — reproduzivel/portavel).
 - **internalPort**: 80.
 - **monta**: `projects/{slug}/site/` :ro em `/usr/share/nginx/html`.
-- **rootfs**: read-only + tmpfs em `/var/cache/nginx` e `/var/run`.
+- **rootfs**: read-only + tmpfs em `/var/cache/nginx`, `/run` e `/tmp` com
+  `uid=101,gid=101` (tmpfs do docker nasce root-owned).
+- **user**: `101:101` (uid do nginx) — AJUSTE validado no teste real do B2
+  (2026-07-11): com `--cap-drop ALL` o nginx como root morre no `chown()`
+  dos temp dirs (CAP_CHOWN); nao-root nem tenta o chown. Bonus: container
+  sem root. Porta 80 nao-root ok (Docker zera ip_unprivileged_port_start).
 - **command**: default da imagem (nginx). Sem rede externa necessaria.
 - Observacao: o preview ESTATICO atual (proxy servindo site/) continua
   existindo em paralelo; a stack static conteinerizada e' a versao "app vivo"
@@ -90,12 +95,16 @@ execucoes nesta rodada. Wizard NUNCA cria container. Fluxo:
 - **monta**: `projects/{slug}/repo/` :ro em `/app`, workdir `/app`.
 - **command**: `node <entry>` do projeto (definido no project.json ou
   package.json `main`/`scripts.start`).
-- **PONTO ABERTO p/ B2** (registrado, nao resolvido aqui): dependencias npm.
-  Com rootfs :ro e repo :ro nao ha onde instalar node_modules. Opcoes a
-  decidir no B2: (a) exigir deps vendorizadas no repo; (b) step de `npm ci`
-  numa layer/volume de build antes do run; (c) imagem por projeto (build).
-  O contrato B1 fixa a FORMA (monta repo, escuta PORT); o COMO do install
-  fica para o desenho do B2.
+- **DECIDIDO (CBini 2026-07-11)**: dependencias via **build-time install** —
+  o supervisor GERA um Dockerfile por projeto (`FROM node:20-alpine`, `COPY`
+  do repo, `RUN npm ci`, `CMD` de start) e faz `docker build` de uma imagem
+  `proj-{slug}:latest`; o `docker run` usa essa imagem. NAO vendorizado, NAO
+  montado via rootfs :ro. Motivo: mais portavel para o export futuro
+  (`docker save` leva a imagem completa, sem depender de volume do host —
+  VISAO). Implica que o node stack tem 2 fases (build, depois run) e que o
+  repo NAO e' montado :ro (o codigo e' COPIADO para a imagem). O static stack
+  segue montando site/ :ro (nao precisa de build). Implementacao do build:
+  chega no B2b (o esqueleto do B2 entrega o static primeiro).
 
 ---
 
@@ -112,10 +121,14 @@ docker run -d
   --cpus {resources.cpus}                    # teto CPU (ex: 0.5)
   --pids-limit {resources.pidsLimit}         # ex: 128
   --read-only                                # rootfs imutavel
-  --tmpfs /tmp                               # (+ /var/cache/nginx,/var/run p/ static)
+  --tmpfs /tmp                               # (+ /var/cache/nginx,/run p/ static,
+                                             #  com uid/gid do usuario da stack)
   --cap-drop ALL                             # zero capabilities
   --security-opt no-new-privileges
-  --restart no                               # NAO ressuscita codigo hostil sozinho
+  --user {stack.user}                        # nunca root no container (static: 101:101)
+  --restart no                               # DECIDIDO: sem restart automatico na v1.
+                                             # Container que falhar fica PARADO e visivel,
+                                             # exigindo acao humana (nao unless-stopped).
   -v {HOST}/projects/{slug}/{site|repo}:{mount}:ro
   --label orquestrai.project={slug}          # p/ inventario e contagem do teto
   {image}                                    # so do catalogo
