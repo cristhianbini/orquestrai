@@ -3,7 +3,7 @@
 // Ver mas/auth.mjs para o raciocinio completo.
 import { authMiddleware, authMiddlewareSSE } from './auth.mjs';
 
-// ATUALIZADO: 2026-07-09 00:29:05 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-11 19:30:56 -03:00 (auto, git pre-commit)
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 import express from 'express';
@@ -272,6 +272,28 @@ router.get('/telemetry', authMiddleware, readLimiter, (req,res) => {
     rows.forEach(r=>{ r.skips = skipMap[r.agent]||0; r.economia_q10 = Math.round((r.skips * (r.custo_medio||0.1))*100)/100; });
     const tot = rows.reduce((a,r)=>({custo:a.custo+r.custo_total, tokens:a.tokens+r.tokens, economia:a.economia+r.economia_q10}),{custo:0,tokens:0,economia:0});
     res.json({ ok:true, agents: rows, total: { custo_usd: Math.round(tot.custo*100)/100, tokens: tot.tokens, economia_q10_usd: tot.economia } });
+  }catch(e){ res.status(500).json({ok:false,error:String(e.message||e)}); }
+});
+
+// TELEM01 (2026-07-11): custo/tokens POR PROJETO (ROADMAP #3, sql/mas-002.sql).
+// Irma do /telemetry acima (que agrega por agente). project_slug NULL = run
+// solta (chat direto/mas.html); o rotulo '(sem-projeto)' e' aplicado AQUI via
+// COALESCE — apresentacao, nunca gravado no banco (colisao com slug real).
+router.get('/telemetry/projects', authMiddleware, readLimiter, (req,res) => {
+  try{
+    const D = require('better-sqlite3');
+    const d = new D('/app/data/blackboard.db', { readonly: true });
+    const rows = d.prepare(`SELECT COALESCE(project_slug,'(sem-projeto)') projeto,
+      COUNT(*) runs, SUM(tokens_in) tokens_in, SUM(tokens_out) tokens_out,
+      ROUND(SUM(cost_usd),6) custo_usd, MAX(started_at) ultima_run_ts
+      FROM mas_run GROUP BY project_slug ORDER BY custo_usd DESC`).all();
+    d.close();
+    const total = rows.reduce((a,r)=>({ runs:a.runs+r.runs,
+      custo_usd:a.custo_usd+(r.custo_usd||0),
+      tokens:a.tokens+(r.tokens_in||0)+(r.tokens_out||0) }),
+      { runs:0, custo_usd:0, tokens:0 });
+    total.custo_usd = Math.round(total.custo_usd*1e6)/1e6;
+    res.json({ ok:true, projects: rows, total });
   }catch(e){ res.status(500).json({ok:false,error:String(e.message||e)}); }
 });
 
