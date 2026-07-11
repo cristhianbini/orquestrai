@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-09 07:29:38 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-11 19:26:45 -03:00 (auto, git pre-commit)
 
 // [B220-LOG]
 import { appendFileSync as _appB220 } from "node:fs";
@@ -93,6 +93,18 @@ import { join } from 'path';
 
 export const bus=new EventEmitter(); bus.setMaxListeners(0);
 function db(){ const d=new Database(DB_PATH); d.pragma('journal_mode=WAL'); return d; }
+
+(function ensureSchemaTELEM01(){ // TELEM01: project_slug nullable (sql/mas-002.sql), idempotente
+  // Espelha ensureSchemaCTXPROV01 do blocosRoutes: DB novo/restaurado ganha
+  // a coluna no boot mesmo que a migration manual nao tenha rodado.
+  // NULL = run solta (sem projeto); rotulo '(sem-projeto)' e' so apresentacao.
+  const d=db();
+  ['mas_run','runs'].forEach(t=>{
+    try{ d.prepare('ALTER TABLE '+t+' ADD COLUMN project_slug TEXT').run(); }
+    catch(e){ if(!/duplicate column/i.test(e.message||'')) throw e; }
+  });
+  d.close();
+})();
 
 // CTXMAS01: memoria entre runs -- ultimas N runs concluidas, goal + resumo final
 function getRecentRunsContext(excludeRunId, limit=3){
@@ -237,7 +249,7 @@ export async function runMas(goal, projectSlug){
   if(projectSlug && !/^[a-z0-9-]{1,60}$/.test(projectSlug)) projectSlug=null;
   const runId='mas_'+crypto.randomBytes(6).toString('hex');
   const d=db();
-  d.prepare('INSERT INTO mas_run(id,goal,status,started_at) VALUES(?,?,?,?)').run(runId,goal,'running',Date.now());
+  d.prepare('INSERT INTO mas_run(id,goal,status,started_at,project_slug) VALUES(?,?,?,?,?)').run(runId,goal,'running',Date.now(),projectSlug||null);
   d.close();
   bus.emit(runId,{type:'run.start',run_id:runId,goal,ts:Date.now()});
   (async()=>{
