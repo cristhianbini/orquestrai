@@ -2,12 +2,15 @@
 Ultima atualizacao: 2026-07-11. Ordem = alicerce antes do acabamento.
 
 ## ALICERCE
-0. [ ] **CTXOPSCHECK01 — teste de restore do Litestream (ALTO/CRITICO)** — o backup
-   continuo roda desde CTXLITESTREAM01, mas o restore NUNCA foi testado. Backup que
-   nunca foi restaurado nao e backup confiavel. Fazer 1 teste de restore real (para
-   um path descartavel, sem tocar os DBs vivos) e depois formalizar checklist
-   operacional (semanal/mensal/trimestral) em knowledge/decisoes/. Migrado do
-   roadmap.md antigo em 2026-07-11.
+0. [~] **CTXOPSCHECK01 — restore do Litestream** — 1o teste de restore FEITO e
+   APROVADO em 2026-07-11 (restore p/ path descartavel; integrity_check=ok nos 2
+   bancos; contagem+timestamp restaurado == vivo ao milissegundo; RPO efetivo ~0).
+   FALTA ainda: formalizar o checklist operacional (semanal/mensal/trimestral) em
+   knowledge/decisoes/ e reteste trimestral. Migrado do roadmap.md antigo.
+0b. [ ] **orquestrai.db (2FA/TOTP) NAO tem backup Litestream** — achado no teste de
+   restore 2026-07-11: /etc/litestream.yml replica so cluster.db e blackboard.db.
+   Se a VPS morrer, os segredos TOTP se perdem (usuarios teriam de refazer 2FA).
+   Avaliar adicionar orquestrai.db ao litestream.yml. Decisao do Bini, sem urgencia.
 1. [x] Token efemero de preview — feito 2026-07-10 (CTXPREVIEWTOKEN02/03)
 2. [ ] Import GitHub + container isolado — proximo passo concreto, habilita metade das metas.
    Visao ampliada em knowledge/decisoes/VISAO-IMPORT-MIGRACAO-INFRA.md: nao e so
