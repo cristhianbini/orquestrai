@@ -19,7 +19,17 @@ Ultima atualizacao: 2026-07-11. Ordem = alicerce antes do acabamento.
    portabilidade real (VPS propria hoje -> VPS dedicada/outro provedor depois).
    O container deve nascer portavel. Ver tambem o gatilho de promocao por projeto
    no BACKLOG DE PRODUTO abaixo.
-3. [ ] Telemetria por projeto (custo/tokens) — DO ZERO (project_slug nao existe em runs/mas_run; ver correcao 2026-07-10)
+3. [x] Telemetria por projeto (custo/tokens) — **CONCLUIDO (camada de dados)
+   em 2026-07-11**: migration mas-002 project_slug nullable (1de0bcc),
+   captura no INSERT + guard idempotente TELEM01 (e9cc7e2), GET
+   /api/mas/telemetry/projects (a763f51), card cru no dashboard (7ba1352).
+   NULL = run solta, rotulo '(sem-projeto)' so na apresentacao. Design do
+   card fica p/ a rodada de telas (#8). NOTA de reconhecimento: a correcao
+   2026-07-10 dizia "DO ZERO", mas o encanamento do slug JA existia
+   (CTXPROJRUN01: wizard -> rota -> runMas) — faltava so persistir; o L
+   do LAVE encolheu o passo. PENDENTE: E2E do 2o bucket na 1a run real
+   via wizard (3 .bak telem01/telem03/telem04 aguardam isso p/ limpeza,
+   L-PROP-safe-bak-cleanup).
 
 ## ESTRUTURA
 4. [ ] Telemetria expandida (disco/memoria/CPU) — depende do container isolado
