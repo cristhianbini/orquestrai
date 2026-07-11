@@ -109,12 +109,21 @@ Status 2026-07-11 (2a sessao): **Fases A0 e A2 concluidas.**
 **Pendente:**
 - Fase B (container isolado por projeto) e Fase C (preview conteinerizado):
   ainda no desenho, nao iniciadas.
-- Achados de seguranca novos (backlog, nao bloqueantes):
-  - blocoMemoryRoutes.cjs:33 -- fallback de JWT_SECRET para '' (revisar se
-    permite verify com segredo vazio);
-  - mas/auth.mjs:27 -- comentario menciona outro fallback hardcoded (conferir);
-  - ADMIN_PASSWORD ausente no .env -- api sobe com senha padrao antiga
-    (warning CTXAUTH2FA01 no boot). Definir no .env + force-recreate.
+- Achados de seguranca da sessao A2 (triados em 2026-07-11):
+  - [CORRIGIDO] blocoMemoryRoutes.cjs -- era MUITO pior que "fallback fraco":
+    assinatura invalida caia num "fallback decode" que aceitava QUALQUER
+    token bem-formado (auth decorativa), na rota que ESCREVE .md em
+    knowledge/ (vetor de contaminacao da KB, e /api/memory e isenta do
+    rate-limit global). Fix AUTHFIX: require duro + JWT_SECRET fatal +
+    jwt.verify ou 401. Teste 3/3 (forjado=401, sem token=401, valido=200).
+  - [BAIXA] mas/auth.mjs:27 -- codigo OK (sem fallback); so o COMENTARIO
+    esta obsoleto (cita fallback do server.js que o S2 removeu) e o
+    console.error poderia ser exit(1). Corrigir quando tocar no arquivo.
+  - [MEDIA] ADMIN_PASSWORD ausente no .env -- api sobe com senha padrao
+    hardcoded (versionada). Atenuante VERIFICADO: TOTP enabled=1 p/ admin
+    desde 2026-07-01 e o login exige o codigo (need_totp). Acao da CBini:
+    definir ADMIN_PASSWORD no .env + force-recreate (nao restart) na
+    proxima janela.
 - Rotas GET /modes e /scorecard de projectsRoutes.cjs sao inalcancaveis
   (sombreadas por GET /:slug, definidas depois) -- bug pre-existente,
   corrigir quando tocar no arquivo de novo.

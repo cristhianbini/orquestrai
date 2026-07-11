@@ -1,8 +1,19 @@
+// ATUALIZADO: 2026-07-11 06:50:59 -03:00 (auto, git pre-commit)
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-let jwt = null; try { jwt = require('jsonwebtoken'); } catch(e) {}
+// [AUTHFIX 2026-07-11] require DURO: se a lib faltar, o boot falha em vez
+// de degradar para decode sem assinatura (era o buraco do auth antigo).
+const jwt = require('jsonwebtoken');
+// Mesmo padrao S2 do server.js: sem segredo = fatal. So JWT_SECRET — os
+// fallbacks ORQ_JWT_SECRET/SESSION_SECRET nao existem no .env (conferido
+// por nome em 2026-07-11) e tokens sao emitidos com JWT_SECRET mesmo.
+if (!process.env.JWT_SECRET) {
+  console.error('[AUTHFIX] FATAL: JWT_SECRET ausente no ambiente -- /api/memory nao sobe sem auth real.');
+  process.exit(1);
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 const router = express.Router();
 const ROOTS = ['/var/www/orquestrai/data/knowledge','/app/knowledge','/var/www/orquestrai/knowledge'];
 const COUNTER = '/var/www/orquestrai/data/bloco_counter.json';
@@ -25,20 +36,19 @@ function nextName(h){
   return { name, duplicate: false };
 }
 function readMdList(cat, limit){ const found=[]; for(const r of ROOTS){ try{ const dir=path.join(r,cat); for(const f of fs.readdirSync(dir).filter(x=>x.endsWith('.md'))){ const fp=path.join(dir,f); const st=fs.statSync(fp); const raw=fs.readFileSync(fp,'utf8'); const h=(raw.match(/^#\s+(.+)$/m)||[])[1]||f.replace(/\.md$/,''); found.push({file:f,title:h,mtime:st.mtimeMs,excerpt:raw.replace(/^---[\s\S]*?---/,'').replace(/[#*`>]/g,'').trim().slice(0,180)}); } }catch(e){} } found.sort((a,b)=>b.mtime-a.mtime); return found.slice(0,limit||12); }
+// [AUTHFIX 2026-07-11] auth REAL: jwt.verify ou 401. O codigo antigo, em
+// caso de assinatura invalida (ou lib/segredo ausentes), caia num "fallback
+// decode" que so base64-decodava o payload e chamava next() — ou seja,
+// QUALQUER token bem-formado passava. Vetor de contaminacao da KB: esta
+// rota escreve .md em knowledge/ (e licoes/ e auto-commitada pelo
+// roadmap-autosync). Achado da sessao A2, corrigido antes da Fase B.
 function auth(req,res,next){
   const h = req.headers.authorization || '';
   const m = h.match(/^Bearer\s+(.+)$/i);
   const tok = m ? m[1].trim() : '';
   if(!tok) return res.status(401).json({ok:false,error:'sem token'});
-  const secret = process.env.JWT_SECRET || process.env.ORQ_JWT_SECRET || process.env.SESSION_SECRET || '';
-  if(jwt && secret){
-    try{ req.user = jwt.verify(tok, secret); return next(); }catch(e){ /* tenta fallback decode */ }
-  }
-  try{
-    const parts = tok.split('.');
-    if(parts.length>=2){ JSON.parse(Buffer.from(parts[1].replace(/-/g,'+').replace(/_/g,'/'),'base64').toString('utf8')); return next(); }
-  }catch(e){}
-  return res.status(401).json({ok:false,error:'token invalido'});
+  try{ req.user = jwt.verify(tok, JWT_SECRET); return next(); }
+  catch(e){ return res.status(401).json({ok:false,error:'token invalido'}); }
 }
 router.use(auth);
 router.post('/bloco', express.json({limit:'8mb'}), (req,res)=>{
