@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-10 14:42:04 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-11 19:35:54 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1246,8 +1246,28 @@ button[onclick="send()"]:hover{
       });
       h+='</div></div>'; return h;
     }
+    /* TELEM01-E4 (2026-07-11): card CRU de custo por projeto (ROADMAP #3).
+       Dado direto de GET /api/mas/telemetry/projects; layout definitivo vem
+       na rodada de telas. Encadeado APOS o buildTelPane porque o innerHTML=
+       do fetch principal apagaria um append concorrente (race). 'projeto' e
+       seguro p/ innerHTML por construcao: slug validado ^[a-z0-9-]{1,60}$ no
+       backend, ou o literal '(sem-projeto)' do COALESCE. */
+    function loadProjTelemRaw(){
+      fetch('/api/mas/telemetry/projects',{headers:{Authorization:'Bearer '+(localStorage.getItem('oq_token')||'')}}).then(function(r){return r.json();}).then(function(j){
+        if(!j||!j.ok||!j.projects||!telPane.firstElementChild) return;
+        var h='<div data-telem="TELEM01_E4_RAW" style="background:#0a1119;border:1px solid #33415555;border-radius:8px;padding:12px">';
+        h+='<div style="color:#6b7280;font:10px ui-monospace,monospace;letter-spacing:.08em">CUSTO POR PROJETO <span style="color:#374151">(dado cru — TELEM01)</span></div>';
+        h+='<table style="width:100%;margin-top:6px;border-collapse:collapse;font:11px ui-monospace,monospace;color:#94a3b8"><tr style="color:#4b5563;text-align:left"><th>projeto</th><th>runs</th><th>tok in</th><th>tok out</th><th>custo</th><th>ultima run</th></tr>';
+        j.projects.forEach(function(p){
+          h+='<tr><td style="color:#e2e8f0;padding:2px 8px 2px 0">'+p.projeto+'</td><td>'+p.runs+'</td><td>'+(p.tokens_in||0)+'</td><td>'+(p.tokens_out||0)+'</td><td style="color:#fbbf24">$'+(p.custo_usd||0).toFixed(4)+'</td><td>'+(p.ultima_run_ts?new Date(p.ultima_run_ts).toLocaleString('pt-BR'):'—')+'</td></tr>';
+        });
+        h+='</table></div>';
+        var d=document.createElement('div'); d.innerHTML=h;
+        telPane.firstElementChild.appendChild(d.firstElementChild);
+      }).catch(function(){});
+    }
     telPane.innerHTML='<div class="b356-empty">Carregando telemetria...</div>';
-    fetch('/api/mas/telemetry',{headers:{Authorization:'Bearer '+(localStorage.getItem('oq_token')||'')}}).then(function(r){return r.json();}).then(function(j){telPane.innerHTML=buildTelPane(j);}).catch(function(e){telPane.innerHTML='<div class="b356-empty"><b>Telemetria</b>erro: '+e+'</div>';});
+    fetch('/api/mas/telemetry',{headers:{Authorization:'Bearer '+(localStorage.getItem('oq_token')||'')}}).then(function(r){return r.json();}).then(function(j){telPane.innerHTML=buildTelPane(j);loadProjTelemRaw();}).catch(function(e){telPane.innerHTML='<div class="b356-empty"><b>Telemetria</b>erro: '+e+'</div>';});
     body.appendChild(telPane);
 
 
