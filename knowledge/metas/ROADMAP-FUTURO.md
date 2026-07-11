@@ -34,6 +34,17 @@ Ultima atualizacao: 2026-07-11. Ordem = alicerce antes do acabamento.
    - **CTXOQTERM01** — oqterm roda root sem senha, fora do Docker; unico controle e
      a assinatura do JWT (se vazar = root total no host). Escopo de usuario limitado
      (nao root direto) + 2FA de terminal ja desenhado. Mesma familia de risco.
+   - **[2026-07-11] AUDITORIA CONJUNTA DOS TRES PORTOES ROOT** — a Fase B (Rodada
+     7) adiciona um TERCEIRO ponto com privilegio: o daemon `project-supervisor`
+     (acesso controlado ao socket docker). Ficam entao TRES superficies com algum
+     nivel de root/privilegio no host: (1) execBloco (auditado, hash-chain),
+     (2) oqterm/CTXOQTERM01 (PTY root raw), (3) project-supervisor (socket docker
+     allowlisted). Decisao CBini: NAO auditar em separado — abrir uma **rodada
+     futura dedicada de auditoria de seguranca CONJUNTA** dos tres, mapeando
+     superficie total de escalonamento a root, o que cada JWT vazado permitiria,
+     e o plano de contencao unificado. Pre-requisito: Fase B concluida (o 3o
+     portao existir de fato). Nao e' nota solta do plano da sprint -- e' item de
+     roadmap.
 
 ## ACABAMENTO
 6. [ ] Agente DESIGNER dedicado no pipeline — especializado em UI e consistencia
