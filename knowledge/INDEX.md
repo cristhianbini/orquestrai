@@ -1,6 +1,6 @@
 # INDEX OrquestrAI KB
 
-Total: 118 arquivos .md em licoes/ (contagem real via ls 2026-07-11; inclui BLOCO-* auto-gerados; ~83 lições curadas).
+Total: 119 arquivos .md em licoes/ (contagem real via ls 2026-07-11; inclui BLOCO-* auto-gerados; ~84 lições curadas).
 
 > Reconciliado 2026-07-11: contagem antiga (41) estava desatualizada. A lista
 > abaixo também está defasada — regeneração automática do índice pendente
@@ -48,6 +48,7 @@ Total: 118 arquivos .md em licoes/ (contagem real via ls 2026-07-11; inclui BLOC
 - **L-OQ65-executar-body** —  `[]`
 - **L-OQ66-sse-token** —  `[]`
 - **L-PROP-safe-bak-cleanup** — Política de retenção e validação prévia para remoção de arquivos .bak `[]`
+- **L-WATCHERRACE01** — Watcher auto-sync de licoes/ commita em ~3s com mensagem generica e leva junto o que estiver staged; commit manual deve vencer a corrida `[git,watcher,autosync,rastreabilidade,kb]`
 - **L-XMonex-mesmo-numero-loop** — Bot WhatsApp no mesmo numero do usuario gera loop 515 stream conflict `[whatsapp,arquitetura,bot]`
 - **L-bloco-ordem-array** — Blocos append-only no array BLOCKS `[ux,blocos,ordem]`
 - **L-router-mount-ordem** — Rotas Express especificas antes de fallback 404 `[express,router,ordem]`
