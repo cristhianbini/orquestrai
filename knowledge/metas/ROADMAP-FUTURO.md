@@ -55,6 +55,17 @@ Ultima atualizacao: 2026-07-11. Ordem = alicerce antes do acabamento.
        (claim `aud`/scope por portao, ou segredo distinto por servico) e'
        decisao a tomar NESTA auditoria, nao antes. Nota espelhada em
        comentario no services/project-supervisor/server.js (requireAdmin).
+     - **[2026-07-11] NOTA B3 (insumo para esta auditoria): containers de
+       projeto na MESMA rede dos 3 portoes.** Os `proj-*` nascem na
+       `orquestrai_app-net` (172.18.0.0/16) — a mesma subnet liberada no ufw
+       para alcancar 7654 (oqterm), 7655 (project-runner) e 7656
+       (project-supervisor) no gateway 172.18.0.1. Um container de projeto
+       comprometido alcanca os 3 portoes na camada de REDE; a partir dai a
+       unica contencao e' o JWT admin (ver nota B2 acima — e o JWT e' um so).
+       Ja era verdade para 7654/7655 desde que os proj-* passaram a existir
+       (B2); o B3 adiciona o 7656. Mitigacao candidata a avaliar NESTA
+       auditoria: rede bridge separada para os proj-* (sem rota aos portoes),
+       com o proxy participando das duas redes para o preview (B5).
 
 ## ACABAMENTO
 6. [ ] Agente DESIGNER dedicado no pipeline — especializado em UI e consistencia

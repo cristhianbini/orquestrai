@@ -31,7 +31,7 @@ umask 077
 {
   # mesma chave do api/project-runner (copia a linha sem imprimir o valor)
   grep '^JWT_SECRET=' /etc/oqterm.env
-  echo 'PS_HOST=127.0.0.1'          # B2: localhost only (app-net vem no B3)
+  echo 'PS_HOST=172.18.0.1'         # B3: gateway da app-net (igual A2/7655)
   echo 'PS_PORT=7656'
   echo 'PS_PROJECTS_DIR=/var/www/orquestrai/projects'
   echo 'PS_NETWORK=orquestrai_app-net'   # nome REAL da rede (prefixo do compose)
