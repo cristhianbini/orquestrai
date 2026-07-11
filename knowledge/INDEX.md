@@ -1,6 +1,6 @@
 # INDEX OrquestrAI KB
 
-Total: 114 arquivos em licoes/ (inclui BLOCO-* auto-gerados; ~80 lições curadas).
+Total: 118 arquivos .md em licoes/ (contagem real via ls 2026-07-11; inclui BLOCO-* auto-gerados; ~83 lições curadas).
 
 > Reconciliado 2026-07-11: contagem antiga (41) estava desatualizada. A lista
 > abaixo também está defasada — regeneração automática do índice pendente
@@ -40,6 +40,9 @@ Total: 114 arquivos em licoes/ (inclui BLOCO-* auto-gerados; ~80 lições curada
 - **L-B246-compose-ro-flag** — Flag :ro no docker-compose torna mount somente-leitura — silencioso ate tentar escrever `[docker,compose,permissions]`
 - **L-B70-mutationobserver-loop** — MutationObserver em document.body com subtree gera loop infinito `[dom,observer,loop,dashboard]`
 - **L-B82k-pageheader-ssr** — Componentes complexos com hooks de client quebram SSR/build `[ssr,nextjs,react]`
+- **L-BINDMOUNT-inode-proxyconf** — Bind-mount de arquivo unico prende o inode; editar via rename (sed -i/Edit) nao aplica NADA e nginx -t valida a config velha `[docker,nginx,proxy,bindmount,inode]`
+- **L-DOCKER-tmpfs-capchown** — tmpfs nasce root-owned; nginx read-only+cap-drop ALL exige --user 101 e uid/gid no tmpfs `[docker,nginx,tmpfs,capabilities,hardening]`
+- **L-HOOK-precommit-shebang** — Hook pre-commit prepende header acima do shebang e quebra o parse; invocar pelo interprete explicito `[git,hook,shebang,systemd]`
 - **L-LAVE-protocolo** — Protocolo LAVE humano sempre executa `[lave,protocolo,seguranca]`
 - **L-OQ58-alpine-bash** — Container Alpine nao tem bash por padrao, scripts shebang #!/bin/bash falham `[alpine,docker,shell]`
 - **L-OQ65-executar-body** —  `[]`

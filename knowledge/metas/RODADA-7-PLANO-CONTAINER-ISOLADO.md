@@ -1,7 +1,10 @@
 PROJETO: orquestrai
 TIPO: plano-de-sprint
 CRIADO: 2026-07-11
-STATUS: APROVADO pela CBini em 2026-07-11 — B0 concluido, B1 em andamento
+STATUS: APROVADO pela CBini em 2026-07-11 — B0-B5 FECHADOS E COMMITADOS em
+        2026-07-11: B0/B1 921ea4c, B2 a084c2b, B3 edb6b65, B4 2b89fe3,
+        B5 1925921. Pendentes: B2b (stack node — supervisor responde 501
+        ate la) e B6 (documentacao final, em andamento)
 CONECTA: ROADMAP-FUTURO.md item #2 (Import GitHub + container isolado),
          VISAO-IMPORT-MIGRACAO-INFRA.md, Fase A0/A2 (services/project-runner/)
 
@@ -154,7 +157,7 @@ container so nasce quando o projeto tem `status:'producao'` marcado pelo
 humano OU >=N execucoes reais via /api/mas/run (numero a definir com a CBini).
 Nunca no wizard. (Fonte: BACKLOG DE PRODUTO do roadmap + VISAO.)
 
-- **B0 — Decisao de arquitetura + este plano aprovado.** (voce esta aqui)
+- **B0 — Decisao de arquitetura + este plano aprovado.** [FECHADO 921ea4c]
   Validacao: CBini aprova a abordagem "supervisor dedicado", o gate de
   promocao e o valor de N.
 

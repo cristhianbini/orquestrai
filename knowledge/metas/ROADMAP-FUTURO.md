@@ -82,6 +82,15 @@ Ultima atualizacao: 2026-07-11. Ordem = alicerce antes do acabamento.
    co-hospedados na VPS (multi-tenancy, ver META-CTXPROJISO01, que ja cita
    "PM2/XMonex antigo"). Confirmar na sessao dedicada: quem iniciou, se
    ainda e' usado, e se cabe bind em 127.0.0.1 ou desligamento.
+5d. [ ] **Mesh conhece o "como" mas nao o "o que vem a seguir" (achado B6
+   2026-07-11).** Verificado no codigo: mas/kb.cjs injeta INDEX.md + top-5
+   licoes de knowledge/licoes/ nos prompts dos 9 agentes (keyword-match,
+   truncado em 1500 chars/arquivo), mas knowledge/metas/ (ROADMAP-FUTURO,
+   planos de rodada) e INVISIVEL ao mesh — as licoes protegem os agentes,
+   as metas nao os orientam. Documentado como lacuna, sem urgencia e sem
+   solucao decidida. Avaliar junto do PLANEJADOR/ORQUESTRADOR (#5), o
+   consumidor natural de visao de roadmap, e do RAG semantico do backlog
+   tecnico (keyword-match raso nao escala p/ docs longos como o roadmap).
 6. [ ] Agente DESIGNER dedicado no pipeline — especializado em UI e consistencia
    visual. Encaixa mais naturalmente DEPOIS que a migracao Tailwind/React
    (strangler fig do dashboard) estiver madura, para o agente ter um sistema de
@@ -132,7 +141,7 @@ cada um for promovido a uma rodada:
   conecta com item #9 EXPANSAO).
 
 ## Sprint 2 — Import GitHub (item #2, em andamento)
-Status 2026-07-11 (2a sessao): **Fases A0 e A2 concluidas.**
+Status 2026-07-11 (3a sessao): **Fases A0, A2 e B (nucleo B0-B5) concluidas.**
 - A0 (daemon project-runner): ver services/project-runner/ e commit 93a2bbf.
   Executor isolado (projrunner nao-root, ProtectSystem=strict, score 3.9),
   JWT+path-guard, clone --depth 1 + limite + timeout, staging atomico.
@@ -152,9 +161,19 @@ Status 2026-07-11 (2a sessao): **Fases A0 e A2 concluidas.**
   projectsRoutes.cjs:20, lacuna do S2 achada pela CBini) -- agora fatal,
   mesmo padrao do server.js.
 
+- Fase B (container isolado por projeto): **nucleo B0-B5 CONCLUIDO e
+  commitado em 2026-07-11** (B0/B1 921ea4c plano+contrato, B2 a084c2b
+  daemon project-supervisor, B3 edb6b65 bridge+ufw 7656, B4 2b89fe3
+  rotas deploy/stop/runtime, B5 1925921 preview vivo /app/ no proxy).
+  Detalhe em knowledge/metas/RODADA-7-PLANO-CONTAINER-ISOLADO.md.
+
 **Pendente:**
-- Fase B (container isolado por projeto) e Fase C (preview conteinerizado):
-  ainda no desenho, nao iniciadas.
+- Fase B — restos: B2b (stack `node` via Dockerfile build-time; supervisor
+  responde 501 ate la; proxy precisa mapear internalPort) e B6 (docs/licoes,
+  em andamento 2026-07-11).
+- Fase C (preview conteinerizado): REAVALIAR se ainda faz sentido como fase
+  separada — o B5 ja entregou preview do container vivo atras de auth;
+  o que sobraria para C precisa ser redefinido antes de virar rodada.
 - Achados de seguranca da sessao A2 (triados em 2026-07-11):
   - [CORRIGIDO] blocoMemoryRoutes.cjs -- era MUITO pior que "fallback fraco":
     assinatura invalida caia num "fallback decode" que aceitava QUALQUER
