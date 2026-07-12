@@ -1,11 +1,20 @@
 PROJETO: orquestrai
 TIPO: plano-de-sprint
 CRIADO: 2026-07-11
-STATUS: EM EXECUCAO (aprovado 2026-07-11; A3 = opcao i). Concluidos e
-        validados pela CBini: E1a+E1b (5d352c0), E2 (ddd734a),
-        E3+E3a-fix1 (04c3c34), E4 (95ae089), E5 (cf88625).
-        No working tree aguardando gate visual: F1-F3 (fix do pulo
-        da nav, ver BUG-NAVJUMP abaixo) + E6a (engrenagem ligada)
+STATUS: T1-T5 CONCLUIDOS E VALIDADOS (12/07): E1a+E1b (5d352c0),
+        E2 (ddd734a), E3+E3a-fix1 (04c3c34), E4 (95ae089), E5
+        (cf88625), F1-F3+E6a (923e186, smoke completo OK), E7 (docs+
+        licao L-SINGLEOWNER02+limpeza .bak, commit deste arquivo).
+        PROXIMA ETAPA (aprovada 12/07, plano fracionado a apresentar
+        antes de codar): expansao do modal Configuracoes (~880x560 ->
+        maior; busca de Provedores sobrepoe cards) + preparar o shell
+        p/ receber futuras telas na sidebar. DECISAO ARQUITETURAL
+        CBini 12/07: candidatas a migrar = Manual, Licoes, Elenco
+        (uma por vez, gate proprio); PROJETOS FICA DE FORA — segue
+        modal dedicado (gestao de entidades com acoes + 5 itens EM
+        BREVE do roadmap, nao e "configuracao/leitura de estado").
+        Pendentes de rodada: E1c, E1d (ordem final da nav), NOTA DE
+        DESIGN (absorvida pela proxima etapa)
 CONECTA: ROADMAP-FUTURO.md item #8 (UI padrao janelas), CTXDESIGNGUIDE01
          (HANDOFF-POS-FABLE.md), TELEM01 (telemetria por projeto, 2026-07-11)
 
@@ -289,6 +298,12 @@ temporais) = T11 FUTURA, fora desta rodada.
   tooltip "Configurações", onclick window.oqSettings.open() (default
   aba Provedores, contrato do E2). .bak-r8e6a-20260712. Checador 72/0.
 - E7 — Docs/licoes/roadmap da rodada (padrao B6) + limpeza .bak.
+  CONCLUIDO 12/07: STATUS deste plano atualizado; ROADMAP #8 com
+  progresso T1-T5; licao L-SINGLEOWNER02 em knowledge/licoes/ +
+  INDEX.md (commit manual imediato, protocolo L-WATCHERRACE01);
+  .bak-r8* de src/ removidos (auditoria previa L-PROP-safe-bak-cleanup:
+  todos os estados intermediarios estao no git 5d352c0..923e186;
+  .baks pre-rodada mantidos).
 Cada E: .bak + checador de 71 blocos + aprovacao CBini antes do proximo.
 
 ## 6. FORA DE ESCOPO (nao misturar)

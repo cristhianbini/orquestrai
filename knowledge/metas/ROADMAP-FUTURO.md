@@ -113,6 +113,16 @@ Ultima atualizacao: 2026-07-11. Ordem = alicerce antes do acabamento.
    SUBSTITUI a nota antiga "manter modal Provedores como esta": Configuracoes
    novo (sidebar de abas) absorve Provedores + Telemetria; o modal antigo
    vira "Elenco" (Modelos + Agentes, form de agentes intocado).
+   PROGRESSO 2026-07-12: T1-T5 ENTREGUES e validados (nav icones
+   5d352c0, shell ddd734a, Provedores 04c3c34, Telemetria 95ae089,
+   Seguranca cf88625, fix BUG-NAVJUMP + engrenagem 923e186; licao
+   L-SINGLEOWNER02). Proxima etapa da rodada dupla: expandir o shell
+   Configuracoes (tamanho + arquitetura p/ futuras telas na sidebar).
+   DECISAO 12/07: candidatas a migrar = Manual, Licoes, Elenco (uma
+   por vez, aprovacao da CBini a cada uma); PROJETOS NAO MIGRA —
+   segue modal dedicado (categoria "gestao de entidades com acoes",
+   wizard + cards + 5 itens EM BREVE, diferente de configuracao/
+   leitura de estado). Pendentes E1c/E1d (ordem final da nav).
    8a. [ ] **Captacao de leads no portal** (registrado 2026-07-11, decisao
       CBini — sub-item do portal, NAO entra na Rodada 8 / T1-T5 atual).
       Formulario simples: nome/email/interesse + botao discreto no portal.
