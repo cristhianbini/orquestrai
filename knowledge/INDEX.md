@@ -24,6 +24,10 @@ Total: 123 arquivos .md em licoes/ (contagem real via ls 2026-07-12; inclui BLOC
 - **BLOCO-9DC86A9E-20260622-050341** —  `[]`
 - **BLOCO-A2F28E46-20260622-050309** —  `[]`
 - **BLOCO-DBC71707-20260622-045954** —  `[]`
+- **L-CARDPROMPT01** — Prompt do sistema do AGENT_CARD sobrepoe o role do agents.mjs `[mesh,agent-card,prompt,fonte-unica]`
+- **L-COSTZERO01** — Provider pago roteado pelo caminho generico aparecia como FREE `[telemetria,custo,provider,openai]`
+- **L-DISABLEDRESET01** — disabled=true no submit sem reset no caminho de sucesso = botao morto `[ui,wizard,disabled,estado]`
+- **L-MOUNTPARSE01** — mount() do oqShell roda no parse; DOM abaixo do register nao existe ainda `[oqshell,registry,parse,ordem-de-carga]`
 - **L-B109-comentario-parcial-quebra** — Comentar parcialmente JSX/TSX deixa tags orfas e quebra build `[tsx,jsx,build,comentarios]`
 - **L-B131-baileys-wrap-recursivo** — Mensagens WhatsApp via Baileys vem aninhadas em wrappers (ephemeral, viewOnce, etc) `[whatsapp,baileys,extractor]`
 - **L-B141-css-selector-fragil** — Selector CSS errado quebra MutationObserver inteiro `[dom,selector,debug]`
