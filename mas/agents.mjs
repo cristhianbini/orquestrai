@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-11 19:26:45 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-12 10:28:25 -03:00 (auto, git pre-commit)
 
 // [B220-LOG]
 import { appendFileSync as _appB220 } from "node:fs";
@@ -179,7 +179,7 @@ try { __b124c_P = __b124c_require('/app/providers.cjs'); } catch(e) { console.wa
 
 const ROUTING = {
   scout:        { provider: 'anthropic', model: 'claude-haiku-4-5' },
-  auditor:      { provider: 'cerebras',  model: 'gpt-oss-120b' },
+  auditor:      { provider: 'openai',    model: 'gpt-5.4-mini' }, // R9-OAI1 (2026-07-12): 1o posto OpenAI da mesa — diversidade de fornecedor no contra-voto; ID real conferido via GET /v1/models
   detetive:     { provider: 'anthropic', model: 'claude-sonnet-4-5' },
   smith:        { provider: 'anthropic', model: 'claude-sonnet-4-5' },
   guardian:     { provider: 'anthropic', model: 'claude-haiku-4-5' },
@@ -219,8 +219,18 @@ async function _callLLM_inner(prompt, agentId='scout', meta=''){
   const text = String((rr && (rr.content || rr.text || rr.output)) || '').trim();
   const tin = Math.ceil(String(prompt || '').length / 4);
   const tout = Math.ceil(text.length / 4);
-  return { text, tokens_in: tin, tokens_out: tout, latency_ms: dt, cost_usd: 0, model: fullModel };
+  // R9-OAI1: custo real p/ provider pago no caminho generico (antes: 0 fixo
+  // => OpenAI pago apareceria FREE na telemetria). USD/1M tokens; tokens ja
+  // sao estimados por chars/4 acima, entao o custo e estimativa na mesma moeda.
+  const __pp = EXT_PRICE[fullModel];
+  return { text, tokens_in: tin, tokens_out: tout, latency_ms: dt, cost_usd: __pp ? (tin*__pp.in + tout*__pp.out)/1e6 : 0, model: fullModel };
 }
+// R9-OAI1: precos dos modelos pagos roteados pelo caminho generico
+// (free tiers ficam fora e seguem custo 0). gpt-5.4-mini: $0.75 in /
+// $4.50 out por 1M (pricing OpenAI 2026-03).
+const EXT_PRICE = {
+  'openai/gpt-5.4-mini': { in: 0.75, out: 4.5 },
+};
 
 
 async function callClaude(prompt, model, agentId='', meta=''){
