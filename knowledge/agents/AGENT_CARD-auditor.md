@@ -3,11 +3,11 @@ slug: auditor
 label_pt: AUDITOR
 emoji: 🔎
 cor: "#a855f7"
-modelo_atual: cerebras/gpt-oss-120b
+modelo_atual: openai/gpt-5.4-mini
 custo_medio_usd: 0.0
 latencia_media_s: null
 tokens_medio: 581.0
-free: true
+free: false
 versao_card: 1.0
 gerado_em: 2026-07-08T06:25:49.481Z
 fonte: CTXSKILL01 (mas/agents.mjs role + telemetria mas_event)
