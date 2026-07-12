@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-12 10:16:08 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-12 10:28:24 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1266,7 +1266,12 @@ button[onclick="send()"]:hover{
         h+='<div style="background:#0a1119;border:1px solid '+cor+'33;border-radius:8px;padding:10px 14px;display:grid;grid-template-columns:150px 1fr 240px;gap:12px;align-items:center">';
         h+='<div><span style="color:'+cor+';font:12px ui-monospace,monospace;font-weight:bold">'+nm+'</span><div style="color:#4b5563;font:9px ui-monospace,monospace">'+a.runs+' runs · '+((a.lat_media||0)/1000).toFixed(1)+'s med</div></div>';
         h+='<div style="background:#111827;border-radius:4px;height:14px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+cor+'88"></div></div>';
-        h+='<div style="text-align:right;font:11px ui-monospace,monospace">'+(free?'<span style="color:#22c55e;font-weight:bold">FREE</span>':'<span style="color:#fbbf24;font-weight:bold">$'+a.custo_total.toFixed(2)+'</span> <span style="color:#6b7280">· $'+(a.custo_medio||0).toFixed(3)+'/run</span>')+(a.skips>0?' <span style="color:#22c55e" title="Q10: dispensado '+a.skips+'x">↓$'+a.economia_q10.toFixed(2)+'</span>':'')+' <span style="color:#374151" title="Score: Fase 2">· score --</span></div>';
+        h+='<div style="text-align:right;font:11px ui-monospace,monospace">'+(free?'<span style="color:#22c55e;font-weight:bold">FREE</span>':'<span style="color:#fbbf24;font-weight:bold">$'+a.custo_total.toFixed(2)+'</span> <span style="color:#6b7280">· $'+(a.custo_medio||0).toFixed(3)+'/run</span>')+(a.skips>0?' <span style="color:#22c55e" title="Q10: dispensado '+a.skips+'x">↓$'+a.economia_q10.toFixed(2)+'</span>':'')+(function(){ /* R9-SCORE01: score real do /telemetry (done/(done+error)); "--" so quando nao ha runs julgados */
+          var s=a.score;
+          if(s==null) return ' <span style="color:#374151" title="sem runs julgados ainda">· score --</span>';
+          var c=s>=90?'#22c55e':(s>=70?'#fbbf24':'#f87171');
+          return ' <span style="color:'+c+'" title="taxa de sucesso: '+a.runs+' done / '+(a.falhas||0)+' error">· score '+s+'%</span>';
+        })()+'</div>';
         h+='</div>';
       });
       h+='</div></div>'; return h;

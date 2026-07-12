@@ -3,7 +3,7 @@
 // Ver mas/auth.mjs para o raciocinio completo.
 import { authMiddleware, authMiddlewareSSE } from './auth.mjs';
 
-// ATUALIZADO: 2026-07-11 19:30:56 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-12 10:28:24 -03:00 (auto, git pre-commit)
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 import express from 'express';
@@ -269,7 +269,14 @@ router.get('/telemetry', authMiddleware, readLimiter, (req,res) => {
       FROM mas_event WHERE phase='done' GROUP BY agent ORDER BY custo_total DESC`).all();
     const skips = d.prepare(`SELECT agent, COUNT(*) n FROM mas_event WHERE phase='skipped' GROUP BY agent`).all();
     const skipMap = {}; skips.forEach(x=>skipMap[x.agent]=x.n);
-    rows.forEach(r=>{ r.skips = skipMap[r.agent]||0; r.economia_q10 = Math.round((r.skips * (r.custo_medio||0.1))*100)/100; });
+    // R9-SCORE01: a "Fase 2" chegou — score = done/(done+error) por agente,
+    // direto do mas_event (o /api/agents/score do blocosRoutes le execucoes
+    // com origem='mas', que tem 0 linhas: a mesa nao executa blocos LAVE).
+    const errs = d.prepare(`SELECT agent, COUNT(*) n FROM mas_event WHERE phase='error' GROUP BY agent`).all();
+    const errMap = {}; errs.forEach(x=>errMap[x.agent]=x.n);
+    rows.forEach(r=>{ r.skips = skipMap[r.agent]||0; r.economia_q10 = Math.round((r.skips * (r.custo_medio||0.1))*100)/100;
+      r.falhas = errMap[r.agent]||0;
+      r.score = (r.runs + r.falhas) > 0 ? Math.round(100*r.runs/(r.runs+r.falhas)) : null; });
     const tot = rows.reduce((a,r)=>({custo:a.custo+r.custo_total, tokens:a.tokens+r.tokens, economia:a.economia+r.economia_q10}),{custo:0,tokens:0,economia:0});
     res.json({ ok:true, agents: rows, total: { custo_usd: Math.round(tot.custo*100)/100, tokens: tot.tokens, economia_q10_usd: tot.economia } });
   }catch(e){ res.status(500).json({ok:false,error:String(e.message||e)}); }
