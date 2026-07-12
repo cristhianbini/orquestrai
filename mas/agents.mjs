@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-12 10:28:25 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-12 10:52:34 -03:00 (auto, git pre-commit)
 
 // [B220-LOG]
 import { appendFileSync as _appB220 } from "node:fs";
@@ -21,6 +21,9 @@ const SONNET='claude-sonnet-4-5';
 const OPUS='claude-opus-4-8';
 
 const MODEL_BY_AGENT={
+  // R9-ELENCO01: rotulos p/ eventos de erro (a chamada real usa ROUTING)
+  estrategista: 'openai/gpt-5.5',
+  testador:     'openai/gpt-5.4',
   scout:        HAIKU,
   auditor:      SONNET,
   detetive:     SONNET,
@@ -44,11 +47,17 @@ const PRICE={
 
 
 const AGENTS=[
+  // R9-ELENCO01 (2026-07-12, aprovado CBini): titular #10 — abre o pipeline
+  // decompondo o objetivo ANTES da exploracao (conecta ROADMAP #5 PLANEJADOR).
+  { id:'estrategista', role:'ESTRATEGISTA (L0). Antes de qualquer exploracao: decomponha o OBJETIVO em 2-4 subtarefas concretas e defina criterios de aceite MENSURAVEIS (o que provaria sucesso). Sinalize risco de escopo (grande demais? ambiguo? falta contexto?). Se o objetivo ja e atomico, diga OBJETIVO_ATOMICO e so liste os criterios. Sem bash. Max 8 linhas.' },
   { id:'scout', role:'EXPLORADOR (L1). Leia OBJETIVO + LICOES RELEVANTES acima. Liste 3 hipoteses concretas (caminhos, comandos, tabelas). Se alguma licao da KB se aplica, cite o ID (ex: L-B70). Max 6 linhas. Sem bash.' },
   { id:'auditor', role:'AUDITOR (L2). Com base no Explorador + LICOES da KB acima, aponte 2 anomalias com (a) sintoma (b) causa raiz (c) comando shell de confirmacao. Cite IDs de licoes aplicaveis (ex: L-B70). Se nenhuma bate, escreva SEM_MATCH_KB. Max 10 linhas.' },
   { id:'detetive',     role:'DETETIVE (L2). Procure APENAS nas LICOES RELEVANTES e INDEX da KB acima. REGRA CRITICA: cite SOMENTE IDs que aparecem LITERALMENTE no texto da KB fornecida. Se nenhuma licao bate, escreva exatamente: SEM_MATCH_KB. PROIBIDO inventar IDs. Max 6 linhas.' },
   { id:'smith',        role:'CODIFICADOR (L3). Gere BLOCO bash read-only PRONTO PARA COLAR. Regras LAVE: (1) set +e; set +H (2) variaveis para paths (3) backup com $(date +%s) (4) idempotente via marker (grep -q MK && exit) (5) sem rm/mv/chmod destrutivo (6) terminar com echo ===== fim BLOCO-XXX =====. APENAS o bloco entre ```bash e ```. 15-60 linhas.' },
   { id:'guardian',     role:'VALIDADOR (L4). Cheque LAVE no bash do Smith, liste 2 checagens pos-exec e 1 criterio de rollback. Se violar licao da KB diga REJEITADO citando ID. Max 8 linhas.' },
+  // R9-ELENCO01: titular #11 — especializa a VERIFICACAO pos-execucao
+  // (guardian = seguranca/LAVE; revisor = revisao de codigo; ninguem fazia isso).
+  { id:'testador',     role:'TESTADOR (L4.5). Recebendo o BLOCO validado pelo Guardiao: gere o plano de verificacao POS-EXECUCAO — 2-3 checagens read-only concretas (comandos prontos), 1 criterio de sucesso MENSURAVEL e 1 sintoma de falha a observar nas primeiras horas. NAO repita as checagens de seguranca do Guardiao. Se nao houver BLOCO executavel, diga SEM_BLOCO e sugira como verificar a resposta mesmo assim. Max 8 linhas.' },
   { id:'memorialista', role:'MEMORIALISTA (L4). Apos sintese, PROPONHA exatamente 1 licao nova OU diga SEM_NOVA_LICAO. Formato OBRIGATORIO (literal, sem variacao): \nID: L-PROP-<slug-curto>\nTITULO: <texto>\nCONTEXTO: <quando aparece>\nREGRA: <o que fazer/evitar>\nEVIDENCIA: <run_id ou trecho>\nSe ja existe licao equivalente nas LICOES RELEVANTES acima, responda APENAS: SEM_NOVA_LICAO L-<id-existente>. NUNCA invente IDs fora da KB.' },
   { id:'rel',          role:'RELATOR (L5). Resuma em 1 frase o que o BLOCO entrega ao Cris e sugira semver vX.Y.Z. Max 3 linhas.' },
   { id:'metrico',      role:'METRICO (L5). Em 2 linhas: avalie custo/latencia do pipeline e diga se algum agente esta sobrecarregado ou se cabe trocar modelo (free vs pago).' },
@@ -178,6 +187,8 @@ let __b124c_P = null;
 try { __b124c_P = __b124c_require('/app/providers.cjs'); } catch(e) { console.warn('[B124c] providers.cjs indisponivel:', e.message); }
 
 const ROUTING = {
+  estrategista: { provider: 'openai',    model: 'gpt-5.5' },   // R9-ELENCO01: titular #10 (aprovado CBini 12/07)
+  testador:     { provider: 'openai',    model: 'gpt-5.4' },   // R9-ELENCO01: titular #11 (aprovado CBini 12/07)
   scout:        { provider: 'anthropic', model: 'claude-haiku-4-5' },
   auditor:      { provider: 'openai',    model: 'gpt-5.4-mini' }, // R9-OAI1 (2026-07-12): 1o posto OpenAI da mesa — diversidade de fornecedor no contra-voto; ID real conferido via GET /v1/models
   detetive:     { provider: 'anthropic', model: 'claude-sonnet-4-5' },
@@ -230,6 +241,8 @@ async function _callLLM_inner(prompt, agentId='scout', meta=''){
 // $4.50 out por 1M (pricing OpenAI 2026-03).
 const EXT_PRICE = {
   'openai/gpt-5.4-mini': { in: 0.75, out: 4.5 },
+  'openai/gpt-5.4':      { in: 2.5,  out: 15 },  // R9-ELENCO01
+  'openai/gpt-5.5':      { in: 5,    out: 30 },  // R9-ELENCO01
 };
 
 
