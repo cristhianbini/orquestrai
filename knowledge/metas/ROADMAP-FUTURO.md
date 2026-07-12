@@ -136,6 +136,13 @@ Ultima atualizacao: 2026-07-11. Ordem = alicerce antes do acabamento.
       - Export CSV autenticado sob demanda — SEM escrita direta em planilha/
         API externa.
       Avaliar na hora: litestream p/ leads.db (mesma lacuna do item 0b).
+   8b. [ ] **URLs limpas no portal** (registrado 2026-07-12, decisao CBini
+      — pendencia p/ a construcao do portal, NAO agir agora). URLs nunca
+      expoem extensao (.html) nem path tecnico: seudominio.com/login,
+      nunca /login.html. Resolver no nginx via try_files ($uri $uri.html
+      $uri/ =404), servindo o .html internamente sem expor na barra.
+      ATENCAO na hora: proxy.conf e bind-mount de ARQUIVO UNICO :ro —
+      editar in-place com cat>, nunca rename (L-BINDMOUNT-inode-proxyconf).
 
 ## EXPANSAO (bem pro final)
 9. [ ] Cotas/multi-tenancy ("VPS dentro da VPS") — depende de container isolado maduro

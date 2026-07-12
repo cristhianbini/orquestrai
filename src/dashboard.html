@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-12 05:23:26 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-12 05:40:02 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1975,13 +1975,17 @@ pushChat('sistema','👋 Oi! Sou o OrquestrAI. Me conta o que você precisa — 
 #r8SetModal{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;background:#020408d9;backdrop-filter:blur(6px);color:var(--text);font-family:'JetBrains Mono',ui-monospace,monospace}
 #r8SetModal.on{display:flex}
 #r8SetModal *{box-sizing:border-box}
-.r8set-shell{width:min(880px,94vw);height:min(560px,88vh);background:var(--bg);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.55)}
+/* R8-G1 (2026-07-12, aprovado CBini): shell 880x560 -> 1120x720. Motivo:
+   ficou apertado com 3 abas de conteudo real (NOTA DE DESIGN 12/07; busca
+   de Provedores sobrepondo cards e o gatilho). min() mantem responsivo por
+   construcao: notebook 1366x768 trava em 94vw/88vh, nunca estoura viewport. */
+.r8set-shell{width:min(1120px,94vw);height:min(720px,88vh);background:var(--bg);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.55)}
 .r8set-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--line)}
 .r8set-head h2{margin:0;font-size:14px;font-weight:700;color:var(--text);letter-spacing:.02em}
 .r8set-x{background:transparent;border:1px solid transparent;border-radius:6px;color:var(--mute);font-size:18px;line-height:1;padding:2px 8px;cursor:pointer}
 .r8set-x:hover{color:var(--cyan);border-color:var(--line);background:#0e1622}
 .r8set-body{flex:1;display:flex;min-height:0}
-.r8set-tabs{width:180px;flex:none;border-right:1px solid var(--line);padding:10px;display:flex;flex-direction:column;gap:4px}
+.r8set-tabs{width:200px;flex:none;border-right:1px solid var(--line);padding:10px;display:flex;flex-direction:column;gap:4px} /* R8-G1: 180->200px, ~18% da largura nova (proporcao mantida) */
 .r8set-tab{text-align:left;padding:8px 10px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--mute);font:600 11px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.04em;cursor:pointer}
 .r8set-tab:hover{color:var(--text);background:#0e1622}
 .r8set-tab.on{background:var(--panel);border-color:var(--cyan);color:var(--cyan)}
@@ -1989,6 +1993,18 @@ pushChat('sistema','👋 Oi! Sou o OrquestrAI. Me conta o que você precisa — 
 .r8set-pane{display:none}
 .r8set-pane.on{display:block}
 .r8set-empty{margin:0;color:var(--mute);font-size:11px;letter-spacing:.04em}
+/* R8-G2 (2026-07-12): fix da busca sticky herdada do E3. O #b361-search-shell
+   (sticky top:0, nascido no .oq10-body do modal antigo) veio junto no
+   appendChild do E3a, mas o scrollport agora e o .r8set-content (padding
+   20px): a barra grudava 20px abaixo do topo e os cards vazavam por cima
+   na faixa do padding; a compensacao antiga (#oq10ProvModal .oq10-body>*,
+   scroll-margin-top) virou seletor morto. Fix escopado ao novo lar, sem
+   tocar no bloco B361: margens negativas sangram a barra ate as bordas do
+   scrollport (flush no topo, cards deslizam por baixo do fundo opaco) e a
+   compensacao de scroll e recriada p/ os irmaos dela no pane. Fundo/borda
+   nos tokens da casa (polimento: #0b0f14 destoava do --bg do modal). */
+#r8SetModal #b361-search-shell{margin:-20px -20px 14px;background:var(--bg);border-bottom:1px solid var(--line)}
+#r8SetModal .r8set-pane > *:not(#b361-search-shell){scroll-margin-top:56px}
 </style>
 <div id="r8SetModal" onclick="if(event.target.id==='r8SetModal')window.oqSettings.close()">
   <section class="r8set-shell" role="dialog" aria-modal="true" aria-label="Configurações">
@@ -4673,7 +4689,7 @@ window.oqNovag = {
 #b361-search-shell input{flex:1;background:#111827;border:1px solid #374151;color:#e5e7eb;
   padding:6px 10px;border-radius:6px;font:13px ui-monospace,monospace}
 #b361-search-shell .b361-count{color:#9ca3af;font:12px ui-monospace,monospace;min-width:60px;text-align:right}
-#oq10ProvModal .oq10-body > *:not(#b361-search-shell){scroll-margin-top:48px}
+#oq10ProvModal .oq10-body > *:not(#b361-search-shell){scroll-margin-top:48px} /* R8-G2: seletor MORTO desde o E3a (conteudo migrou pro r8SetModal); equivalente novo vive no r8set-css. Mantido p/ historia. */
 .b361-hidden{display:none !important}
 </style>
 <script>
