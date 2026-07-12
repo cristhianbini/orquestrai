@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-12 15:14:32 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-12 15:28:18 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -626,7 +626,7 @@ button[data-tip="Sair"].hdr-ico{width:30px;height:26px}
 button[data-tip="Sair"].hdr-ico>svg{width:16px;height:16px}
 #hdr-avatar.hdr-ico{width:30px;height:30px;border-radius:50%;border-color:var(--line)}
 #hdr-avatar.hdr-ico>svg{width:18px;height:18px}
-#lic-count{position:absolute;top:-4px;right:-4px;background:var(--cyan);color:#001018;border-radius:999px;padding:2px 4px;min-width:8px;text-align:center;font:700 8px/1 ui-monospace,monospace!important;opacity:1!important}
+#lic-count,#proj-count{position:absolute;top:-4px;right:-4px;background:var(--cyan);color:#001018;border-radius:999px;padding:2px 4px;min-width:8px;text-align:center;font:700 8px/1 ui-monospace,monospace!important;opacity:1!important} /* R9: proj-count no mesmo padrao badge do lic-count (pedido CBini) */
 .hdr-ico:hover{color:var(--cyan);border-color:var(--line);background:#0e1622}
 .hdr-ico::after{content:attr(data-tip);position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);padding:3px 8px;background:#0e1622;border:1px solid var(--line);border-radius:5px;color:var(--text);font:600 10px 'JetBrains Mono',ui-monospace,monospace;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s;z-index:60}
 .hdr-ico:hover::after{opacity:1}
@@ -5760,7 +5760,7 @@ window.oqNovag = {
         // R8-E1a fix: badge via insertAdjacentHTML PRESERVA o icone SVG.
         // O innerHTML= antigo reescrevia o botao inteiro ('\uD83D\uDE80 PROJETOS N')
         // por cima do icone do piloto -> overlap relatado pela CBini.
-        else { pb.insertAdjacentHTML('beforeend','<span id="proj-count" style="opacity:.8;font-size:10px;font-weight:600">'+slugs.length+'</span>'); } }
+        else { pb.insertAdjacentHTML('beforeend','<span id="proj-count">'+slugs.length+'</span>'); } } // R9: sem style inline — o badge sobreposto vem do CSS #proj-count (paridade lic-count)
           // CTXPREVIEW02: botao Preview no header, ligado ao projeto ATIVO
       var curSlug=(function(){try{return localStorage.getItem('oq_proj_current')||'orquestrai'}catch(e){return 'orquestrai'}})();
       projFetch('/api/projects/'+encodeURIComponent(curSlug),{credentials:'include'}).then(function(r){return r.json();}).then(function(d){
