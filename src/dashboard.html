@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-11 19:35:54 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-12 00:37:58 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -36,11 +36,13 @@
 <style>
 :root{--oq14-border:#1d2a3a;--oq14-border-hi:#274155;--oq14-bg:#0b1018;--oq14-bg-hi:#101722;--oq14-text:#d7e1ef;--oq14-cyan:#7CE7FF}
 body :is(header,.header,.topbar,.navbar,.dashboard-header,.dash-header,.app-header) > :last-child{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:8px!important;flex-wrap:wrap!important;min-width:0!important}
-body :is(header,.header,.topbar,.navbar,.dashboard-header,.dash-header,.app-header) :is(button,a.button,a.btn,.btn,[role="button"]){min-height:34px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;padding:0 12px!important;border:1px solid var(--oq14-border)!important;border-radius:8px!important;background:var(--oq14-bg)!important;color:var(--oq14-text)!important;line-height:1!important;text-decoration:none!important;white-space:nowrap!important;box-shadow:0 8px 24px rgba(0,0,0,.24)!important;vertical-align:middle!important}
-body :is(header,.header,.topbar,.navbar,.dashboard-header,.dash-header,.app-header) :is(button,a.button,a.btn,.btn,[role="button"]):hover{border-color:var(--oq14-cyan)!important;background:var(--oq14-bg-hi)!important;color:var(--oq14-cyan)!important}
-#oq10ProvBtn{top:14px!important;right:16px!important;height:36px!important;min-width:132px!important;justify-content:center!important;border:1px solid var(--oq14-border-hi)!important;border-radius:9px!important;background:var(--oq14-bg)!important;color:var(--oq14-cyan)!important;box-shadow:0 12px 34px rgba(0,0,0,.45)!important}
-#oq10ProvBtn:hover{border-color:var(--oq14-cyan)!important;background:var(--oq14-bg-hi)!important}
-@media(max-width:760px){body :is(header,.header,.topbar,.navbar,.dashboard-header,.dash-header,.app-header) > :last-child{gap:6px!important}body :is(header,.header,.topbar,.navbar,.dashboard-header,.dash-header,.app-header) :is(button,a.button,a.btn,.btn,[role="button"]){min-height:32px!important;padding:0 9px!important;font-size:11px!important}#oq10ProvBtn{right:10px!important;min-width:116px!important}}
+body :is(header,.header,.topbar,.navbar,.dashboard-header,.dash-header,.app-header) :is(button,a.button,a.btn,.btn,[role="button"]):not(.hdr-ico){min-height:34px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;padding:0 12px!important;border:1px solid var(--oq14-border)!important;border-radius:8px!important;background:var(--oq14-bg)!important;color:var(--oq14-text)!important;line-height:1!important;text-decoration:none!important;white-space:nowrap!important;box-shadow:0 8px 24px rgba(0,0,0,.24)!important;vertical-align:middle!important}
+body :is(header,.header,.topbar,.navbar,.dashboard-header,.dash-header,.app-header) :is(button,a.button,a.btn,.btn,[role="button"]):not(.hdr-ico):hover{border-color:var(--oq14-cyan)!important;background:var(--oq14-bg-hi)!important;color:var(--oq14-cyan)!important}
+/* R8-E1b2: .hdr-ico excluido das regras genericas OQ14 acima — os !important
+   de 34px/padding/sombra esmagavam o estilo compacto dos icones da nav
+   (causa do "encavalado" relatado no smoke visual). */
+/* R8-E1b: override oq14 do #oq10ProvBtn removido (botao agora e' .hdr-ico no header) */
+@media(max-width:760px){body :is(header,.header,.topbar,.navbar,.dashboard-header,.dash-header,.app-header) > :last-child{gap:6px!important}body :is(header,.header,.topbar,.navbar,.dashboard-header,.dash-header,.app-header) :is(button,a.button,a.btn,.btn,[role="button"]){min-height:32px!important;padding:0 9px!important;font-size:11px!important}}
 </style>
 <!--OQ14_HEADER_POLISH_END-->
 <!--OQ46M_CSS_START-->
@@ -611,9 +613,22 @@ label[for="orqModelSel"]{
 .oq46m-head{cursor:pointer}
 .oq46m-title{display:inline-flex;align-items:center;gap:4px}
 </style>
+<style id="r8e1a-css">/* R8-E1a (2026-07-11): icones da nav + tooltip CSS puro (RODADA-8 T1).
+   Piloto: so o botao PROJETOS usa .hdr-ico nesta fracao; replicacao no E1b.
+   Tooltip via ::after + attr(data-tip) — sem lib, sem title (evita duplo). */
+.hdr-ico{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:4px;min-width:30px;height:26px;padding:2px 6px;background:transparent;border:1px solid transparent;border-radius:6px;color:var(--mute);cursor:pointer}
+.hdr-ico:hover{color:var(--cyan);border-color:var(--line);background:#0e1622}
+.hdr-ico::after{content:attr(data-tip);position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);padding:3px 8px;background:#0e1622;border:1px solid var(--line);border-radius:5px;color:var(--text);font:600 10px 'JetBrains Mono',ui-monospace,monospace;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s;z-index:60}
+.hdr-ico:hover::after{opacity:1}
+/* R8-E1b2: grupo de nav alinhado a direita (decisao CBini 12/07: cresce
+   previsivelmente pra esquerda ao ganhar atalhos; Avatar/Sair nas 2 pontas
+   mais a direita). Substitui a versao centralizada com position:absolute. */
+#hdr-nav{display:flex;align-items:center;gap:8px}
+.hdr-sep{width:1px;height:16px;background:var(--line);margin:0 2px}
+</style>
 <style id="b83css">/*B83_MANUAL*/
-#b83Btn{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid #2b3a4f;color:#cfd8e3;padding:6px 12px;border-radius:8px;cursor:pointer;margin-right:8px;transition:all .15s}
-#b83Btn:hover{background:#1a2536;border-color:#3b82f6;color:#fff}
+/* R8-E1b: regras #b83Btn removidas — o botao agora usa .hdr-ico (r8e1a-css);
+   as regras antigas por id venciam a classe por especificidade. */
 #b83Manual{display:none;position:fixed;inset:0;z-index:9999;background:rgba(8,12,20,.78);backdrop-filter:blur(4px);align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
 #b83Manual.b83-on{display:flex}
 #b83Manual .b83-card{background:#0f1822;border:1px solid #1f2e44;border-radius:14px;max-width:760px;width:100%;color:#dfe6ee;box-shadow:0 20px 60px rgba(0,0,0,.55);overflow:hidden}
@@ -1523,13 +1538,28 @@ button[onclick="send()"]:hover{
   <span class="text-[var(--green)] glow font-bold">◆ OrquestrAI</span>
   <span class="text-[var(--mute)]" id="oqVersion">v1.0 · cockpit</span>
   <script>(function(){fetch("/api/version").then(function(r){return r.json()}).then(function(d){var el=document.getElementById("oqVersion");if(el&&d&&d.version)el.textContent="v"+d.version+" \u00b7 cockpit"}).catch(function(){})})();</script> <!-- CTXVER01 -->
-  <span class="ml-auto flex items-center gap-3">
-    <span class="chip"><span class="text-[var(--green)]">●
-    <span class="chip" id="user-chip">—</span>
+  <!-- R8-E1b2: nav de icones alinhada a direita (decisao CBini 12/07),
+       ordem esq->dir: Projetos, Manual, Licoes, Elenco | Sair, Avatar
+       (Avatar/Sair sempre nas 2 pontas da direita; o grupo cresce
+       previsivelmente pra esquerda ao ganhar atalhos). Badges mantem ids
+       com escritores vivos (proj-count CTXPROJCOUNT01, lic-count).
+       user-chip fica OCULTO mas no DOM (escritores JS ainda gravam nele).
+       Avatar e placeholder: clique reservado p/ editar perfil/senha/foto.
+       oq10ProvBtn segue aqui rebatizado Elenco (icone camadas). -->
+  <span class="ml-auto flex items-center gap-2">
+    <span class="chip"><span class="text-[var(--green)]">●</span></span>
+    <span class="chip" id="user-chip" style="display:none">—</span>
+    <nav id="hdr-nav" aria-label="Navegacao principal">
     <!-- B265_START -->
-<button id="proj-btn" class="hdr-btn" onclick="projOpen()" title="Projetos OrquestrAI" style="margin-right:6px">🚀 PROJETOS</button>
-<button id="lic-card" class="hdr-btn" onclick="licOpen()" title="Lições aprendidas" style="margin-right:8px;">📚 LIÇÕES <span id="lic-count" style="opacity:.8">0</span></button>
-<!-- B265_END --><button id="b83Btn" type="button" onclick="b83Open()" title="Manual do OrquestrAI">📖 Manual</button><button onclick="logout()" class="btn">sair</button>
+<button id="proj-btn" class="hdr-btn hdr-ico" onclick="projOpen()" data-tip="Projetos" aria-label="Projetos"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></button>
+<button id="b83Btn" type="button" class="hdr-ico" onclick="b83Open()" data-tip="Manual" aria-label="Manual do OrquestrAI"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg></button>
+<button id="lic-card" class="hdr-btn hdr-ico" onclick="licOpen()" data-tip="Lições" aria-label="Lições aprendidas"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg><span id="lic-count" style="opacity:.8;font-size:10px;font-weight:600">0</span></button>
+<!-- B265_END -->
+<button id="oq10ProvBtn" type="button" class="hdr-ico" onclick="window.oq10Prov.open()" data-tip="Elenco" aria-label="Elenco — modelos e agentes"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg></button>
+      <span class="hdr-sep"></span>
+      <button onclick="logout()" class="hdr-ico" data-tip="Sair" aria-label="Sair"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg></button>
+      <button id="hdr-avatar" type="button" class="hdr-ico" data-tip="Perfil (em breve)" aria-label="Perfil do usuário"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg></button>
+    </nav>
   </span>
 </header>
 
@@ -1892,8 +1922,7 @@ pushChat('sistema','👋 Oi! Sou o OrquestrAI. Me conta o que você precisa — 
 
 <!--OQ10_PROV_UI_START-->
 <style>
-#oq10ProvBtn{position:fixed;top:12px;right:14px;z-index:9998;height:34px;display:inline-flex;align-items:center;gap:8px;padding:0 12px;border:1px solid #1d2a3a;border-radius:8px;background:#0b1018;color:#7CE7FF;font:600 12px ui-monospace,monospace;cursor:pointer;box-shadow:0 10px 30px #0007}
-#oq10ProvBtn:hover{border-color:#7CE7FF;background:#101722}
+/* R8-E1b: base fixed do #oq10ProvBtn removida — botao vive no #hdr-nav com .hdr-ico */
 #oq10ProvModal{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;background:#020408d9;backdrop-filter:blur(6px);color:#d7e1ef;font-family:ui-monospace,monospace}
 #oq10ProvModal.on{display:flex}
 #oq10ProvModal *{box-sizing:border-box}
@@ -1930,7 +1959,8 @@ pushChat('sistema','👋 Oi! Sou o OrquestrAI. Me conta o que você precisa — 
 .oq10-note b{color:#FFD27C}
 @media(max-width:760px){#oq10ProvBtn{right:10px}.oq10-head,.oq10-bar,.oq10-body{padding-left:14px;padding-right:14px}.oq10-bar{grid-template-columns:1fr}.oq10-actions{justify-content:flex-start}.oq10-grid{grid-template-columns:1fr}}
 </style>
-<button id="oq10ProvBtn" type="button" onclick="window.oq10Prov.open()" title="Provedores, Modelos e Agentes"><span>&#129302;</span><span>AGENTES</span></button>
+<!-- R8-E1b: #oq10ProvBtn MOVIDO para o <nav id="hdr-nav"> do header (icone rede, tooltip "Elenco") -->
+
 <div id="oq10ProvModal" onclick="if(event.target.id==='oq10ProvModal')window.oq10Prov.close()">
   <section class="oq10-shell" role="dialog" aria-modal="true">
     <header class="oq10-head"><div><h2>Provedores de IA</h2><p>Chaves, modelos e testes organizados em uma tela so.</p></div><button class="oq10-x" type="button" onclick="window.oq10Prov.close()">&times;</button></header>
@@ -3265,7 +3295,8 @@ else{setTimeout(ensure,200);setTimeout(ensure,1500);}
 
 <!-- B258_LIC_CARD_START -->
 <style>
-  #lic-card{display:inline-flex!important;align-items:center!important;gap:6px!important;min-height:34px!important;padding:0 12px!important;cursor:pointer!important;white-space:nowrap!important;transition:all .2s ease!important}
+  /* R8-E1b: layout do #lic-card agora vem de .hdr-ico (os !important daqui
+     esmagavam o icone). Mantidos: cor do contador e a animacao de pulso. */
   #lic-card .lic-ico{font-size:13px;line-height:1}
   #lic-card .lic-n{font-weight:700;color:#aaffea}
   @keyframes licPulse{
@@ -5299,7 +5330,10 @@ window.oqNovag = {
       var pb=document.getElementById('proj-btn');
       if(pb){ var pc=pb.querySelector('#proj-count');
         if(pc){ pc.textContent=slugs.length; }
-        else { pb.innerHTML='\uD83D\uDE80 PROJETOS <span id="proj-count" style="opacity:.8">'+slugs.length+'</span>'; } }
+        // R8-E1a fix: badge via insertAdjacentHTML PRESERVA o icone SVG.
+        // O innerHTML= antigo reescrevia o botao inteiro ('\uD83D\uDE80 PROJETOS N')
+        // por cima do icone do piloto -> overlap relatado pela CBini.
+        else { pb.insertAdjacentHTML('beforeend','<span id="proj-count" style="opacity:.8;font-size:10px;font-weight:600">'+slugs.length+'</span>'); } }
           // CTXPREVIEW02: botao Preview no header, ligado ao projeto ATIVO
       var curSlug=(function(){try{return localStorage.getItem('oq_proj_current')||'orquestrai'}catch(e){return 'orquestrai'}})();
       projFetch('/api/projects/'+encodeURIComponent(curSlug),{credentials:'include'}).then(function(r){return r.json();}).then(function(d){
@@ -5307,9 +5341,13 @@ window.oqNovag = {
         if(!pvBtn){
           pvBtn=document.createElement('a');
           pvBtn.id='proj-preview-btn'; pvBtn.target='_blank'; pvBtn.rel='noopener';
-          pvBtn.className='hdr-btn';
-          pvBtn.style.cssText='display:none;text-decoration:none;margin-right:6px;color:#22c55e;border-color:#22c55e66';
-          pvBtn.textContent='\uD83D\uDC41 PREVIEW';
+          // R8-E1b2: era texto '\uD83D\uDC41 PREVIEW' estilo antigo DENTRO da nav de
+          // icones (quebrava o ritmo visual). Agora e .hdr-ico com SVG olho.
+          pvBtn.className='hdr-ico';
+          pvBtn.style.cssText='display:none;text-decoration:none;color:#22c55e';
+          pvBtn.setAttribute('data-tip','Preview do site');
+          pvBtn.setAttribute('aria-label','Preview do site do projeto ativo');
+          pvBtn.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>';
           var pb2=document.getElementById('proj-btn');
           if(pb2&&pb2.parentNode) pb2.parentNode.insertBefore(pvBtn, pb2);
         }

@@ -191,6 +191,10 @@ temporais) = T11 FUTURA, fora desta rodada.
     (rede — botao flutuante ENTRA pro header, rebatizado Elenco no
     title), sair; centralizar o grupo. So depois do OK no piloto.
   [risco baixo; reversivel .bak; checador de 71 blocos nos dois passos]
+- E1c — REGISTRADO 12/07 (pedido CBini no smoke do E1b, fazer APOS E1):
+  padronizar os botoes do bloco terminal (COLAR/CHAT, CLEAR, CONECTAR)
+  no mesmo idioma visual dos icones do header (.hdr-ico), em tamanho
+  menor — consistencia visual em toda a interface.
 - E2 — Shell do modal Configuracoes OCULTO (engrenagem ainda invisivel):
   overlay+sidebar+panes vazios, padrao oq10. [risco baixo]
 - E3 — Aba Provedores: MOVER pane real do oq10Prov (CTXFIXPROV01).
