@@ -1,6 +1,6 @@
 # INDEX OrquestrAI KB
 
-Total: 122 arquivos .md em licoes/ (contagem real via ls 2026-07-12; inclui BLOCO-* auto-gerados; ~86 lições curadas).
+Total: 123 arquivos .md em licoes/ (contagem real via ls 2026-07-12; inclui BLOCO-* auto-gerados; ~87 lições curadas).
 
 > Reconciliado 2026-07-11: contagem antiga (41) estava desatualizada. A lista
 > abaixo também está defasada — regeneração automática do índice pendente
@@ -47,6 +47,7 @@ Total: 122 arquivos .md em licoes/ (contagem real via ls 2026-07-12; inclui BLOC
 - **L-LOCALHOST-ipv6-busybox** — 'localhost' em container Alpine resolve ::1; bind IPv4-only da Connection refused com app viva — testar 127.0.0.1 `[docker,alpine,ipv6,healthcheck,network]`
 - **L-LOGIN-senha-defasada-turnstile** — Senha nova no .env fica dormente ate o restart do api; token Turnstile e uso unico e sem reset() no 401 as retentativas mascaram o erro real de credencial `[login,env,restart,turnstile,diagnostico,monitoramento]`
 - **L-OQ58-alpine-bash** — Container Alpine nao tem bash por padrao, scripts shebang #!/bin/bash falham `[alpine,docker,shell]`
+- **L-OQSHELL01** — Shell de abas com registry: adotar DOM estatico (nunca recriar — referencias vivas), mount-1x/onShow-N, header fora do pane que builds legados wipam com innerHTML `[ui,shell,registry,modal,abas,appendchild,innerHTML]`
 - **L-OQ65-executar-body** —  `[]`
 - **L-OQ66-sse-token** —  `[]`
 - **L-PROP-safe-bak-cleanup** — Política de retenção e validação prévia para remoção de arquivos .bak `[]`

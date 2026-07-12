@@ -1,20 +1,23 @@
 PROJETO: orquestrai
 TIPO: plano-de-sprint
 CRIADO: 2026-07-11
-STATUS: T1-T5 CONCLUIDOS E VALIDADOS (12/07): E1a+E1b (5d352c0),
-        E2 (ddd734a), E3+E3a-fix1 (04c3c34), E4 (95ae089), E5
-        (cf88625), F1-F3+E6a (923e186, smoke completo OK), E7 (docs+
-        licao L-SINGLEOWNER02+limpeza .bak, commit deste arquivo).
-        PROXIMA ETAPA (aprovada 12/07, plano fracionado a apresentar
-        antes de codar): expansao do modal Configuracoes (~880x560 ->
-        maior; busca de Provedores sobrepoe cards) + preparar o shell
-        p/ receber futuras telas na sidebar. DECISAO ARQUITETURAL
-        CBini 12/07: candidatas a migrar = Manual, Licoes, Elenco
-        (uma por vez, gate proprio); PROJETOS FICA DE FORA — segue
-        modal dedicado (gestao de entidades com acoes + 5 itens EM
-        BREVE do roadmap, nao e "configuracao/leitura de estado").
-        Pendentes de rodada: E1c, E1d (ordem final da nav), NOTA DE
-        DESIGN (absorvida pela proxima etapa)
+STATUS: RODADA 8 CONCLUIDA (2026-07-12, tudo validado pela CBini).
+        T1-T5: E1a+E1b (5d352c0), E2 (ddd734a), E3+E3a-fix1 (04c3c34),
+        E4 (95ae089), E5 (cf88625), F1-F3+E6a fix BUG-NAVJUMP+
+        engrenagem (923e186), E7 docs (48901c2).
+        ETAPA G (expansao do shell): G1+G2 resize 1120x720 + fix busca
+        sticky (bcca389), G3a registry oqShell (b9621af), G3b acento+
+        icone por aba + cabecalho de pane (276fb80), G3c docs+licao
+        L-OQSHELL01 (commit deste arquivo).
+        DECISAO ARQUITETURAL CBini 12/07: candidatas a migrar pro
+        shell = Manual, Licoes, Elenco (uma por vez, gate proprio);
+        PROJETOS FICA DE FORA — segue modal dedicado (gestao de
+        entidades com acoes + 5 itens EM BREVE, nao e "configuracao/
+        leitura de estado").
+        Pendentes p/ proxima rodada: E1c (botoes do terminal no idioma
+        .hdr-ico), E1d (ordem final da nav — abertos da CBini), bug
+        "score --" da Telemetria (citado 12/07, fora de escopo do G),
+        migracoes Manual/Licoes/Elenco.
 CONECTA: ROADMAP-FUTURO.md item #8 (UI padrao janelas), CTXDESIGNGUIDE01
          (HANDOFF-POS-FABLE.md), TELEM01 (telemetria por projeto, 2026-07-11)
 
@@ -304,6 +307,25 @@ temporais) = T11 FUTURA, fora desta rodada.
   .bak-r8* de src/ removidos (auditoria previa L-PROP-safe-bak-cleanup:
   todos os estados intermediarios estao no git 5d352c0..923e186;
   .baks pre-rodada mantidos).
+- ETAPA G (12/07, extensao aprovada da rodada — expansao do shell):
+  - G1 (bcca389): .r8set-shell 880x560 -> min(1120px,94vw) x
+    min(720px,88vh); sidebar 180->200px. Responsivo por construcao.
+  - G2 (bcca389): busca sticky do Provedores realinhada ao scrollport
+    novo (margens negativas + compensacao scroll-margin recriada;
+    seletor antigo do B361 estava morto desde o E3a — anotado la).
+  - G3a (b9621af): oqShell = registry de abas; register({id,label,
+    icon,accent,desc,mount,onShow}) adota DOM estatico ou cria;
+    mount 1x, onShow a cada show (contrato reload-on-show formal);
+    oqSettings vira alias. INLINE no monolito (decisao: checador
+    cobre, hook pre-commit ja quebrou .js 2x, sem 2o consumidor).
+    Harness de paridade em node com stubs de DOM (scratchpad),
+    9/15 assercoes -> 15/15 com G3b. Migracao 1 aba por vez.
+  - G3b (276fb80): propostas visuais (a)+(b) aprovadas — acento+icone
+    por aba (ciano/ambar/verde), cabecalho de pane FORA da area que
+    os builds legados wipam. Validacao visual CBini.
+  - G3c: licao L-OQSHELL01 + este update. Propostas (c) persistencia
+    de aba e (d) navegacao por teclado NAO aplicadas (nao aprovadas
+    explicitamente — candidatas de rodada futura).
 Cada E: .bak + checador de 71 blocos + aprovacao CBini antes do proximo.
 
 ## 6. FORA DE ESCOPO (nao misturar)
