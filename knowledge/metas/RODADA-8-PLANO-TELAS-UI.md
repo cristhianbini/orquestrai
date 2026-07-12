@@ -242,6 +242,22 @@ temporais) = T11 FUTURA, fora desta rodada.
     .bak-r8e4a-20260712-0123 e .bak-r8e4b-20260712-0127 criados.
 - E5 — Aba Seguranca (status 2FA + links). Precisa confirmar quais
   endpoints de status existem; se faltar, dado "cru" minimo. [baixo]
+  E5a APLICADO 12/07 (working tree, aguardando validacao visual):
+  - Endpoints CONFIRMADOS no container vivo (nao so no fonte): GET
+    /api/auth/2fa/status -> {enabled,exists} (401 sem Bearer) + POST
+    setup/verify/disable (B31C, server.js ~123-157). Proxy: location
+    ^~ /api/auth/ -> api:3000; /tfa.html servido pelo location / (web).
+  - DECISAO: LINK para tfa.html em nova aba, NAO embed — pagina isolada
+    com estilo proprio; redesign dela e backend estao fora de escopo.
+  - UI: 3 cards no pane 'seguranca' (tokens da casa): status TOTP com
+    3 estados (ATIVO verde / PENDENTE ambar = exists sem verify /
+    INATIVO ambar), link do fluxo de ativacao (nota: regenerar exige
+    desativar antes — 409 do setup), cadeia de login atual. "Desde
+    quando" FICOU DE FORA: status nao devolve activated_at e backend
+    nao muda nesta rodada (candidato a rodada futura).
+  - oqSec.reload() no mesmo contrato do E3a-fix1/E4a (show() dispara a
+    cada exibicao). Checador: 72 blocos, 0 erros.
+    .bak-r8e5a-20260712-0459 criado.
 - E6 — LIGAR: engrenagem visivel no header; smoke completo da CBini.
 - E7 — Docs/licoes/roadmap da rodada (padrao B6) + limpeza .bak.
 Cada E: .bak + checador de 71 blocos + aprovacao CBini antes do proximo.

@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-12 04:55:20 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-12 05:05:31 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -2020,6 +2020,13 @@ window.oqSettings=(function(){
     if(name==='telemetria'){
       try{ if(window.oqTelem && typeof window.oqTelem.reload==='function') window.oqTelem.reload(); }catch(e){}
     }
+    // R8-E5a: aba Seguranca — mesmo contrato de reload-a-cada-exibicao.
+    // oqSec e definido logo abaixo neste mesmo bloco (nao depende de
+    // build externo como as outras abas), mas mantem o guard por
+    // paridade de idioma com provedores/telemetria.
+    if(name==='seguranca'){
+      try{ if(window.oqSec && typeof window.oqSec.reload==='function') window.oqSec.reload(); }catch(e){}
+    }
   }
   function open(name){var m=modal(); if(!m) return; m.classList.add('on'); show(name||'provedores');}
   function close(){var m=modal(); if(m) m.classList.remove('on');}
@@ -2027,6 +2034,46 @@ window.oqSettings=(function(){
     if(e.key==='Escape'){var m=modal(); if(m&&m.classList.contains('on')) close();}
   });
   return {open:open, close:close, show:show};
+})();
+/* R8-E5a (2026-07-12): aba Seguranca do Configuracoes (T5 do plano).
+   Conteudo NOVO (nada e movido — CTXFIXPROV01 nao se aplica): status do
+   2FA via GET /api/auth/2fa/status (B31C, confirmado montado no container
+   vivo em 12/07: 401 sem token; setup/verify/disable idem via POST) +
+   link pro fluxo tfa.html existente (CTXAUTH2FA01) em nova aba — decisao
+   LINK e nao embed: tfa.html e pagina isolada com estilo proprio, e o
+   plano veta mudanca de backend/redesign dela nesta rodada. innerHTML e
+   seguro: so booleans do backend, nenhuma string de usuario. */
+window.oqSec=(function(){
+  var LBL='color:#6b7280;font:10px ui-monospace,monospace;letter-spacing:.08em';
+  function card(inner){return '<div style="background:#0a1119;border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:10px">'+inner+'</div>';}
+  function pane(){return document.querySelector('#r8SetModal .r8set-pane[data-pane="seguranca"]');}
+  function render(j){
+    // 3 estados do B31C: enabled (verify ok) > exists (secret gerado,
+    // ativacao pendente) > nada. "Desde quando" ficou de fora: status
+    // nao devolve activated_at e backend e FORA DE ESCOPO na Rodada 8.
+    var badge, desc;
+    if(j.enabled){ badge='<span style="color:var(--green);font-weight:700">ATIVO</span>'; desc='O login do admin exige c&oacute;digo TOTP al&eacute;m da senha.'; }
+    else if(j.exists){ badge='<span style="color:var(--amber);font-weight:700">PENDENTE</span>'; desc='Secret gerado mas ainda n&atilde;o verificado — conclua a ativa&ccedil;&atilde;o digitando um c&oacute;digo no fluxo abaixo.'; }
+    else { badge='<span style="color:var(--amber);font-weight:700">INATIVO</span>'; desc='Login protegido apenas por senha + Turnstile. Recomendado ativar o TOTP.'; }
+    var h=card('<div style="'+LBL+'">AUTENTICA&Ccedil;&Atilde;O EM DUAS ETAPAS (TOTP)</div>'+
+      '<div style="margin-top:8px;font:13px ui-monospace,monospace">2FA: '+badge+'</div>'+
+      '<div style="margin-top:6px;color:#94a3b8;font:11px ui-monospace,monospace;line-height:1.5">'+desc+'</div>');
+    h+=card('<div style="'+LBL+'">FLUXO DE ATIVA&Ccedil;&Atilde;O</div>'+
+      '<div style="margin-top:8px"><a href="/tfa.html" target="_blank" rel="noopener" style="color:var(--cyan);font:600 11px ui-monospace,monospace;text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:6px 10px;display:inline-block">Abrir p&aacute;gina de ativa&ccedil;&atilde;o 2FA &nearr;</a></div>'+
+      '<div style="margin-top:8px;color:#6b7280;font:10px ui-monospace,monospace;line-height:1.5">Gera QR/secret local (sem servi&ccedil;o externo). Para REGENERAR um 2FA j&aacute; ativo &eacute; preciso desativar antes (regra do backend).</div>');
+    h+=card('<div style="'+LBL+'">CADEIA DE LOGIN ATUAL</div>'+
+      '<div style="margin-top:8px;color:#94a3b8;font:11px ui-monospace,monospace">senha (.env) + Cloudflare Turnstile'+(j.enabled?' + c&oacute;digo TOTP':'')+'</div>');
+    return h;
+  }
+  function reload(){
+    var p=pane(); if(!p) return;
+    p.innerHTML='<p class="r8set-empty">Carregando status de seguran&ccedil;a...</p>';
+    fetch('/api/auth/2fa/status',{headers:{Authorization:'Bearer '+(localStorage.getItem('oq_token')||'')}})
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+      .then(function(j){ var p2=pane(); if(p2) p2.innerHTML=render(j||{}); })
+      .catch(function(e){ var p2=pane(); if(p2) p2.innerHTML='<p class="r8set-empty">erro ao consultar status 2FA: '+e.message+'</p>'; });
+  }
+  return {reload:reload};
 })();
 </script>
 <!--R8_SETTINGS_END-->
