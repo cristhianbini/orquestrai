@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-12 15:39:22 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-12 15:51:53 -03:00 (auto, git pre-commit)
 
 // [B220-LOG]
 import { appendFileSync as _appB220 } from "node:fs";
@@ -491,6 +491,11 @@ export function getRun(runId){
 // ============================================================
 // CTXPROJRUN02 f1 -- gerador de site estatico (caminho dedicado)
 // ============================================================
+// R10-1a (2026-07-12): teto de saida do build de site. Era 4000 (~13KB HTML,
+// truncava "descricao completa" — achado no E2E do /construir R9). Sondado
+// contra a API: sonnet-4-5 aceita ate 64000; 16000 (~50KB HTML) cobre pagina
+// rica completa sem truncar, com custo limitado (~$0.24 no pior caso vs $0.06).
+const SITE_MAX_TOKENS = 16000;
 export async function buildStaticSite(goal, slug){
   // CTXPROJRUN02 f1v2 (correcoes documentadas no cabecalho do patch)
   const key = process.env.ANTHROPIC_API_KEY;
@@ -512,7 +517,7 @@ export async function buildStaticSite(goal, slug){
   const r=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
     headers:{'x-api-key':key,'anthropic-version':'2023-06-01','content-type':'application/json'},
-    body:JSON.stringify({model,max_tokens:4000,system:sys,messages:[{role:'user',content:prompt}]})
+    body:JSON.stringify({model,max_tokens:SITE_MAX_TOKENS,system:sys,messages:[{role:'user',content:prompt}]})
   });
   const dt=Date.now()-t0;
   const j=await r.json();
@@ -533,8 +538,9 @@ export async function buildStaticSite(goal, slug){
 // /construir <pedido> no chat de um projeto static-html. Gera UMA pagina
 // nomeada (site/<pagina>.html) via buildStaticSite com DNA+descricao+pedido,
 // SEM tocar as paginas irmas (arquiva so o alvo se ja existir). Diferente do
-// CTXPROJRUN02 (BUILD novo projeto), que regenera o index inteiro. Multi-
-// pagina com navegacao = v2 (roadmap). Mesmos vetos universais do Guardian.
+// CTXPROJRUN02 (BUILD novo projeto), que regenera o index inteiro. R10-1b
+// adicionou navegacao multi-pagina (nav ligando as irmas). Mesmos vetos
+// universais do Guardian.
 const CONSTRUIR_STOP = new Set(['de','do','da','para','com','uma','um','a','o','the','of','sobre-o','no','na']);
 function pageFilenameFromPedido(pedido){
   // normaliza acentos p/ casar "pagina"/"página" e slugificar o nome
@@ -561,13 +567,33 @@ export async function buildProjectPage(slug, pedido){
   const file = pageFilenameFromPedido(pedido);
   if(!/^[a-z0-9-]{1,40}\.html$/.test(file)) throw new Error('nome de pagina invalido derivado do pedido');
 
+  // R10-1b: navegacao multi-pagina. Le as paginas irmas ja existentes em site/,
+  // monta a lista COMPLETA (irmas + a que esta sendo construida + index sempre)
+  // e instrui o modelo a gerar um <nav> consistente ligando todas com links
+  // relativos. Limitacao MVP: paginas ANTIGAS so ganham o link da nova quando
+  // reconstruidas (o /construir regenera 1 pagina por vez).
+  let __siblings = [];
+  try {
+    const sdir = pathN.join(pdir, 'site');
+    if (fsN.existsSync(sdir)) __siblings = fsN.readdirSync(sdir).filter(f => /^[a-z0-9-]+\.html$/.test(f));
+  } catch(_) {}
+  const allPages = Array.from(new Set([...__siblings, file, 'index.html']));
+  allPages.sort((a,b) => a==='index.html' ? -1 : b==='index.html' ? 1 : a.localeCompare(b));
+  const labelOf = f => f==='index.html' ? 'Inicio' : f.replace(/\.html$/,'').replace(/-/g,' ').replace(/^./, c=>c.toUpperCase());
+  const navList = allPages.map(f => '  - '+labelOf(f)+' -> ./'+f).join('\n');
+
   const sitePrompt =
     'Projeto: '+(proj.name||slug)+'. '
     + (proj.description ? ('Descricao geral: '+proj.description+'. ') : '')
     + getProjectDnaContext(slug)
     + '\n\nCONSTRUA a pagina "'+file.replace(/\.html$/,'')+'" deste site conforme o pedido a seguir. '
     + 'Respeite o DNA/contrato do projeto acima quando houver. Pedido: '
-    + String(pedido||'').slice(0,2000);
+    + String(pedido||'').slice(0,2000)
+    + '\n\nNAVEGACAO DO SITE — este site tem estas paginas (rotulo -> arquivo):\n'
+    + navList
+    + '\nInclua no TOPO da pagina um menu <nav> com links RELATIVOS para TODAS essas paginas '
+    + '(exatamente os arquivos listados, ex: <a href="./'+(allPages.find(f=>f!==file)||'index.html')+'">...</a>), '
+    + 'destacando visualmente a pagina ATUAL ("'+labelOf(file)+'"). Nao invente paginas fora da lista.';
 
   const built = await buildStaticSite(sitePrompt, slug);
   const html = built.html||'';
