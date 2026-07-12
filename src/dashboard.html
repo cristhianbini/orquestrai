@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-12 05:05:31 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-12 05:23:26 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1596,6 +1596,11 @@ button[onclick="send()"]:hover{
 <button id="lic-card" class="hdr-btn hdr-ico" onclick="licOpen()" data-tip="Lições" aria-label="Lições aprendidas"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg><span id="lic-count" style="opacity:.8;font-size:10px;font-weight:600">0</span></button>
 <!-- B265_END -->
 <button id="oq10ProvBtn" type="button" class="hdr-ico" onclick="window.oq10Prov.open()" data-tip="Elenco" aria-label="Elenco — modelos e agentes"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg></button>
+<!-- R8-E6a (2026-07-12): engrenagem LIGADA — abre o painel Configuracoes
+     (E2-E5). Posicao: apos Elenco, antes do separador Sair/Avatar (agrupa
+     os atalhos "de configuracao"; ordem completa e' E1d, nao executado).
+     open() sem argumento cai na aba Provedores (contrato do E2). -->
+<button id="hdr-set-btn" type="button" class="hdr-ico" onclick="window.oqSettings.open()" data-tip="Configurações" aria-label="Configurações"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
       <span class="hdr-sep"></span>
       <button onclick="logout()" class="hdr-ico" data-tip="Sair" aria-label="Sair"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg></button>
       <button id="hdr-avatar" type="button" class="hdr-ico" data-tip="Perfil (em breve)" aria-label="Perfil do usuário"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg></button>
@@ -2114,7 +2119,7 @@ window.oqSec=(function(){
 .oq10-result.err{color:#ff6b6b}
 .oq10-note{margin-bottom:12px;border:1px dashed #1d2a3a;border-radius:10px;background:#080d14;color:#8d9aab;padding:12px;font-size:11px;line-height:1.5}
 .oq10-note b{color:#FFD27C}
-@media(max-width:760px){#oq10ProvBtn{right:10px}.oq10-head,.oq10-bar,.oq10-body{padding-left:14px;padding-right:14px}.oq10-bar{grid-template-columns:1fr}.oq10-actions{justify-content:flex-start}.oq10-grid{grid-template-columns:1fr}}
+@media(max-width:760px){/* R8-F3: #oq10ProvBtn{right:10px} removido — inerte desde que o botao virou static no #hdr-nav (E1b) */.oq10-head,.oq10-bar,.oq10-body{padding-left:14px;padding-right:14px}.oq10-bar{grid-template-columns:1fr}.oq10-actions{justify-content:flex-start}.oq10-grid{grid-template-columns:1fr}}
 </style>
 <!-- R8-E1b: #oq10ProvBtn MOVIDO para o <nav id="hdr-nav"> do header (icone rede, tooltip "Elenco") -->
 
@@ -2166,22 +2171,19 @@ window.oqSec=(function(){
 <!--OQ10_PROV_UI_END-->
 <!--OQ15_INHEADER_START-->
 <style>
-#oq10ProvBtn{position:static!important;top:auto!important;right:auto!important;margin:0 0 0 8px!important;height:34px!important;display:inline-flex!important;align-items:center!important;gap:8px!important;padding:0 12px!important;border:1px solid #27415555!important;border-radius:8px!important;background:#0b1018!important;color:#7CE7FF!important;font:600 12px ui-monospace,monospace!important;cursor:pointer!important;box-shadow:0 6px 18px rgba(0,0,0,.35)!important;vertical-align:middle!important}
-#oq10ProvBtn:hover{border-color:#7CE7FF!important;background:#101722!important}
+/* R8-F3 (2026-07-12, aprovado CBini): CSS por ID do #oq10ProvBtn REMOVIDO
+   (aqui e no OQ16 abaixo). Legado do botao flutuante: por especificidade
+   (ID+!important) vencia o padrao do grupo e deixava o Elenco com 34px,
+   radius e fundo proprios — fonte da inconsistencia visual reportada.
+   Sem estas regras o Elenco e .hdr-ico puro, identico aos irmaos (regra
+   generica OQ16 ~2203). Engloba/supera o hotfix de border-radius E5fix. */
 </style>
 <script>
-(function(){
-  function place(){
-    var b=document.getElementById('oq10ProvBtn'); if(!b) return false;
-    var hdr=document.querySelector('header, .header, .topbar, .navbar, .dashboard-header, .dash-header, .app-header');
-    if(!hdr) return false;
-    var right=hdr.querySelector('.actions, .right, .header-actions, .topbar-actions, .nav-actions, [class*="right" i], [class*="action" i]') || hdr;
-    if(b.parentNode!==right) right.appendChild(b);
-    return true;
-  }
-  if(document.readyState!=='loading') place(); else document.addEventListener('DOMContentLoaded',place);
-  var tries=0; var iv=setInterval(function(){ tries++; if(place()||tries>40) clearInterval(iv); },250);
-})();
+/* R8-F2 (2026-07-12): place() do OQ15 DESARMADO (cumplice do pulo da nav,
+   L-SINGLEOWNER01). Movia #oq10ProvBtn para fora do #hdr-nav — o seletor
+   [class*="action" i] ainda casava com o span.b89-actions criado pelo
+   b89header (neutralizado no F1). O botao vive ESTATICO no #hdr-nav
+   desde o E1b; nao ha mais o que posicionar em runtime. */
 </script>
 <!--OQ15_INHEADER_END-->
 <!--OQ16_PREMIUM_START-->
@@ -2216,26 +2218,16 @@ body :is(header,.header,.topbar,.navbar,.dashboard-header,.dash-header,.app-head
   border-color:var(--oq16-cyan)!important;color:var(--oq16-cyan)!important;
 }
 body :is(header,.header,.topbar,.navbar,.dashboard-header,.dash-header,.app-header) :is(button,a.button,a.btn,.btn,[role="button"]):active{transform:translateY(1px)!important}
-#oq10ProvBtn{position:static!important;margin:0!important;color:var(--oq16-cyan)!important;border-color:#27556b!important}
-#oq10ProvBtn:hover{border-color:var(--oq16-cyan)!important}
+/* R8-F3: overrides por ID do #oq10ProvBtn removidos (ver comentario no OQ15) */
 @media(max-width:760px){
   body :is(header,.header,.topbar,.navbar,.dashboard-header,.dash-header,.app-header){padding:8px 12px!important;min-height:50px!important;gap:8px!important}
   body :is(header,.header,.topbar,.navbar,.dashboard-header,.dash-header,.app-header) :is(button,a.button,a.btn,.btn,[role="button"]){height:32px!important;padding:0 10px!important;font-size:11px!important}
 }
 </style>
 <script>
-(function(){
-  function place(){
-    var b=document.getElementById('oq10ProvBtn'); if(!b) return false;
-    var hdr=document.querySelector('header, .header, .topbar, .navbar, .dashboard-header, .dash-header, .app-header');
-    if(!hdr) return false;
-    var right=hdr.querySelector('.actions, .right, .header-actions, .topbar-actions, .nav-actions, [class*="right" i], [class*="action" i]') || hdr;
-    if(b.parentNode!==right) right.appendChild(b);
-    return true;
-  }
-  if(document.readyState!=='loading') place(); else document.addEventListener('DOMContentLoaded',place);
-  var t=0,iv=setInterval(function(){t++;if(place()||t>40)clearInterval(iv);},250);
-})();
+/* R8-F2 (2026-07-12): place() do OQ16 DESARMADO — copia identica do OQ15
+   acima, mesmo motivo (movia #oq10ProvBtn em runtime; o botao e estatico
+   no #hdr-nav desde o E1b). Ver comentario do F2 no bloco OQ15. */
 </script>
 <!--OQ16_PREMIUM_END-->
 <!--OQ42_SELECTOR_START-->
@@ -2865,24 +2857,17 @@ window.OQ_BLOCKS={list:function(){return BLOCKS},clear:function(){BLOCKS=[];seen
 <div id="b83Manual" onclick="if(event.target===this)b83Close()"><div class="b83-card"><div class="b83-head"><h2>📖 Manual do OrquestrAI</h2><button class="b83-close" onclick="b83Close()" title="Fechar (Esc)">x</button></div><div class="b83-body"><div class="b83-sec"><h3>🎯 O que é</h3><p>OrquestrAI é um <strong>cockpit de auditoria</strong>: voce descreve o que quer, ele gera <strong>BLOCOS de comando</strong> prontos pra rodar na sua VPS. Nada executa automaticamente — voce sempre tem a palavra final.</p></div><div class="b83-sec"><h3>🛡️ Protocolo LAVE</h3><p>Toda vez que receber um BLOCO, siga 4 passos antes de rodar:</p><div class="b83-grid"><div class="b83-letter">L</div><div><strong>Ler</strong> — leia o bloco inteiro, sem pular.</div><div class="b83-letter">A</div><div><strong>Avaliar</strong> — entendeu o que ele faz? Toca arquivos criticos?</div><div class="b83-letter">V</div><div><strong>Verificar</strong> — tem <code>backup</code>, <code>marker</code> idempotente e <code>rollback</code> no script?</div><div class="b83-letter">E</div><div><strong>Executar</strong> — so agora copia e roda na VPS.</div></div><div class="b83-warn">⚠️ Bloco errado em producao quebra cliente real. LAVE e regra de ouro.</div></div><div class="b83-sec"><h3>🤖 Modo MAS — Multi-Agentes</h3><p>No header tem uma pilula <code>OFF/ON</code>:</p><p><strong>OFF</strong> (padrao): voce conversa com 1 IA, ela responde direto. Rapido e barato.</p><p><strong>ON</strong>: 5 agentes Claude colaboram em pipeline antes de devolver o bloco:</p><div class="b83-pipe"><span class="b83-ag">Scout</span><span class="b83-arr">&rarr;</span><span class="b83-ag">Auditor</span><span class="b83-arr">&rarr;</span><span class="b83-ag">Smith</span><span class="b83-arr">&rarr;</span><span class="b83-ag">Guardian</span><span class="b83-arr">&rarr;</span><span class="b83-ag">Rel</span></div><ul style="padding-left:18px;margin:6px 0"><li><strong>Scout</strong> varre e lista 3 areas suspeitas</li><li><strong>Auditor</strong> aponta 2 anomalias provaveis</li><li><strong>Smith</strong> propoe patch minimo</li><li><strong>Guardian</strong> valida e define rollback</li><li><strong>Rel</strong> resume + sugere versao semver</li></ul><p>👉 Bloco mais maduro, custa mais tokens. Use ON em decisoes criticas.</p></div><div class="b83-sec"><h3>📦 Como usar em 3 passos</h3><div class="b83-grid"><div class="b83-letter">1</div><div>Escreva no chat o que quer auditar ou mudar.</div><div class="b83-letter">2</div><div>Receba o BLOCO no card (e copia em bash no chat).</div><div class="b83-letter">3</div><div>Aplique LAVE, cole no terminal da VPS e confira a saida.</div></div></div><div class="b83-sec"><h3>⌨️ Atalhos</h3><p><code>Ctrl+Enter</code> envia &middot; <code>Enter</code> quebra linha &middot; <code>Esc</code> fecha este manual</p></div></div></div></div>
 <script id="b83js">window.b83Open=function(){document.getElementById("b83Manual").classList.add("b83-on");document.body.style.overflow="hidden"};window.b83Close=function(){document.getElementById("b83Manual").classList.remove("b83-on");document.body.style.overflow=""};document.addEventListener("keydown",function(e){if(e.key==="Escape"){var m=document.getElementById("b83Manual");if(m&&m.classList.contains("b83-on"))b83Close();}});</script>
 <style id="b89css">.b89-actions{display:inline-flex;gap:8px;align-items:center}.b89-hide{display:none !important}</style><script id="b89header">
-(function(){
-  function apply(){
-    var hdr=document.querySelector('header'); if(!hdr)return;
-    var uc=document.getElementById('user-chip'); if(uc) uc.classList.add('b89-hide');
-    Array.from(hdr.querySelectorAll('.chip')).forEach(function(c){
-      if(/api\s*online/i.test((c.textContent||'').trim())) c.classList.add('b89-hide');
-    });
-    var manual=document.getElementById('b83Btn');
-    var prov=document.getElementById('oq10ProvBtn')||document.getElementById('btnProviders');
-    var sair=document.getElementById('btnLogout')||Array.from(hdr.querySelectorAll('button,a')).find(function(el){return /^\s*sair\s*$/i.test((el.textContent||'').trim());});
-    var container=sair&&sair.parentNode?sair.parentNode:hdr;
-    var box=container.querySelector('.b89-actions');
-    if(!box){box=document.createElement('span');box.className='b89-actions';container.appendChild(box);}
-    [manual,prov,sair].forEach(function(el){if(el&&el.parentNode!==box) box.appendChild(el);});
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
-  setTimeout(apply,300);setTimeout(apply,1500);
-})();
+/* R8-F1 (2026-07-12): b89header NEUTRALIZADO — era a causa raiz do "pulo"
+   da nav pos-load (padrao L-SINGLEOWNER01). O apply() antigo buscava o
+   botao Sair PELO TEXTO /^sair$/i; com o Sair virando icone SVG no E1b a
+   busca falhava, o container caia no fallback <header> e ele criava um
+   <span.b89-actions> no FIM do header movendo Manual+Elenco pra dentro —
+   novo :last-child ganhava margin-left:auto!important (OQ16 ~2199) e,
+   com DOIS auto-margins na linha, o flexbox estacionava o grupo no
+   centro. Rodava 3x/load (DOMContentLoaded + setTimeout 300/1500ms).
+   As outras funcoes eram redundantes: user-chip ja tem display:none
+   inline (E1b2) e o chip "api online" nao existe mais (hoje e so "●").
+   Historia completa no original via git (blame deste bloco). */
 </script><style id="b94css">
 .b94-hide{display:none!important}
 .b94-row{display:inline-flex!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important;margin:0 0 8px 0!important}

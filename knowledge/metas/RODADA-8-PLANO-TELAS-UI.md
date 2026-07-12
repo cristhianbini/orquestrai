@@ -3,8 +3,9 @@ TIPO: plano-de-sprint
 CRIADO: 2026-07-11
 STATUS: EM EXECUCAO (aprovado 2026-07-11; A3 = opcao i). Concluidos e
         validados pela CBini: E1a+E1b (5d352c0), E2 (ddd734a),
-        E3+E3a-fix1 (04c3c34), E4a+E4b (validacao visual 12/07,
-        commit E4d). Proximo: E5 (aba Seguranca)
+        E3+E3a-fix1 (04c3c34), E4 (95ae089), E5 (cf88625).
+        No working tree aguardando gate visual: F1-F3 (fix do pulo
+        da nav, ver BUG-NAVJUMP abaixo) + E6a (engrenagem ligada)
 CONECTA: ROADMAP-FUTURO.md item #8 (UI padrao janelas), CTXDESIGNGUIDE01
          (HANDOFF-POS-FABLE.md), TELEM01 (telemetria por projeto, 2026-07-11)
 
@@ -258,7 +259,35 @@ temporais) = T11 FUTURA, fora desta rodada.
   - oqSec.reload() no mesmo contrato do E3a-fix1/E4a (show() dispara a
     cada exibicao). Checador: 72 blocos, 0 erros.
     .bak-r8e5a-20260712-0459 criado.
+- BUG-NAVJUMP (reportado CBini 12/07, diagnostico + fix F1-F3 aprovados):
+  nav aparecia certa (direita) e "pulava" pro centro pos-load. CAUSA:
+  script b89header (pre-E1) buscava o botao Sair PELO TEXTO /^sair$/i;
+  com Sair virando icone SVG (E1b) a busca falhava, caia no fallback
+  <header>, criava span.b89-actions no fim do header e movia Manual+
+  Elenco pra dentro — novo :last-child ganhava margin-left:auto
+  !important (OQ16) e, com 2 auto-margins na linha flex, o grupo
+  estacionava no CENTRO. Gatilho: DOMContentLoaded + setTimeout 300/
+  1500ms (3x por load, nao loop). Cumplices: place() do OQ15 e do OQ16
+  (DOMContentLoaded + setInterval 250ms ate sucesso) moviam so o
+  Elenco; o seletor [class*="action" i] deles casava com o proprio
+  span.b89-actions. Padrao L-SINGLEOWNER01 (3 donos disputando o
+  header); licao L-SINGLEOWNER02 planejada no E7 ("buscar botao por
+  texto quebra quando o botao vira icone").
+  FIX (working tree 12/07): F1 b89header neutralizado (outras funcoes
+  dele eram redundantes: user-chip ja e display:none inline, chip "api
+  online" nao existe mais); F2 os 2 place() desarmados (botao e
+  estatico no #hdr-nav desde E1b); F3 (polimento aprovado) CSS por ID
+  do #oq10ProvBtn removido (OQ15 34px/8px/fundo proprio + OQ16 cor;
+  supera o hotfix E5fix de border-radius) — Elenco agora e .hdr-ico
+  puro, identico ao grupo. Blocos <script> mantidos com comentario
+  explicativo (historia via git blame). .bak-r8f1/f2/f3-20260712.
 - E6 — LIGAR: engrenagem visivel no header; smoke completo da CBini.
+  E6a APLICADO 12/07 (working tree, junto do fix acima): botao
+  #hdr-set-btn .hdr-ico no #hdr-nav entre Elenco e o separador de
+  Sair/Avatar (ordem completa segue sendo E1d, nao executado), SVG
+  engrenagem Lucide 18x18 stroke currentColor (familia dos demais),
+  tooltip "Configurações", onclick window.oqSettings.open() (default
+  aba Provedores, contrato do E2). .bak-r8e6a-20260712. Checador 72/0.
 - E7 — Docs/licoes/roadmap da rodada (padrao B6) + limpeza .bak.
 Cada E: .bak + checador de 71 blocos + aprovacao CBini antes do proximo.
 
