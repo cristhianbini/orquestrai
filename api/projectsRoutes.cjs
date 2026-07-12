@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-11 12:06:48 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-12 10:53:44 -03:00 (auto, git pre-commit)
 // [B315] /api/projects — Projetos, Modos e Scorecard dos Agentes
 // [CTXPROJPERSIST01 2026-07-09] Persistencia em DISCO substitui o Map
 // em memoria do B315 original.
@@ -171,6 +171,16 @@ router.post('/', express.json({ limit: '1mb' }), (req, res) => {
     mode: String(body.mode || 'build'),
     status: 'draft',
     public: false, // CTXPREVIEWAUTH01: privado por padrao
+    // R9-DNA01: seed automatico do DNA a partir do wizard — descricao vira
+    // objetivo, features viram criterios de aceite iniciais. Editavel depois
+    // via PUT /:slug/dna; runs do projeto recebem isso como contrato.
+    dna: {
+      objetivo: String(body.description || ''),
+      publico: '',
+      restricoes: [],
+      criterios_aceite: Array.isArray(body.features) ? body.features.map(String) : [],
+      decisoes: []
+    },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
@@ -216,6 +226,45 @@ router.get('/:slug/docs/:file', (req, res) => {
   const p = path.join(PROJ_DIR, slug, 'docs', file);
   try { res.json({ ok:true, file, content: fs.readFileSync(p,'utf8').slice(0,200000) }); }
   catch(e){ return res.status(404).json({ ok:false, error:'doc nao encontrado' }); }
+});
+
+// [R9-DNA01 2026-07-12] DNA do projeto (MVP aprovado CBini): contrato que o
+// mesh recebe como contexto em runs do projeto (injecao no runMas). v1 SEM
+// versionamento e SEM validador dedicado. Auth de sessao do router (mesmo
+// nivel do POST /); campos sanitizados e com teto de tamanho.
+router.get('/:slug/dna', (req, res) => {
+  const slug = String(req.params.slug||'');
+  if (!/^[a-z0-9-]{1,60}$/.test(slug)) return res.status(400).json({ ok:false, error:'slug invalido' });
+  let project;
+  try { project = JSON.parse(fs.readFileSync(path.join(PROJ_DIR, slug, 'project.json'),'utf8')); }
+  catch(e){ return res.status(404).json({ ok:false, error:'projeto nao encontrado' }); }
+  res.json({ ok:true, slug, dna: project.dna || null });
+});
+
+router.put('/:slug/dna', express.json({ limit: '32kb' }), (req, res) => {
+  const slug = String(req.params.slug||'');
+  if (!/^[a-z0-9-]{1,60}$/.test(slug)) return res.status(400).json({ ok:false, error:'slug invalido' });
+  const pjPath = path.join(PROJ_DIR, slug, 'project.json');
+  let project;
+  try { project = JSON.parse(fs.readFileSync(pjPath,'utf8')); }
+  catch(e){ return res.status(404).json({ ok:false, error:'projeto nao encontrado' }); }
+  const b = req.body || {};
+  const arr = v => Array.isArray(v) ? v.map(x => String(x).slice(0,500)).filter(Boolean).slice(0,50) : [];
+  project.dna = {
+    objetivo: String(b.objetivo||'').slice(0,2000),
+    publico: String(b.publico||'').slice(0,500),
+    restricoes: arr(b.restricoes),
+    criterios_aceite: arr(b.criterios_aceite),
+    decisoes: arr(b.decisoes)
+  };
+  project.updatedAt = new Date().toISOString();
+  try {
+    // mesma escrita atomica do POST / (tmp + rename)
+    const tmp = pjPath + '.tmp';
+    fs.writeFileSync(tmp, JSON.stringify(project, null, 2));
+    fs.renameSync(tmp, pjPath);
+  } catch(e){ return res.status(500).json({ ok:false, error:'falha ao gravar: '+e.message }); }
+  res.json({ ok:true, slug, dna: project.dna });
 });
 
 // [CTXPROJDEL01 2026-07-09] exclusao com quarentena (nunca rm real)

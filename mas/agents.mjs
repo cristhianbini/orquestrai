@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-12 10:52:34 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-12 10:53:44 -03:00 (auto, git pre-commit)
 
 // [B220-LOG]
 import { appendFileSync as _appB220 } from "node:fs";
@@ -266,6 +266,28 @@ Voce e um agente do OrquestrAI no protocolo LAVE (Ler, Avaliar, Verificar, Execu
   return { text:text.trim(), tokens_in:inT, tokens_out:outT, latency_ms:dt, cost_usd:(inT*p.in+outT*p.out)/1e6, model };
 }
 
+// R9-DNA01 (2026-07-12, MVP aprovado CBini): DNA = contrato do projeto
+// (bloco `dna` do project.json). Runs ligadas a um projeto recebem o DNA
+// no contexto, mesma filosofia da KB — o mesh audita CONTRA o contrato
+// e Guardiao/Auditor apontam violacoes. Sem versionamento na v1.
+function getProjectDnaContext(slug){
+  if(!slug) return '';
+  try{
+    const pj = JSON.parse(readFileSync('/app/projects/'+slug+'/project.json','utf8'));
+    const dna = pj && pj.dna; if(!dna) return '';
+    const li = v => (Array.isArray(v) && v.length) ? v.map(x=>'- '+x).join('\n') : null;
+    const parts = [];
+    if(dna.objetivo) parts.push('OBJETIVO DO PROJETO: '+dna.objetivo);
+    if(dna.publico) parts.push('PUBLICO: '+dna.publico);
+    const r = li(dna.restricoes);        if(r)  parts.push('RESTRICOES:\n'+r);
+    const c = li(dna.criterios_aceite);  if(c)  parts.push('CRITERIOS DE ACEITE:\n'+c);
+    const de = li(dna.decisoes);         if(de) parts.push('DECISOES JA TOMADAS:\n'+de);
+    if(!parts.length) return '';
+    return '\n\n=== DNA DO PROJETO '+slug+' (contrato: NAO viole; aponte violacoes) ===\n'
+      + parts.join('\n') + '\n=== fim do DNA ===\n';
+  }catch(e){ return ''; }
+}
+
 export async function runMas(goal, projectSlug){
   // CTXPROJRUN01: projectSlug (opcional) liga o run ao projeto; validado
   // aqui de novo (defesa em profundidade alem da rota).
@@ -276,7 +298,7 @@ export async function runMas(goal, projectSlug){
   d.close();
   bus.emit(runId,{type:'run.start',run_id:runId,goal,ts:Date.now()});
   (async()=>{
-    let ctx='OBJETIVO: '+goal+getRecentRunsContext(runId,3); let tin=0,tout=0,tc=0; // CTXMAS01
+    let ctx='OBJETIVO: '+goal+getProjectDnaContext(projectSlug)+getRecentRunsContext(runId,3); let tin=0,tout=0,tc=0; // CTXMAS01 + R9-DNA01
     try{
       let __smithOut=''; let __vetoed=false;
       // CTXMETRICTELEM01 (2026-07-08): acumulador ESTRUTURADO por agente.
