@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-12 10:53:44 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-12 15:39:22 -03:00 (auto, git pre-commit)
 
 // [B220-LOG]
 import { appendFileSync as _appB220 } from "node:fs";
@@ -527,6 +527,75 @@ export async function buildStaticSite(goal, slug){
   const u=j.usage||{};
   const inT=u.input_tokens||0, outT=u.output_tokens||0;
   return { html, model, tokens_in:inT, tokens_out:outT, latency_ms:dt, cost_usd:(inT*p.in+outT*p.out)/1e6 };
+}
+
+// R9-CONSTRUIR01 (2026-07-12, Fatia B opcao 1 aprovada CBini): comando
+// /construir <pedido> no chat de um projeto static-html. Gera UMA pagina
+// nomeada (site/<pagina>.html) via buildStaticSite com DNA+descricao+pedido,
+// SEM tocar as paginas irmas (arquiva so o alvo se ja existir). Diferente do
+// CTXPROJRUN02 (BUILD novo projeto), que regenera o index inteiro. Multi-
+// pagina com navegacao = v2 (roadmap). Mesmos vetos universais do Guardian.
+const CONSTRUIR_STOP = new Set(['de','do','da','para','com','uma','um','a','o','the','of','sobre-o','no','na']);
+function pageFilenameFromPedido(pedido){
+  // normaliza acentos p/ casar "pagina"/"página" e slugificar o nome
+  const t = String(pedido||'').normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const m = t.match(/\bpagina\s+(.+)/i) || t.match(/\bpage\s+(.+)/i) || t.match(/\btela\s+(.+)/i);
+  let name = 'index';
+  if(m){
+    const words = m[1].toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+    const first = words.find(w => !CONSTRUIR_STOP.has(w) && w.length>1);
+    if(first) name = first;
+  }
+  if(['index','home','inicial','principal','inicio'].includes(name)) return 'index.html';
+  return name.slice(0,40) + '.html';
+}
+export async function buildProjectPage(slug, pedido){
+  if(!slug || !/^[a-z0-9-]{1,60}$/.test(slug)) throw new Error('slug invalido');
+  const fsN = await import('node:fs'); const pathN = await import('node:path');
+  const pdir = pathN.join('/app/projects', slug);
+  const pjPath = pathN.join(pdir, 'project.json');
+  if(!fsN.existsSync(pjPath)) throw new Error('projeto nao encontrado: '+slug);
+  const proj = JSON.parse(fsN.readFileSync(pjPath,'utf8'));
+  if(proj.stack !== 'static-html') throw new Error('/construir v1 so suporta stack static-html (o projeto "'+slug+'" e "'+proj.stack+'")');
+
+  const file = pageFilenameFromPedido(pedido);
+  if(!/^[a-z0-9-]{1,40}\.html$/.test(file)) throw new Error('nome de pagina invalido derivado do pedido');
+
+  const sitePrompt =
+    'Projeto: '+(proj.name||slug)+'. '
+    + (proj.description ? ('Descricao geral: '+proj.description+'. ') : '')
+    + getProjectDnaContext(slug)
+    + '\n\nCONSTRUA a pagina "'+file.replace(/\.html$/,'')+'" deste site conforme o pedido a seguir. '
+    + 'Respeite o DNA/contrato do projeto acima quando houver. Pedido: '
+    + String(pedido||'').slice(0,2000);
+
+  const built = await buildStaticSite(sitePrompt, slug);
+  const html = built.html||'';
+
+  // vetos universais IDENTICOS ao CTXPROJRUN02 (fonte da verdade da seguranca de site)
+  const hits = hardVeto(html);
+  const htmlChecks = [];
+  if(/<script[^>]+src=/i.test(html)) htmlChecks.push({rule:'html-script-src-externo'});
+  if(/fetch\(|XMLHttpRequest|\/api\//i.test(html)) htmlChecks.push({rule:'html-fetch-ou-api'});
+  if(!/^<!doctype html/i.test(html.trim())) htmlChecks.push({rule:'html-sem-doctype'});
+  if(html.length < 50) htmlChecks.push({rule:'html-vazio-ou-curto'});
+  const allHits = [...hits.map(h=>({rule:h.rule})), ...htmlChecks];
+  if(allHits.length){
+    return { ok:false, blocked:true, page:file, vetoes:allHits.map(h=>h.rule), cost_usd:built.cost_usd };
+  }
+
+  const siteDir = pathN.join(pdir, 'site');
+  fsN.mkdirSync(siteDir, {recursive:true});
+  const target = pathN.join(siteDir, file);
+  // arquiva SO o arquivo alvo (preserva paginas irmas — diferenca-chave do CTXPROJRUN02)
+  if(fsN.existsSync(target)){
+    const qdir = pathN.join(pdir, '_arquivados'); fsN.mkdirSync(qdir, {recursive:true});
+    fsN.renameSync(target, pathN.join(qdir, file.replace(/\.html$/,'')+'-'+new Date().toISOString().replace(/[:.]/g,'-')+'.html'));
+  }
+  const tmp = pathN.join(siteDir, '.'+file+'.tmp'); // escrita atomica (padrao CTXPROJPERSIST01)
+  fsN.writeFileSync(tmp, html); fsN.renameSync(tmp, target);
+  console.log('[R9-CONSTRUIR01] pagina persistida:', target, '| custo:', built.cost_usd);
+  return { ok:true, page:file, path:'projects/'+slug+'/site/'+file, cost_usd:built.cost_usd, tokens_in:built.tokens_in, tokens_out:built.tokens_out };
 }
 
 export { AGENTS, MODEL_BY_AGENT, PRICE };

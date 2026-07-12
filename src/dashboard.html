@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-12 15:28:18 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-12 15:39:22 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1740,6 +1740,27 @@ async function send(){
   pushChat('voce', t);
   oqTermWrite('\nroot@cbini:~# chat enviando...\n');
 
+  // R9-CONSTRUIR01 (Fatia B opcao 1): /construir <pedido> gera UMA pagina
+  // nomeada no projeto ATIVO (static-html) via buildProjectPage. Interceptado
+  // ANTES do branch MAS/chat — nao passa pelo pipeline nem pelo classifier.
+  if(t.indexOf('/construir')===0){
+    var __ped = t.replace(/^\/construir\s*/i,'').trim();
+    if(!__ped){ pushChat('erro','Uso: /construir <o que criar>. Ex: /construir uma página Sobre com a descrição completa do site'); input.focus(); return; }
+    var __cslug=(function(){try{return localStorage.getItem('oq_proj_current')||'orquestrai'}catch(e){return 'orquestrai'}})();
+    pushChat('mas','🔨 construindo página no projeto "'+__cslug+'"... (pode levar alguns segundos)');
+    try{
+      var __rc = await fetch('/api/mas/construir',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(localStorage.getItem('oq_token')||'')},body:JSON.stringify({slug:__cslug, pedido:__ped})});
+      var __jc = await __rc.json().catch(function(){return{};});
+      if(!__rc.ok || !__jc.ok){
+        if(__jc && __jc.vetoes && __jc.vetoes.length) pushChat('erro','🚫 Construção bloqueada pelos vetos de segurança: '+__jc.vetoes.join(', ')+'. A página NÃO foi gravada.');
+        else pushChat('erro','Falha ao construir: '+((__jc&&__jc.error)||('HTTP '+__rc.status))+(__cslug==='orquestrai'?' (dica: o projeto ativo é o cockpit; ative um projeto static-html no seletor do topo)':''));
+      } else {
+        pushChat('ia','✅ Página **'+__jc.page+'** gravada em `'+__jc.path+'` (custo $'+(Number(__jc.cost_usd)||0).toFixed(6)+'). Abra o Preview do projeto no topo para ver.');
+      }
+    }catch(__e){ pushChat('erro','Erro de rede ao construir: '+(__e.message||__e)); }
+    input.focus(); return;
+  }
+
   // B63: toggle window.__masMode (botao MODO MAS). Sem toggle = chat direto Claude.
   var masMode = !!window.__masMode;
 
@@ -1792,7 +1813,12 @@ async function send(){
         }
       }
     } catch(_){}
-    var rr = await fetch('/api/mas/run',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(localStorage.getItem('oq_token')||'')},body:JSON.stringify({goal: t + __masCtx, mas_mode: (t.indexOf('/mas')===0)})}); // CTXROUTER01-fix (2026-07-08): mas_mode era TRUE hardcoded = gate B271 bypassado desde sempre (classifier nunca consultado, 'qual o nome do sistema' custava \$0.19). Agora explicito SO com prefixo /mas; demais msgs passam pelo classifyIntent do backend (verbos de acao = MAS, conversa = quickChat ~\$0.001).
+    // R9-FATIA-A: run do chat ligada ao projeto ATIVO (project_slug) — antes
+    // so o wizard vinculava; agora runs do chat tambem recebem DNA como
+    // contrato e persistem plano em projects/<slug>/docs/. Default 'orquestrai'
+    // (cockpit) e' inofensivo: sem dna => sem injecao (getProjectDnaContext '').
+    var __runSlug=(function(){try{return localStorage.getItem('oq_proj_current')||'orquestrai'}catch(e){return 'orquestrai'}})();
+    var rr = await fetch('/api/mas/run',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(localStorage.getItem('oq_token')||'')},body:JSON.stringify({goal: t + __masCtx, mas_mode: (t.indexOf('/mas')===0), project_slug: __runSlug})}); // CTXROUTER01-fix (2026-07-08): mas_mode era TRUE hardcoded = gate B271 bypassado desde sempre (classifier nunca consultado, 'qual o nome do sistema' custava \$0.19). Agora explicito SO com prefixo /mas; demais msgs passam pelo classifyIntent do backend (verbos de acao = MAS, conversa = quickChat ~\$0.001).
     var jj = await rr.json().catch(function(){return{}});
     if(!rr.ok){ pushChat('erro','MAS nao iniciou: '+(jj.error||rr.status)); input.focus(); return; } if(jj.mode==='chat' && jj.reply){ pushChat('ia',jj.reply); input.focus(); return; } pushChat('mas','iniciando agentes (pipeline completo)...'); // CTXROUTER01-fix3: anuncio so quando run REAL comeca if(!(jj.run_id||jj.id)){ pushChat('erro','MAS sem run_id: '+(jj.error||JSON.stringify(jj).slice(0,120))); input.focus(); return; } var __rid = jj.run_id||jj.id;
     if(window.__oqMasES){ try{window.__oqMasES.close();}catch(_){} } // CTXSSE02: fecha SSE anterior

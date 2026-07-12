@@ -3,11 +3,11 @@
 // Ver mas/auth.mjs para o raciocinio completo.
 import { authMiddleware, authMiddlewareSSE } from './auth.mjs';
 
-// ATUALIZADO: 2026-07-12 10:28:24 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-12 15:39:22 -03:00 (auto, git pre-commit)
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 import express from 'express';
-import { runMas, getRun, bus } from './agents.mjs';
+import { runMas, getRun, bus, buildProjectPage } from './agents.mjs';
 import rateLimit from 'express-rate-limit';
 
 // CTXRATELIM02: limites diferenciados por sensibilidade da rota.
@@ -124,6 +124,21 @@ router.post('/run', authMiddleware, runLimiter, express.json(), async (req,res)=
 });
 
 router.get('/run/:id', authMiddleware, readLimiter, (req,res)=>{ res.json(getRun(req.params.id)); }); // CTXRATELIM02 + CTXMASAUTH01
+
+// R9-CONSTRUIR01 (Fatia B opcao 1, aprovada CBini): /construir <pedido> gera
+// UMA pagina nomeada num projeto static-html (buildProjectPage). runLimiter:
+// e build pago (Claude direto), mesmo peso de /run. NAO entra no pipeline MAS.
+router.post('/construir', authMiddleware, runLimiter, express.json(), async (req,res)=>{
+  try{
+    const slug = String((req.body&&req.body.slug)||'');
+    const pedido = String((req.body&&req.body.pedido)||'').trim();
+    if(!/^[a-z0-9-]{1,60}$/.test(slug)) return res.status(400).json({ ok:false, error:'slug invalido' });
+    if(!pedido) return res.status(400).json({ ok:false, error:'pedido vazio' });
+    const r = await buildProjectPage(slug, pedido);
+    if(r && r.blocked) return res.status(422).json({ ok:false, error:'conteudo bloqueado pelos vetos de seguranca', vetoes:r.vetoes });
+    res.json(r);
+  }catch(e){ res.status(500).json({ ok:false, error:String(e.message||e) }); }
+});
 
 router.get('/last', authMiddleware, readLimiter, (req,res)=>{ // CTXRATELIM02 + CTXMASAUTH01
   try{
