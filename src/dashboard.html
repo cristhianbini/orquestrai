@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-12 01:19:35 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-12 04:55:20 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1175,7 +1175,7 @@ button[onclick="send()"]:hover{
     var bar=document.createElement('div'); bar.className='b356-subhdr';
     bar.innerHTML='<span class="lbl">SECAO</span>'+
       '<button class="b356-tab on" data-t="mod">MODELOS</button>'+
-      '<button class="b356-tab" data-t="agt">AGENTES</button>'+'<button class="b356-tab" data-t="tel">TELEMETRIA</button>'; // CTXAGTDASH01/S8; R8-E3a: aba PROVEDORES removida (pane absorvido pelo Configuracoes, A3 opcao i)
+      '<button class="b356-tab" data-t="agt">AGENTES</button>'; // CTXAGTDASH01/S8; R8-E3a: PROVEDORES removida; R8-E4a: TELEMETRIA removida (ambas absorvidas pelo Configuracoes, A3 opcao i — Elenco = MODELOS+AGENTES)
     if(head && head.nextSibling) shell.insertBefore(bar, head.nextSibling); else shell.insertBefore(bar, body);
 
     // R8-E3a: Provedores ABSORVIDO pelo painel Configuracoes (A3 opcao i).
@@ -1254,6 +1254,10 @@ button[onclick="send()"]:hover{
       h+='<div style="background:#0a1119;border:1px solid #3b82f644;border-radius:8px;padding:12px"><div style="color:#6b7280;font:10px ui-monospace,monospace;letter-spacing:.08em">TOKENS PROCESSADOS</div><div style="color:#93c5fd;font:22px ui-monospace,monospace;font-weight:bold;margin-top:4px">'+(j.total.tokens/1000).toFixed(0)+'k</div></div>';
       h+='<div style="background:#052e16;border:1px solid #22c55e66;border-radius:8px;padding:12px"><div style="color:#4ade80;font:10px ui-monospace,monospace;letter-spacing:.08em">ECONOMIA Q10</div><div style="color:#22c55e;font:22px ui-monospace,monospace;font-weight:bold;margin-top:4px">$'+j.total.economia_q10_usd.toFixed(2)+'</div><div style="color:#4ade8099;font:9px ui-monospace,monospace">dinheiro que NAO saiu</div></div>';
       h+='</div>';
+      // R8-E4b: slot da tabela POR PROJETO entre cards e barras (ordem do
+      // wireframe T4); loadProjTelemRaw preenche apos o fetch proprio.
+      h+='<div data-telem="TELEM01_PROJ"></div>';
+      h+='<div style="color:#6b7280;font:10px ui-monospace,monospace;letter-spacing:.08em">POR AGENTE</div>';
       h+='<div style="display:flex;flex-direction:column;gap:6px">';
       j.agents.forEach(function(a){
         var cor=TELCOR[a.agent]||'#94a3b8'; var nm=TELNM[a.agent]||a.agent.toUpperCase();
@@ -1267,29 +1271,54 @@ button[onclick="send()"]:hover{
       });
       h+='</div></div>'; return h;
     }
-    /* TELEM01-E4 (2026-07-11): card CRU de custo por projeto (ROADMAP #3).
-       Dado direto de GET /api/mas/telemetry/projects; layout definitivo vem
-       na rodada de telas. Encadeado APOS o buildTelPane porque o innerHTML=
-       do fetch principal apagaria um append concorrente (race). 'projeto' e
-       seguro p/ innerHTML por construcao: slug validado ^[a-z0-9-]{1,60}$ no
-       backend, ou o literal '(sem-projeto)' do COALESCE. */
+    /* R8-E4b (2026-07-12): tabela POR PROJETO estilizada — SUBSTITUI o card
+       cru TELEM01_E4_RAW (decisao A4 do plano RODADA-8: mesmo dado, casa
+       nova, sem coexistir). Continua encadeada APOS buildTelPane e escreve
+       no slot proprio data-telem=TELEM01_PROJ entre cards e barras — ordem
+       do wireframe T4 sem race com o innerHTML principal. 'projeto' segue
+       seguro p/ innerHTML: slug validado ^[a-z0-9-]{1,60}$ no backend, ou
+       o literal '(sem-projeto)' do COALESCE. */
     function loadProjTelemRaw(){
       fetch('/api/mas/telemetry/projects',{headers:{Authorization:'Bearer '+(localStorage.getItem('oq_token')||'')}}).then(function(r){return r.json();}).then(function(j){
-        if(!j||!j.ok||!j.projects||!telPane.firstElementChild) return;
-        var h='<div data-telem="TELEM01_E4_RAW" style="background:#0a1119;border:1px solid #33415555;border-radius:8px;padding:12px">';
-        h+='<div style="color:#6b7280;font:10px ui-monospace,monospace;letter-spacing:.08em">CUSTO POR PROJETO <span style="color:#374151">(dado cru — TELEM01)</span></div>';
-        h+='<table style="width:100%;margin-top:6px;border-collapse:collapse;font:11px ui-monospace,monospace;color:#94a3b8"><tr style="color:#4b5563;text-align:left"><th>projeto</th><th>runs</th><th>tok in</th><th>tok out</th><th>custo</th><th>ultima run</th></tr>';
+        var slot=telPane.querySelector('[data-telem="TELEM01_PROJ"]');
+        if(!j||!j.ok||!j.projects||!slot) return;
+        var h='<div style="background:#0a1119;border:1px solid var(--line);border-radius:8px;padding:12px">';
+        h+='<div style="color:#6b7280;font:10px ui-monospace,monospace;letter-spacing:.08em">POR PROJETO</div>';
+        if(!j.projects.length){
+          h+='<div style="color:#374151;font:11px ui-monospace,monospace;margin-top:6px">sem runs com projeto ainda</div></div>';
+          slot.innerHTML=h; return;
+        }
+        h+='<table style="width:100%;margin-top:8px;border-collapse:collapse;font:11px ui-monospace,monospace;color:#94a3b8">';
+        h+='<tr style="color:#4b5563;font-size:10px;letter-spacing:.08em;text-align:left"><th style="padding:2px 8px 6px 0;font-weight:600">PROJETO</th><th style="padding:2px 8px 6px;text-align:right;font-weight:600">RUNS</th><th style="padding:2px 8px 6px;text-align:right;font-weight:600">TOK IN</th><th style="padding:2px 8px 6px;text-align:right;font-weight:600">TOK OUT</th><th style="padding:2px 8px 6px;text-align:right;font-weight:600">CUSTO</th><th style="padding:2px 0 6px 8px;text-align:right;font-weight:600">ULTIMA RUN</th></tr>';
         j.projects.forEach(function(p){
-          h+='<tr><td style="color:#e2e8f0;padding:2px 8px 2px 0">'+p.projeto+'</td><td>'+p.runs+'</td><td>'+(p.tokens_in||0)+'</td><td>'+(p.tokens_out||0)+'</td><td style="color:#fbbf24">$'+(p.custo_usd||0).toFixed(4)+'</td><td>'+(p.ultima_run_ts?new Date(p.ultima_run_ts).toLocaleString('pt-BR'):'—')+'</td></tr>';
+          h+='<tr style="border-top:1px solid #14202e">';
+          h+='<td style="color:#e2e8f0;padding:6px 8px 6px 0">'+p.projeto+'</td>';
+          h+='<td style="text-align:right;padding:6px 8px">'+p.runs+'</td>';
+          h+='<td style="text-align:right;padding:6px 8px">'+(p.tokens_in||0)+'</td>';
+          h+='<td style="text-align:right;padding:6px 8px">'+(p.tokens_out||0)+'</td>';
+          h+='<td style="text-align:right;padding:6px 8px;color:#fbbf24;font-weight:600">$'+(p.custo_usd||0).toFixed(4)+'</td>';
+          h+='<td style="text-align:right;padding:6px 0 6px 8px;color:#6b7280">'+(p.ultima_run_ts?new Date(p.ultima_run_ts).toLocaleString('pt-BR'):'—')+'</td>';
+          h+='</tr>';
         });
         h+='</table></div>';
-        var d=document.createElement('div'); d.innerHTML=h;
-        telPane.firstElementChild.appendChild(d.firstElementChild);
+        slot.innerHTML=h;
       }).catch(function(){});
     }
     telPane.innerHTML='<div class="b356-empty">Carregando telemetria...</div>';
-    fetch('/api/mas/telemetry',{headers:{Authorization:'Bearer '+(localStorage.getItem('oq_token')||'')}}).then(function(r){return r.json();}).then(function(j){telPane.innerHTML=buildTelPane(j);loadProjTelemRaw();}).catch(function(e){telPane.innerHTML='<div class="b356-empty"><b>Telemetria</b>erro: '+e+'</div>';});
-    body.appendChild(telPane);
+    // R8-E4a: telPane ABSORVIDO pelo Configuracoes (aba Telemetria/Uso).
+    // A carga sai do build-time: window.oqTelem.reload() e disparado pelo
+    // oqSettings.show('telemetria') a CADA exibicao (idioma E3a-fix1) —
+    // dados frescos sem depender de F5. Mantida a cadeia buildTelPane ->
+    // loadProjTelemRaw (comentario TELEM01: innerHTML apagaria append
+    // concorrente). telPane ganha 'on' fixo: quem alterna visibilidade
+    // agora e o .r8set-pane pai, nao a sub-barra do Elenco.
+    window.oqTelem={reload:function(){
+      telPane.innerHTML='<div class="b356-empty">Carregando telemetria...</div>';
+      fetch('/api/mas/telemetry',{headers:{Authorization:'Bearer '+(localStorage.getItem('oq_token')||'')}}).then(function(r){return r.json();}).then(function(j){telPane.innerHTML=buildTelPane(j);loadProjTelemRaw();}).catch(function(e){telPane.innerHTML='<div class="b356-empty"><b>Telemetria</b>erro: '+e+'</div>';});
+    }};
+    var telSetPane=document.querySelector('#r8SetModal .r8set-pane[data-pane="telemetria"]');
+    if(telSetPane){ telSetPane.innerHTML=''; telPane.classList.add('on'); telSetPane.appendChild(telPane); }
+    else { body.appendChild(telPane); } // fallback: shell E2 ausente (nao esperado)
 
 
     bar.addEventListener('click',function(e){
@@ -1370,10 +1399,11 @@ button[onclick="send()"]:hover{
     });
     try{
       // R8-E3a: 'prov' pode estar salvo de antes da absorcao -> cai em 'mod'.
+      // R8-E4a: idem para 'tel' (Telemetria foi pro Configuracoes).
       // Sempre clica a aba inicial: o pane MODELOS so monta o UI de filtros
       // (CTXFILTROS01) via handler de clique, e agora ele e o default.
       var saved=localStorage.getItem('oq_agt_tab');
-      if(!saved || saved==='prov') saved='mod';
+      if(!saved || saved==='prov' || saved==='tel') saved='mod';
       var btn=bar.querySelector('[data-t="'+saved+'"]'); if(btn) btn.click();
     }catch(e){}
   }
@@ -1984,6 +2014,11 @@ window.oqSettings=(function(){
     // open() sempre chamava reload()). Guard por typeof, idioma do B367.
     if(name==='provedores'){
       try{ if(window.oq10Prov && typeof window.oq10Prov.reload==='function') window.oq10Prov.reload(); }catch(e){}
+    }
+    // E4a: mesmo contrato para a aba Telemetria/Uso (oqTelem definido no
+    // build() do b356; se ainda nao existir, a proxima exibicao carrega).
+    if(name==='telemetria'){
+      try{ if(window.oqTelem && typeof window.oqTelem.reload==='function') window.oqTelem.reload(); }catch(e){}
     }
   }
   function open(name){var m=modal(); if(!m) return; m.classList.add('on'); show(name||'provedores');}

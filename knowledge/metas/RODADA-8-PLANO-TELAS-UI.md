@@ -1,8 +1,10 @@
 PROJETO: orquestrai
 TIPO: plano-de-sprint
 CRIADO: 2026-07-11
-STATUS: APROVADO pela CBini em 2026-07-11 — escopo T1-T5 confirmado;
-        A3 DECIDIDO: opcao (i). Aguardando gate do E1 (nenhum codigo ainda)
+STATUS: EM EXECUCAO (aprovado 2026-07-11; A3 = opcao i). Concluidos e
+        validados pela CBini: E1a+E1b (5d352c0), E2 (ddd734a),
+        E3+E3a-fix1 (04c3c34), E4a+E4b (validacao visual 12/07,
+        commit E4d). Proximo: E5 (aba Seguranca)
 CONECTA: ROADMAP-FUTURO.md item #8 (UI padrao janelas), CTXDESIGNGUIDE01
          (HANDOFF-POS-FABLE.md), TELEM01 (telemetria por projeto, 2026-07-11)
 
@@ -219,6 +221,25 @@ temporais) = T11 FUTURA, fora desta rodada.
   [risco MEDIO — referencias js vivas; testar todos os fluxos de chave]
 - E4 — Aba Telemetria/Uso: mover telPane + estilizar tabela por projeto
   (substitui card cru TELEM01-E4). [risco baixo]
+  CONCLUIDO 12/07 (validacao visual CBini OK; commit E4d):
+  - E4a: telPane movido para o pane 'telemetria' do Configuracoes; aba
+    TELEMETRIA removida da sub-barra do Elenco (que vira so
+    MODELOS+AGENTES, fechando a A3-i); carga sai do build-time para
+    window.oqTelem.reload(), disparado pelo oqSettings.show('telemetria')
+    a cada exibicao (mesmo idioma do E3a-fix1 — dados frescos sem F5);
+    fallback body.appendChild se o shell E2 faltar; localStorage
+    oq_agt_tab==='tel' salvo de antes cai em 'mod' (mesmo tratamento
+    do 'prov' no E3a).
+  - E4b: card cru TELEM01_E4_RAW substituido pela tabela POR PROJETO
+    estilizada em slot proprio data-telem=TELEM01_PROJ ENTRE os cards
+    e as barras por agente (ordem do wireframe T4; o append no final
+    do pane saiu). Header maiusculo 10px, numericos alinhados a
+    direita, custo em ambar #fbbf24, linhas com borda #14202e, estado
+    vazio "sem runs com projeto ainda". Mantidos: cadeia
+    buildTelPane->loadProjTelemRaw (race do innerHTML) e a garantia de
+    slug seguro p/ innerHTML (validacao ^[a-z0-9-]{1,60}$ no backend).
+  - Checador: 72 blocos, 0 erros (baseline .bak-r8e4a idem).
+    .bak-r8e4a-20260712-0123 e .bak-r8e4b-20260712-0127 criados.
 - E5 — Aba Seguranca (status 2FA + links). Precisa confirmar quais
   endpoints de status existem; se faltar, dado "cru" minimo. [baixo]
 - E6 — LIGAR: engrenagem visivel no header; smoke completo da CBini.
