@@ -195,6 +195,24 @@ temporais) = T11 FUTURA, fora desta rodada.
   padronizar os botoes do bloco terminal (COLAR/CHAT, CLEAR, CONECTAR)
   no mesmo idioma visual dos icones do header (.hdr-ico), em tamanho
   menor — consistencia visual em toda a interface.
+- E1d — REGISTRADO 12/07 (durante E3, NAO executar sem OK; CBini decide
+  quando entra): reordenar icones do topo direito para (esq->dir):
+  Perfil, Sair, Elenco, Provedores de IA, Manual, Licoes, Projetos,
+  Preview, Cafe. ABERTOS a definir na hora: (a) inverte a decisao
+  anterior "Avatar/Sair nas pontas da direita" — confirmar intencional;
+  (b) "Provedores de IA" vira atalho proprio na nav (presumivel:
+  window.oqSettings.open('provedores')); (c) "Cafe" e item NOVO sem
+  funcao definida — perguntar o que abre/faz.
+- NOTA DE DESIGN — REGISTRADA 12/07 (rodada futura de UI, nao nesta):
+  modal Configuracoes esta pequeno (~880x560); Bini quer MAIOR, com
+  mais espaco para o menu lateral + abas internas. Considerar junto
+  com T12 (menu lateral estilo janelas).
+- ACHADO E3c (12/07): .oq10-bar (status + Recarregar/Testar configurados)
+  ja era display:none ANTES do E3 — ocultada por B343-POLISH e B356
+  (regras globais) e B341D (escopada), decisao antiga "teste e por card".
+  O E3a moveu um no invisivel (paridade, nao regressao). reload() so
+  dispara via oq10Prov.open()/B367/salvar-chave — aba Provedores do
+  Configuracoes precisa de gatilho proprio (fix E3a-fix1).
 - E2 — Shell do modal Configuracoes OCULTO (engrenagem ainda invisivel):
   overlay+sidebar+panes vazios, padrao oq10. [risco baixo]
 - E3 — Aba Provedores: MOVER pane real do oq10Prov (CTXFIXPROV01).

@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-12 00:44:27 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-12 01:19:35 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1174,17 +1174,23 @@ button[onclick="send()"]:hover{
     // Sub-barra
     var bar=document.createElement('div'); bar.className='b356-subhdr';
     bar.innerHTML='<span class="lbl">SECAO</span>'+
-      '<button class="b356-tab on" data-t="prov">PROVEDORES</button>'+
-      '<button class="b356-tab" data-t="mod">MODELOS</button>'+
-      '<button class="b356-tab" data-t="agt">AGENTES</button>'+'<button class="b356-tab" data-t="tel">TELEMETRIA</button>'; // CTXAGTDASH01/S8
+      '<button class="b356-tab on" data-t="mod">MODELOS</button>'+
+      '<button class="b356-tab" data-t="agt">AGENTES</button>'+'<button class="b356-tab" data-t="tel">TELEMETRIA</button>'; // CTXAGTDASH01/S8; R8-E3a: aba PROVEDORES removida (pane absorvido pelo Configuracoes, A3 opcao i)
     if(head && head.nextSibling) shell.insertBefore(bar, head.nextSibling); else shell.insertBefore(bar, body);
 
-    // Panes -- CTXFIXPROV01: preserva os nos reais via appendChild (move, nao recria por string,
-    // que quebrava a referencia 'content'/'status' ja capturada pelo oq10Prov original)
-    var provPane=document.createElement('div'); provPane.className='b356-pane on'; provPane.dataset.p='prov';
-    while(body.firstChild) provPane.appendChild(body.firstChild);
-    var modPane=document.createElement('div'); modPane.className='b356-pane'; modPane.dataset.p='mod'; modPane.setAttribute('data-pane','mod'); // CTXMODELOS06: b341d-pane removida (causava display:none)
-    modPane.innerHTML='<div class="b356-empty"><b>Modelos</b>Selecione um provider na aba PROVEDORES para listar modelos.<br>Endpoint: <code>GET /api/providers/:id/models</code></div>';
+    // R8-E3a: Provedores ABSORVIDO pelo painel Configuracoes (A3 opcao i).
+    // CTXFIXPROV01 continua valendo: move os NOS REAIS via appendChild
+    // (.oq10-bar com #oq10ProvStatus/botoes + #oq10ProvContent do body) —
+    // as refs 'content'/'status' capturadas pelo IIFE oq10 sobrevivem ao
+    // re-parent. NUNCA recriar por string. Retry se o shell E2 nao existir.
+    var setPane=document.querySelector('#r8SetModal .r8set-pane[data-pane="provedores"]');
+    if(!setPane) return setTimeout(build,400);
+    setPane.innerHTML='';
+    var provBar=shell.querySelector('.oq10-bar');
+    if(provBar) setPane.appendChild(provBar);
+    while(body.firstChild) setPane.appendChild(body.firstChild);
+    var modPane=document.createElement('div'); modPane.className='b356-pane on'; modPane.dataset.p='mod'; modPane.setAttribute('data-pane','mod'); // CTXMODELOS06: b341d-pane removida (causava display:none); R8-E3a: 'on' default (era prov)
+    modPane.innerHTML='<div class="b356-empty"><b>Modelos</b>Chaves de provider agora vivem em Configura&ccedil;&otilde;es &rarr; Provedores de IA.<br>Endpoint: <code>GET /api/providers/:id/models</code></div>';
     var agtPane=document.createElement('div'); agtPane.className='b356-pane'; agtPane.dataset.p='agt';
     function buildAgtPane(){
       var ags=window.AGS||[]; var res=window.RESERVAS||[]; var slots=11;
@@ -1234,7 +1240,7 @@ button[onclick="send()"]:hover{
       return html;
     } // fim buildAgtPane
     agtPane.innerHTML=buildAgtPane(); // CTXAGENTES01
-    body.appendChild(provPane); body.appendChild(modPane); body.appendChild(agtPane);
+    body.appendChild(modPane); body.appendChild(agtPane); // R8-E3a: provPane nao existe mais (conteudo foi pro Configuracoes)
     /* CTXAGTDASH01/S8 (2026-07-08): Tabela do Elenco -- salario x producao. Diretrizes CTXDESIGNGUIDE01: grid do padrao AGENTES, alinhamento primeiro. */
     var telPane=document.createElement('div'); telPane.className='b356-pane'; telPane.dataset.p='tel';
     var TELCOR={revisor:'#c084fc',smith:'#fbbf24',detetive:'#22d3ee',guardian:'#22c55e',rel:'#60a5fa',scout:'#7ce7ff',memorialista:'#f472b6',metrico:'#94a3b8',auditor:'#a78bfa'};
@@ -1363,8 +1369,12 @@ button[onclick="send()"]:hover{
       },80); } // CTXFILTROS01
     });
     try{
+      // R8-E3a: 'prov' pode estar salvo de antes da absorcao -> cai em 'mod'.
+      // Sempre clica a aba inicial: o pane MODELOS so monta o UI de filtros
+      // (CTXFILTROS01) via handler de clique, e agora ele e o default.
       var saved=localStorage.getItem('oq_agt_tab');
-      if(saved){ var btn=bar.querySelector('[data-t="'+saved+'"]'); if(btn) btn.click(); }
+      if(!saved || saved==='prov') saved='mod';
+      var btn=bar.querySelector('[data-t="'+saved+'"]'); if(btn) btn.click();
     }catch(e){}
   }
   document.addEventListener('click',function(e){
@@ -1969,6 +1979,12 @@ window.oqSettings=(function(){
     var m=modal(); if(!m) return;
     m.querySelectorAll('.r8set-tab').forEach(function(t){t.classList.toggle('on',t.dataset.pane===name);});
     m.querySelectorAll('.r8set-pane').forEach(function(p){p.classList.toggle('on',p.dataset.pane===name);});
+    // E3a-fix1: a aba Provedores nao passa mais por oq10Prov.open()/B367,
+    // entao a carga dispara aqui, a cada exibicao (contrato do modal antigo:
+    // open() sempre chamava reload()). Guard por typeof, idioma do B367.
+    if(name==='provedores'){
+      try{ if(window.oq10Prov && typeof window.oq10Prov.reload==='function') window.oq10Prov.reload(); }catch(e){}
+    }
   }
   function open(name){var m=modal(); if(!m) return; m.classList.add('on'); show(name||'provedores');}
   function close(){var m=modal(); if(m) m.classList.remove('on');}
@@ -2022,7 +2038,7 @@ window.oqSettings=(function(){
 
 <div id="oq10ProvModal" onclick="if(event.target.id==='oq10ProvModal')window.oq10Prov.close()">
   <section class="oq10-shell" role="dialog" aria-modal="true">
-    <header class="oq10-head"><div><h2>Provedores de IA</h2><p>Chaves, modelos e testes organizados em uma tela so.</p></div><button class="oq10-x" type="button" onclick="window.oq10Prov.close()">&times;</button></header>
+    <header class="oq10-head"><div><h2>Elenco</h2><p>Modelos e agentes do mesh.</p></div><button class="oq10-x" type="button" onclick="window.oq10Prov.close()">&times;</button></header><!-- R8-E3b: rebatizado (era "Provedores de IA"; chaves agora em Configuracoes) -->
     <div class="oq10-bar"><div id="oq10ProvStatus" class="oq10-status">Pronto.</div><div class="oq10-actions"><button class="oq10-btn" type="button" onclick="window.oq10Prov.reload()">Recarregar</button><button class="oq10-btn main" type="button" onclick="window.oq10Prov.testAll()">Testar configurados</button></div></div>
     <main class="oq10-body"><div id="oq10ProvContent" class="oq10-note">Carregando...</div></main>
   </section>
