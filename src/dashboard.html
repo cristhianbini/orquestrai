@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-12 05:40:02 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-12 05:50:12 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -2024,38 +2024,84 @@ pushChat('sistema','👋 Oi! Sou o OrquestrAI. Me conta o que você precisa — 
   </section>
 </div>
 <script>
-window.oqSettings=(function(){
+/* R8-G3a (2026-07-12, estrategia aprovada CBini): oqSettings evolui para
+   oqShell — registry de abas generico, ZERO mudanca visual neste passo.
+   Motivo: 3 telas ja usam o mesmo contrato (show() dispara reload a cada
+   exibicao); formalizar antes de crescer evita um 4o if hardcoded por aba.
+   Candidatas futuras: Manual/Licoes/Elenco (1 por vez, gate da CBini);
+   PROJETOS NAO migra (decisao 12/07, modal dedicado). Fica INLINE no
+   monolito (nao arquivo .js novo): padrao da casa, checador cobre, e o
+   hook pre-commit ja quebrou parse de .js 2x (caso shebang) — reavaliar
+   extracao quando houver 2o consumidor ou o strangler-fig amadurecer.
+   API: register({id,label,icon,accent,mount,onShow}) adota botao/pane
+   estaticos se ja existirem no HTML (paridade absoluta, nada de DOM
+   recriado — CTXFIXPROV01) ou cria ambos para abas novas; mount(paneEl)
+   roda 1x; onShow() a cada exibicao; icon/accent sao ACEITOS mas so
+   renderizam no G3b (aprovacao visual pendente). */
+window.oqShell=(function(){
+  var TABS={}, ORDER=[];
   function modal(){return document.getElementById('r8SetModal');}
+  function register(def){
+    if(!def||!def.id||TABS[def.id]) return;
+    var m=modal(); if(!m) return;
+    TABS[def.id]=def; ORDER.push(def.id);
+    var btn=m.querySelector('.r8set-tab[data-pane="'+def.id+'"]');
+    if(!btn){ // aba NOVA: cria botao no padrao dos estaticos (os adotados ja tem onclick inline — nao duplicar handler)
+      btn=document.createElement('button'); btn.type='button'; btn.className='r8set-tab';
+      btn.setAttribute('data-pane',def.id); btn.textContent=def.label||def.id;
+      btn.addEventListener('click',function(){show(def.id);});
+      m.querySelector('.r8set-tabs').appendChild(btn);
+    }
+    var pane=m.querySelector('.r8set-pane[data-pane="'+def.id+'"]');
+    if(!pane){
+      pane=document.createElement('section'); pane.className='r8set-pane';
+      pane.setAttribute('data-pane',def.id);
+      m.querySelector('.r8set-content').appendChild(pane);
+    }
+    if(typeof def.mount==='function' && !def._mounted){
+      try{ def.mount(pane); def._mounted=true; }catch(e){}
+    }
+  }
   function show(name){
     var m=modal(); if(!m) return;
     m.querySelectorAll('.r8set-tab').forEach(function(t){t.classList.toggle('on',t.dataset.pane===name);});
     m.querySelectorAll('.r8set-pane').forEach(function(p){p.classList.toggle('on',p.dataset.pane===name);});
-    // E3a-fix1: a aba Provedores nao passa mais por oq10Prov.open()/B367,
-    // entao a carga dispara aqui, a cada exibicao (contrato do modal antigo:
-    // open() sempre chamava reload()). Guard por typeof, idioma do B367.
-    if(name==='provedores'){
-      try{ if(window.oq10Prov && typeof window.oq10Prov.reload==='function') window.oq10Prov.reload(); }catch(e){}
-    }
-    // E4a: mesmo contrato para a aba Telemetria/Uso (oqTelem definido no
-    // build() do b356; se ainda nao existir, a proxima exibicao carrega).
-    if(name==='telemetria'){
-      try{ if(window.oqTelem && typeof window.oqTelem.reload==='function') window.oqTelem.reload(); }catch(e){}
-    }
-    // R8-E5a: aba Seguranca — mesmo contrato de reload-a-cada-exibicao.
-    // oqSec e definido logo abaixo neste mesmo bloco (nao depende de
-    // build externo como as outras abas), mas mantem o guard por
-    // paridade de idioma com provedores/telemetria.
-    if(name==='seguranca'){
-      try{ if(window.oqSec && typeof window.oqSec.reload==='function') window.oqSec.reload(); }catch(e){}
-    }
+    // Contrato reload-on-show (E3a-fix1/E4a/E5a) agora via registry: o
+    // onShow da aba dispara a CADA exibicao. try/catch preserva o idioma
+    // defensivo dos ifs antigos (aba quebrada nao derruba o shell).
+    var def=TABS[name];
+    if(def && typeof def.onShow==='function'){ try{ def.onShow(); }catch(e){} }
+    // R8-G3a sub-3: migracao completa — nenhum if legado por aba resta;
+    // todo reload-on-show vem do registry acima.
   }
-  function open(name){var m=modal(); if(!m) return; m.classList.add('on'); show(name||'provedores');}
+  function open(name){var m=modal(); if(!m) return; m.classList.add('on'); show(name||ORDER[0]||'provedores');}
   function close(){var m=modal(); if(m) m.classList.remove('on');}
   document.addEventListener('keydown',function(e){
     if(e.key==='Escape'){var m=modal(); if(m&&m.classList.contains('on')) close();}
   });
-  return {open:open, close:close, show:show};
+  return {register:register, open:open, show:show, close:close};
 })();
+// Alias de compatibilidade: todos os callers existentes (sidebar inline
+// onclick, engrenagem E6a, overlay/X do modal) usam oqSettings — zero quebra.
+window.oqSettings=window.oqShell;
+// R8-G3a sub-1: Provedores e a 1a aba no registry (adota botao+pane
+// estaticos; mount ausente de proposito — o conteudo e montado pelo
+// build() legado do E3a, que move os nos reais do oq10 no load).
+window.oqShell.register({id:'provedores', label:'Provedores de IA', onShow:function(){
+  if(window.oq10Prov && typeof window.oq10Prov.reload==='function') window.oq10Prov.reload();
+}});
+// R8-G3a sub-2: Telemetria/Uso no registry (comentario E4a preservado no
+// espirito: oqTelem nasce no build() do b356; guard cobre o gap ate la).
+window.oqShell.register({id:'telemetria', label:'Telemetria / Uso', onShow:function(){
+  if(window.oqTelem && typeof window.oqTelem.reload==='function') window.oqTelem.reload();
+}});
+// R8-G3a sub-3: Seguranca no registry. oqSec e definido mais abaixo NESTE
+// bloco (hoisting nao cobre IIFE em var) — o guard no onShow cobre a
+// janela ate la, e no runtime real show() so roda com o modal aberto,
+// muito depois do parse. Mesmo idioma E5a.
+window.oqShell.register({id:'seguranca', label:'Segurança', onShow:function(){
+  if(window.oqSec && typeof window.oqSec.reload==='function') window.oqSec.reload();
+}});
 /* R8-E5a (2026-07-12): aba Seguranca do Configuracoes (T5 do plano).
    Conteudo NOVO (nada e movido — CTXFIXPROV01 nao se aplica): status do
    2FA via GET /api/auth/2fa/status (B31C, confirmado montado no container
