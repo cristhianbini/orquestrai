@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-12 05:59:40 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-12 10:16:08 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -3892,6 +3892,7 @@ else{setTimeout(ensure,200);setTimeout(ensure,1500);}
         __inp.insertAdjacentElement('afterend', __w);
       }
       window.__projNameCheck(__inp?__inp.value:'');
+      if(__inp){ __inp.onkeydown=function(e){ if(e.key==='Enter'){ e.preventDefault(); window.projNext(); } }; } // R9-PJ1: Enter avanca no passo Nome
     }
     $('proj-back').style.visibility = step===0?'hidden':'visible';
     $('proj-next').textContent = step===STEPS.length-1?'🚀 Criar projeto':'Próximo →';
@@ -3905,10 +3906,19 @@ else{setTimeout(ensure,200);setTimeout(ensure,1500);}
   window.__projMode = function(m){ data.buildMode=m; renderBody(); };
   window.__projStack = v => { data.stack=v; renderBody(); };
   window.__projDb = v => { data.db=v; renderBody(); };
-  window.projOpen = ()=>{ step=0; Object.assign(data,{name:'',stack:'node-express',description:'',features:[],db:'none',buildMode:'automatico'}); $('proj-modal').style.display='flex'; renderSteps(); renderBody();
+  window.projOpen = ()=>{ step=0; Object.assign(data,{name:'',stack:'node-express',description:'',features:[],db:'none',buildMode:'automatico'}); $('proj-modal').style.display='flex'; $('proj-next').disabled=false; renderSteps(); renderBody(); // R9-PJ1: disabled ficava true apos criacao OK (so os caminhos de erro resetavam) -- 2o projeto da sessao nascia com botao morto
     projFetch('/api/projects',{credentials:'include'}).then(function(r){return r.json();}).then(function(j){ existingSlugs=(j.projects||[]).map(function(p){return p.slug;}); }).catch(function(){ existingSlugs=[]; });
   };
   window.projClose = ()=>{ $('proj-modal').style.display='none'; };
+  // R9-PJ1: Esc fecha wizard e lista (paridade com b83Manual); so age com o
+  // proprio modal aberto, entao nao conflita com os outros listeners de Esc.
+  document.addEventListener('keydown', function(e){
+    if(e.key!=='Escape') return;
+    var w=$('proj-modal');
+    if(w && w.style.display==='flex'){ window.projClose(); return; }
+    var l=document.getElementById('proj2-modal');
+    if(l && l.style.display==='flex' && typeof window.proj2Close==='function') window.proj2Close();
+  });
   window.projBack = ()=>{ if(step>0){step--;renderSteps();renderBody();} };
   window.projNext = async ()=>{
     if (step===0){ const v=$('pf-name').value.trim(); if(!v){alert('Informe um nome');return;} const __slug=v.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); if(existingSlugs.indexOf(__slug)>=0){ alert('Ja existe um projeto "'+__slug+'". Escolha outro nome.'); return; } data.name=v; }
