@@ -19,6 +19,13 @@ Ultima atualizacao: 2026-07-11. Ordem = alicerce antes do acabamento.
    portabilidade real (VPS propria hoje -> VPS dedicada/outro provedor depois).
    O container deve nascer portavel. Ver tambem o gatilho de promocao por projeto
    no BACKLOG DE PRODUTO abaixo.
+   **ESCLARECIMENTO "VPS dedicada" (CBini, 2026-07-12, rodada 9):** a feature
+   NAO e sobre a VPS atual. E a capacidade de EXPORTAR/EMPACOTAR um projeto do
+   OrquestrAI para rodar numa SEGUNDA VPS externa (futura, a ser contratada) —
+   ou seja, empacotamento/portabilidade p/ deploy fora desta infraestrutura.
+   Segue EM BREVE na UI (fase mais distante); o ALICERCE #3 (container isolado,
+   Fase B entregue) ja cobre parte do caminho. Registrado aqui p/ nao haver
+   confusao futura sobre o significado.
 3. [x] Telemetria por projeto (custo/tokens) — **CONCLUIDO (camada de dados)
    em 2026-07-11**: migration mas-002 project_slug nullable (1de0bcc),
    captura no INSERT + guard idempotente TELEM01 (e9cc7e2), GET
