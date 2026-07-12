@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-12 05:50:12 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-12 05:59:40 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1986,10 +1986,26 @@ pushChat('sistema','👋 Oi! Sou o OrquestrAI. Me conta o que você precisa — 
 .r8set-x:hover{color:var(--cyan);border-color:var(--line);background:#0e1622}
 .r8set-body{flex:1;display:flex;min-height:0}
 .r8set-tabs{width:200px;flex:none;border-right:1px solid var(--line);padding:10px;display:flex;flex-direction:column;gap:4px} /* R8-G1: 180->200px, ~18% da largura nova (proporcao mantida) */
-.r8set-tab{text-align:left;padding:8px 10px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--mute);font:600 11px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.04em;cursor:pointer}
+/* R8-G3b (2026-07-12, propostas a+b aprovadas CBini): identidade por aba
+   no espirito do Elenco (cor propria por item). Aba ativa: borda-esquerda
+   2px na cor de acento da aba (--tab-accent, setada pelo register()) +
+   icone/texto na mesma cor; borda geral fica em --line (o ciano fixo
+   antigo saiu — a cor agora e da aba, nao do shell). */
+.r8set-tab{text-align:left;padding:8px 10px;border-radius:8px;border:1px solid transparent;border-left:2px solid transparent;background:transparent;color:var(--mute);font:600 11px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.04em;cursor:pointer;display:flex;align-items:center;gap:8px}
+.r8set-tab svg{flex:none;opacity:.75}
 .r8set-tab:hover{color:var(--text);background:#0e1622}
-.r8set-tab.on{background:var(--panel);border-color:var(--cyan);color:var(--cyan)}
-.r8set-content{flex:1;overflow-y:auto;padding:20px;min-width:0}
+.r8set-tab.on{background:var(--panel);border-color:var(--line);border-left-color:var(--tab-accent,var(--cyan));color:var(--tab-accent,var(--cyan))}
+.r8set-tab.on svg{opacity:1}
+/* R8-G3b: cabecalho padronizado de pane (proposta b). .r8set-content vira
+   coluna flex: header fixo (fora da area que os builds legados wipam com
+   innerHTML — por isso ele NAO vive dentro do pane) + .r8set-panes como
+   NOVO scrollport (padding/overflow migraram pra ca; o sticky do G2
+   segue valido: top:0 e margens negativas agora relativos ao wrapper). */
+.r8set-content{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.r8set-hd{flex:none;padding:14px 20px 12px;border-bottom:1px solid var(--line)}
+.r8set-hd h3{margin:0;font:700 13px 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.02em}
+.r8set-hd p{margin:5px 0 0;color:var(--mute);font:10px ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase}
+.r8set-panes{flex:1;overflow-y:auto;padding:20px;min-width:0}
 .r8set-pane{display:none}
 .r8set-pane.on{display:block}
 .r8set-empty{margin:0;color:var(--mute);font-size:11px;letter-spacing:.04em}
@@ -2016,9 +2032,12 @@ pushChat('sistema','👋 Oi! Sou o OrquestrAI. Me conta o que você precisa — 
         <button type="button" class="r8set-tab" data-pane="seguranca" onclick="window.oqSettings.show('seguranca')">Segurança</button>
       </nav>
       <div class="r8set-content">
+        <div class="r8set-hd"><!-- R8-G3b: preenchido pelo show() com label/desc/accent do registry --></div>
+        <div class="r8set-panes">
         <section class="r8set-pane" data-pane="provedores"><p class="r8set-empty">// aba Provedores de IA — conteúdo chega no E3</p></section>
         <section class="r8set-pane" data-pane="telemetria"><p class="r8set-empty">// aba Telemetria / Uso — conteúdo chega no E4</p></section>
         <section class="r8set-pane" data-pane="seguranca"><p class="r8set-empty">// aba Segurança — conteúdo chega no E5</p></section>
+        </div>
       </div>
     </div>
   </section>
@@ -2056,8 +2075,16 @@ window.oqShell=(function(){
     if(!pane){
       pane=document.createElement('section'); pane.className='r8set-pane';
       pane.setAttribute('data-pane',def.id);
-      m.querySelector('.r8set-content').appendChild(pane);
+      // R8-G3b: panes vivem no wrapper .r8set-panes (novo scrollport);
+      // fallback p/ .r8set-content cobre shell antigo em cache.
+      (m.querySelector('.r8set-panes')||m.querySelector('.r8set-content')).appendChild(pane);
     }
+    // R8-G3b (proposta a): identidade visual da aba — acento vira custom
+    // property no botao (CSS .on usa --tab-accent) e o icone SVG entra
+    // antes do label. Vale p/ botao adotado E criado; idempotente porque
+    // re-register retorna antes de chegar aqui.
+    if(def.accent) btn.style.setProperty('--tab-accent',def.accent);
+    if(def.icon && !btn.querySelector('svg')) btn.insertAdjacentHTML('afterbegin',def.icon);
     if(typeof def.mount==='function' && !def._mounted){
       try{ def.mount(pane); def._mounted=true; }catch(e){}
     }
@@ -2070,6 +2097,14 @@ window.oqShell=(function(){
     // onShow da aba dispara a CADA exibicao. try/catch preserva o idioma
     // defensivo dos ifs antigos (aba quebrada nao derruba o shell).
     var def=TABS[name];
+    // R8-G3b (proposta b): cabecalho padronizado — titulo na cor de acento
+    // + desc em label 10px. Vive FORA do pane (os builds legados e o oqSec
+    // wipam o pane com innerHTML; aqui ninguem toca). label/desc sao
+    // literais do registro, nao input de usuario — innerHTML seguro.
+    var hd=m.querySelector('.r8set-hd');
+    if(hd && def){
+      hd.innerHTML='<h3 style="color:'+(def.accent||'var(--text)')+'">'+(def.label||name)+'</h3>'+(def.desc?'<p>'+def.desc+'</p>':'');
+    }
     if(def && typeof def.onShow==='function'){ try{ def.onShow(); }catch(e){} }
     // R8-G3a sub-3: migracao completa — nenhum if legado por aba resta;
     // todo reload-on-show vem do registry acima.
@@ -2087,19 +2122,30 @@ window.oqSettings=window.oqShell;
 // R8-G3a sub-1: Provedores e a 1a aba no registry (adota botao+pane
 // estaticos; mount ausente de proposito — o conteudo e montado pelo
 // build() legado do E3a, que move os nos reais do oq10 no load).
-window.oqShell.register({id:'provedores', label:'Provedores de IA', onShow:function(){
+// R8-G3b: icon/accent/desc — acentos por aba aprovados (Provedores ciano,
+// Telemetria ambar, Seguranca verde); SVGs Lucide 14px, familia da nav E1.
+window.oqShell.register({id:'provedores', label:'Provedores de IA', accent:'var(--cyan)',
+  desc:'chaves de API, teste de conexao e modelos por provedor',
+  icon:'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/></svg>',
+  onShow:function(){
   if(window.oq10Prov && typeof window.oq10Prov.reload==='function') window.oq10Prov.reload();
 }});
 // R8-G3a sub-2: Telemetria/Uso no registry (comentario E4a preservado no
 // espirito: oqTelem nasce no build() do b356; guard cobre o gap ate la).
-window.oqShell.register({id:'telemetria', label:'Telemetria / Uso', onShow:function(){
+window.oqShell.register({id:'telemetria', label:'Telemetria / Uso', accent:'var(--amber)',
+  desc:'custo e tokens por agente e por projeto',
+  icon:'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>',
+  onShow:function(){
   if(window.oqTelem && typeof window.oqTelem.reload==='function') window.oqTelem.reload();
 }});
 // R8-G3a sub-3: Seguranca no registry. oqSec e definido mais abaixo NESTE
 // bloco (hoisting nao cobre IIFE em var) — o guard no onShow cobre a
 // janela ate la, e no runtime real show() so roda com o modal aberto,
 // muito depois do parse. Mesmo idioma E5a.
-window.oqShell.register({id:'seguranca', label:'Segurança', onShow:function(){
+window.oqShell.register({id:'seguranca', label:'Segurança', accent:'var(--green)',
+  desc:'2FA TOTP e fatores de login',
+  icon:'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1 1 0 0 1 1.52 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>',
+  onShow:function(){
   if(window.oqSec && typeof window.oqSec.reload==='function') window.oqSec.reload();
 }});
 /* R8-E5a (2026-07-12): aba Seguranca do Configuracoes (T5 do plano).
