@@ -24,6 +24,8 @@ Total: 123 arquivos .md em licoes/ (contagem real via ls 2026-07-12; inclui BLOC
 - **BLOCO-9DC86A9E-20260622-050341** —  `[]`
 - **BLOCO-A2F28E46-20260622-050309** —  `[]`
 - **BLOCO-DBC71707-20260622-045954** —  `[]`
+- **L-CHATSLUG01** — Run do chat nao vinculava ao projeto ativo (so o wizard mandava project_slug) `[chat,project-slug,mas,construir]`
+- **L-ISLANDAGENTS01** — Coluna "AGENTES MESH NETWORK" e ilha React com array de agentes hardcoded (5a fonte paralela) `[elenco,ilha-react,fonte-unica]`
 - **L-CARDPROMPT01** — Prompt do sistema do AGENT_CARD sobrepoe o role do agents.mjs `[mesh,agent-card,prompt,fonte-unica]`
 - **L-COSTZERO01** — Provider pago roteado pelo caminho generico aparecia como FREE `[telemetria,custo,provider,openai]`
 - **L-DISABLEDRESET01** — disabled=true no submit sem reset no caminho de sucesso = botao morto `[ui,wizard,disabled,estado]`

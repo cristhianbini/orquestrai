@@ -1,5 +1,35 @@
 # Roadmap Futuro — OrquestrAI
-Ultima atualizacao: 2026-07-11. Ordem = alicerce antes do acabamento.
+Ultima atualizacao: 2026-07-12 (fechamento Rodada 9). Ordem = alicerce antes do acabamento.
+
+## RODADA 9 — ENTREGUE (2026-07-12, validada pela CBini)
+Foco: tela de Projetos utilizavel + OpenAI na mesa + fechar backlog visual.
+- **Telemetria**: score real por agente (done/(done+error)), placeholder "Fase 2"
+  aposentado; estado visual de amostra baixa (n<5). [a08c44a]
+- **Elenco OpenAI**: AUDITOR -> openai/gpt-5.4-mini; +2 titulares #10
+  ESTRATEGISTA (gpt-5.5, L0 decompoe objetivo) e #11 TESTADOR (gpt-5.4, L4.5
+  verificacao pos-exec); custo real no caminho generico (EXT_PRICE, antes
+  mentia FREE). AGENT_CARDs criados; ilha React da coluna lateral atualizada.
+  [7a77aff, 0769ff7, 67b114e, 09835b2]
+- **DNA de projeto (MVP)**: bloco dna no project.json, seed do wizard,
+  GET/PUT /:slug/dna, injecao como contrato no runMas, chip+editor no card.
+  E2E com auth real OK. [0fe65c6]
+- **Tela Projetos**: bug do botao Criar (disabled sem reset) corrigido;
+  wizard c/ Enter/Esc, validacao de nome duplicado, cards Stack/Banco
+  compactos (escalaveis); container mostra estado REAL (nunca-ativado vs
+  parado); Import GitHub habilitado c/ feedback de progresso; badge PROJETOS
+  no padrao sobreposto de LICOES. [6f6435f, 26b0a7f, 09835b2]
+- **Criar pagina em projeto existente** (bug real da CBini): comando
+  /construir <pedido> gera pagina nomeada (site/<pagina>.html) via
+  buildProjectPage, sem tocar irmas; chat do projeto vincula project_slug
+  (Fatia A). E2E contra cafe-real OK. [d950910]
+- **Cards padrao unico** (Licoes grid/acento por status/ordinal pill fixa),
+  **nav largura unica** (D), **E1c** (botoes terminal .hdr-ico), **piloto
+  Manual -> aba do oqShell** (modal aposentado). [26b0a7f, 742edbb]
+- Licoes: L-CARDPROMPT01, L-COSTZERO01, L-DISABLEDRESET01, L-MOUNTPARSE01,
+  L-CHATSLUG01, L-ISLANDAGENTS01.
+- **Limitacao conhecida (candidata R10)**: buildStaticSite tem max_tokens=4000
+  — "descricao completa" pode truncar a pagina. Elevar o cap ou fatiar a
+  geracao fica p/ proxima rodada.
 
 ## ALICERCE
 0. [~] **CTXOPSCHECK01 — restore do Litestream** — 1o teste de restore FEITO e
@@ -12,7 +42,10 @@ Ultima atualizacao: 2026-07-11. Ordem = alicerce antes do acabamento.
    Se a VPS morrer, os segredos TOTP se perdem (usuarios teriam de refazer 2FA).
    Avaliar adicionar orquestrai.db ao litestream.yml. Decisao do Bini, sem urgencia.
 1. [x] Token efemero de preview — feito 2026-07-10 (CTXPREVIEWTOKEN02/03)
-2. [ ] Import GitHub + container isolado — proximo passo concreto, habilita metade das metas.
+2. [~] Import GitHub + container isolado — **Import GitHub ENTREGUE (UI + POST
+   /:slug/import) na R9; container isolado = Fase B entregue.** Falta polir o
+   fluxo pos-import (detectar stack, primeiro deploy guiado). Segue abaixo o
+   contexto original:
    Visao ampliada em knowledge/decisoes/VISAO-IMPORT-MIGRACAO-INFRA.md: nao e so
    "importar codigo pra referencia" (isso e o CTXRAG01), e trazer sistema de
    terceiro pra DENTRO do OrquestrAI, melhorar aqui e hospedar/exportar com
@@ -156,7 +189,7 @@ Ultima atualizacao: 2026-07-11. Ordem = alicerce antes do acabamento.
 10. [ ] Cluster multi-VPS / datacenter proprio
 
 ## OUTROS (dashboard "EM BREVE")
-- [ ] DNA de projeto
+- [x] DNA de projeto — MVP entregue R9 (0fe65c6); v2 = versionamento + validador dedicado + geracao pelo mesh
 - [ ] Deploy automatizado
 
 ## Ferramentas discutidas (sem prioridade de rodada ainda)
