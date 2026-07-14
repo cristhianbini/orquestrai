@@ -3,7 +3,7 @@
 // Ver mas/auth.mjs para o raciocinio completo.
 import { authMiddleware, authMiddlewareSSE } from './auth.mjs';
 
-// ATUALIZADO: 2026-07-12 15:39:22 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-14 04:53:06 -03:00 (auto, git pre-commit)
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 import express from 'express';
@@ -73,6 +73,28 @@ async function quickChatReply(text){
 }
 // ===== /B271_INTENT_GATE =====
 
+// ===== Q1 (R10): CRIAR PROJETO nao vai pro pipeline (fim do SMITH-scaffold) =====
+// Decisao CBini: pedido de criar projeto novo e' redirecionado ao Construtor
+// Automatico (POST /api/projects atomico + BUILD), NUNCA gerado por bloco bash
+// do SMITH. Verbo de criacao + substantivo de projeto. NAO casa audit
+// ('audita o projeto X') nem o build estruturado do wizard ('BUILD novo
+// projeto', excluido explicitamente). Na duvida NAO casa -> segue fluxo normal.
+const CREATE_PROJECT_TRIGGERS = [
+  /\bcri(?:ar|e|a)\s+(?:um\s+|uma\s+|o\s+|a\s+|novo\s+|nova\s+)?(?:projeto|site|website|web\s*site|app|aplicativo|aplica(?:c|ç)(?:a|ã)o|landing(?:\s*page)?|portal|blog|loja|e-?commerce)\b/i,
+  /\bnovo\s+projeto\b/i,
+  /\bmont(?:ar|e|a)\s+(?:um\s+|uma\s+)?(?:projeto|site|website|app|landing|portal)\b/i,
+  /\bfa(?:z|(?:c|ç)a|zer)\s+(?:um\s+|uma\s+)?(?:site|website|landing(?:\s*page)?|projeto|portal)\b/i,
+  /\bcreate\s+(?:a\s+)?(?:new\s+)?(?:project|website|web\s*site|site|app|landing(?:\s*page)?)\b/i,
+];
+function isCreateProjectIntent(text){
+  const t = String(text||'').trim();
+  if (!t) return false;
+  if (/^BUILD\s+novo\s+projeto/i.test(t)) return false; // build estruturado do wizard (nao mexer)
+  return CREATE_PROJECT_TRIGGERS.some(function(rx){ return rx.test(t); });
+}
+const CRIAR_PROJETO_REPLY = 'Para criar um projeto novo, use o **Construtor Automatico** (botao "+ Novo Projeto"/wizard): ele registra o projeto de forma atomica — nome, stack e descricao em project.json — e ja dispara a construcao inicial. O chat MAS executa tarefas DENTRO de um projeto que ja existe; ele nao cria projetos por script (evita scaffold bash fragil). Depois de criar o projeto, volte aqui e me peca as tarefas dele.';
+// ===== /Q1 =====
+
 const router=express.Router();
 
 router.post('/run', authMiddleware, runLimiter, express.json(), async (req,res)=>{ // CTXRATELIM02 + CTXMASAUTH01
@@ -83,6 +105,13 @@ router.post('/run', authMiddleware, runLimiter, express.json(), async (req,res)=
       // sempre). Classifica SO o texto puro do usuario (antes do marcador);
       // o contexto continua indo INTEIRO pro pipeline quando a run acontece.
       const userTextPure = userText.split('[CONTEXTO DO CHAT ANTES DO MAS]')[0].trim();
+      // Q1 (R10): pedido de CRIAR PROJETO nao entra no pipeline (nem em mas_mode).
+      // Redireciona ao Construtor Automatico (caminho estruturado/atomico) — o
+      // SMITH deixa de scaffoldar projeto via bash. Sem custo de LLM.
+      if (isCreateProjectIntent(userTextPure)) {
+        console.log('[Q1] intent=criar-projeto -> redireciona ao Construtor (len='+userTextPure.length+')');
+        return res.json({ ok:true, mode:'chat', reply: CRIAR_PROJETO_REPLY, agents:[], cost_usd:0, tokens:0 });
+      }
       // CTXROUTE01: respeita mas_mode=true do frontend (usuario ativou MAS explicitamente)
       const masModeExplicit = !!(req.body && req.body.mas_mode);
       if (!masModeExplicit && classifyIntent(userTextPure) === 'chat') {

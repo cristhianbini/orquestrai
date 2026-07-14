@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-12 15:51:53 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-14 04:53:06 -03:00 (auto, git pre-commit)
 
 // [B220-LOG]
 import { appendFileSync as _appB220 } from "node:fs";
@@ -162,6 +162,7 @@ const HARD_VETO_RULES = [
  { rule:'createc-domain',  re:/createc\.com\.br/i, severity:'block' }, // B379_KB_VETOS L-28
   { rule:'mutobs-body-loop', re:/new\s+MutationObserver[\s\S]{0,200}observe\s*\(\s*document\.body[\s\S]{0,80}subtree\s*:\s*true/, severity:'warn' }, // B379_KB_VETOS L-B70
   { rule:'docker-rm-api',    re:/docker\s+rm\s+-f\s+orquestrai-api\b/, severity:'block' }, // B379_KB_VETOS
+  { rule:'proj-scaffold-json', re:/(>{1,2}|\btee\b)\s*[^\n]{0,60}projects\/[a-z0-9_-]+\/project\.json/i, severity:'block' }, // Q1 (R10): SMITH nao registra projeto escrevendo project.json — criacao e' via POST /api/projects (Construtor), caminho atomico, nao scaffold bash
   { rule:'secret-jwt',     re:/\beyJ[A-Za-z0-9_\-]{20,}\.[A-Za-z0-9_\-]{20,}\.[A-Za-z0-9_\-]{20,}\b/, severity:'block' },
 ];
 function hardVeto(text){
