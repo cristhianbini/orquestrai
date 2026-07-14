@@ -1,5 +1,5 @@
 # Roadmap Futuro — OrquestrAI
-Ultima atualizacao: 2026-07-12 (fechamento Rodada 9). Ordem = alicerce antes do acabamento.
+Ultima atualizacao: 2026-07-14 (R11 Bloco 1: +item 5e contexto de projeto ativo). Ordem = alicerce antes do acabamento.
 
 ## RODADA 9 — ENTREGUE (2026-07-12, validada pela CBini)
 Foco: tela de Projetos utilizavel + OpenAI na mesa + fechar backlog visual.
@@ -141,6 +141,19 @@ Foco: tela de Projetos utilizavel + OpenAI na mesa + fechar backlog visual.
    solucao decidida. Avaliar junto do PLANEJADOR/ORQUESTRADOR (#5), o
    consumidor natural de visao de roadmap, e do RAG semantico do backlog
    tecnico (keyword-match raso nao escala p/ docs longos como o roadmap).
+5e. [ ] **Contexto de projeto ativo (Gate 2, sessao de design dedicada)**
+   — registrado 2026-07-14, achado do E2E "Sabor da Serra" (R11 Bloco 1).
+   Hoje chat/MAS/terminal NAO sabem automaticamente qual projeto esta
+   selecionado no dropdown do cockpit (localStorage oq_proj_current); os
+   agentes INFEREM o projeto via grep cross-project a cada interacao (a
+   checagem "confusao de slug" da L-CHATSLUG01 e do resumo do RELATOR). O
+   alvo e propagar o projeto ativo como CONTEXTO EXPLICITO (chat, MAS e
+   terminal recebem o slug selecionado), aposentando a inferencia por grep.
+   Conecta com **telemetria por projeto** (#3, camada de dados concluida):
+   MESMA frente de trabalho — tratar JUNTO (o slug ativo alimenta tanto o
+   roteamento das acoes quanto o bucket de telemetria). Ambos arquiteturais/
+   multi-modulo (Gate 2): exigem sessao de design dedicada, NAO entram em
+   bloco de correcoes. Ver [[L-CHATSLUG01]] e item 5d (consciencia do mesh).
 6. [ ] Agente DESIGNER dedicado no pipeline — especializado em UI e consistencia
    visual. Encaixa mais naturalmente DEPOIS que a migracao Tailwind/React
    (strangler fig do dashboard) estiver madura, para o agente ter um sistema de
