@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-12 15:39:22 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-14 04:28:00 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -620,14 +620,14 @@ label[for="orqModelSel"]{
    icone 20px para todos os .hdr-ico; excecoes deliberadas — Sair menor
    (30x26, icone 16) e Avatar circular 30px. O contador de Licoes vira
    badge sobreposto (#lic-count) preservando a largura unica. */
-.hdr-ico{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:4px;width:38px;height:30px;padding:2px;background:transparent;border:1px solid transparent;border-radius:6px;color:var(--mute);cursor:pointer;box-sizing:border-box}
+.hdr-ico{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:4px;width:38px;height:30px;padding:2px;background:transparent;border:1px solid #242f40;border-radius:6px;color:var(--mute);cursor:pointer;box-sizing:border-box} /* R10 bug#3: borda levemente visivel em repouso (antes transparent, so acendia no hover) — consistencia c/ cards de agentes que tem borda sempre visivel; hover clareia p/ ciano */
 .hdr-ico>svg{width:20px;height:20px}
 button[data-tip="Sair"].hdr-ico{width:30px;height:26px}
 button[data-tip="Sair"].hdr-ico>svg{width:16px;height:16px}
 #hdr-avatar.hdr-ico{width:30px;height:30px;border-radius:50%;border-color:var(--line)}
 #hdr-avatar.hdr-ico>svg{width:18px;height:18px}
 #lic-count,#proj-count{position:absolute;top:-4px;right:-4px;background:var(--cyan);color:#001018;border-radius:999px;padding:2px 4px;min-width:8px;text-align:center;font:700 8px/1 ui-monospace,monospace!important;opacity:1!important} /* R9: proj-count no mesmo padrao badge do lic-count (pedido CBini) */
-.hdr-ico:hover{color:var(--cyan);border-color:var(--line);background:#0e1622}
+.hdr-ico:hover{color:var(--cyan);border-color:var(--cyan);background:#0e1622} /* R10 bug#3: hover clareia a borda p/ ciano (destaque acima da borda de repouso #242f40) */
 .hdr-ico::after{content:attr(data-tip);position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);padding:3px 8px;background:#0e1622;border:1px solid var(--line);border-radius:5px;color:var(--text);font:600 10px 'JetBrains Mono',ui-monospace,monospace;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s;z-index:60}
 .hdr-ico:hover::after{opacity:1}
 /* R8-E1b2: grupo de nav alinhado a direita (decisao CBini 12/07: cresce
@@ -1556,7 +1556,11 @@ button[onclick="send()"]:hover{
   <link rel="stylesheet" href="/island/agent-panel-style.css">
   <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" defer></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" defer></script>
-  <script src="/island/agent-panel-island.js" defer></script>
+  <!-- R10-CACHE01 (bug #2): ?v= faz cache-bust do bundle. O nginx-web serve JS
+       com `expires 7d` SEM revalidacao, entao o browser segurava o bundle antigo
+       (sem ESTRATEGISTA/TESTADOR) por 7 dias. BUMPAR este ?v= a CADA mudanca em
+       agent-panel-island.js, senao volta a ficar stale. -->
+  <script src="/island/agent-panel-island.js?v=20260713a" defer></script>
   <script defer>
     document.addEventListener('DOMContentLoaded', function() {
       if (window.OrquestrAIAgentPanel) window.OrquestrAIAgentPanel.mount('oq-agent-panel-island');
@@ -1638,6 +1642,21 @@ button[onclick="send()"]:hover{
 </header>
 
 <!-- 3 COLUNAS -->
+<style id="r10-opmode-css">/* R10-OPMODE01 (bug UX: /construir escondido) — seletor de modo compacto acima do input */
+.op-modes{display:flex;gap:2px;padding:2px;margin:0 0 6px;background:#0b1119;border:1px solid var(--line);border-radius:8px}
+.op-seg{flex:1;appearance:none;border:1px solid transparent;background:transparent;color:var(--mute);font:600 10px/1 ui-monospace,Menlo,monospace;letter-spacing:.03em;height:22px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;transition:color .12s,background .12s,border-color .12s}
+.op-seg .op-dot{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.5}
+.op-seg:hover{color:var(--text);border-color:#242f40}
+.op-seg[aria-selected="true"]{color:#06080c}
+.op-seg[aria-selected="true"] .op-dot{opacity:1;background:#06080c}
+.op-seg[data-mode="chat"][aria-selected="true"]{background:var(--cyan);border-color:var(--cyan)}
+.op-seg[data-mode="mas"][aria-selected="true"]{background:#f59e0b;border-color:#f59e0b}
+.op-seg[data-mode="build"][aria-selected="true"]{background:#34d399;border-color:#34d399}
+.op-seg[data-mode="chat"]:not([aria-selected="true"]):hover{color:var(--cyan)}
+.op-seg[data-mode="mas"]:not([aria-selected="true"]):hover{color:#f59e0b}
+.op-seg[data-mode="build"]:not([aria-selected="true"]):hover{color:#34d399}
+#b63MasBtn{display:none!important} /* toggle binario MAS ON/OFF aposentado pelo seletor de modo */
+</style>
 <main class="grid h-[calc(100vh-2.5rem)]" style="grid-template-columns:340px 1fr 360px;">
 
   <!-- COL 1: CHAT -->
@@ -1649,12 +1668,47 @@ button[onclick="send()"]:hover{
     </div>
     <div id="chat" class="flex-1 overflow-y-auto p-3 space-y-3 text-sm"></div>
     <div class="border-t border-[var(--line)] p-2">
+      <!-- R10-OPMODE01: seletor de modo (substitui o toggle MAS ON/OFF). Automatico entra no item "Modos reentrante". -->
+      <div id="opModeSel" class="op-modes" role="tablist" aria-label="Modo de operacao">
+        <button type="button" class="op-seg" data-mode="chat"  role="tab" aria-selected="true"  title="Conversa direta com o modelo selecionado" onclick="window.oqSetOpMode('chat')"><span class="op-dot"></span>Chat</button>
+        <button type="button" class="op-seg" data-mode="mas"   role="tab" aria-selected="false" title="Pipeline multi-agente (os 11 agentes decompoem e executam)" onclick="window.oqSetOpMode('mas')"><span class="op-dot"></span>MAS</button>
+        <button type="button" class="op-seg" data-mode="build" role="tab" aria-selected="false" title="Gera uma pagina no projeto ativo (static-html) — sem precisar de /construir" onclick="window.oqSetOpMode('build')"><span class="op-dot"></span>Construtor</button>
+      </div>
       <textarea id="input" rows="2" placeholder="pergunte ou descreva..." class="w-full bg-[#0e1622] border border-[var(--line)] rounded p-2 text-xs resize-none focus:outline-none focus:border-[var(--green)]"></textarea>
       <div class="flex justify-between mt-1">
         <span class="text-[10px] text-[var(--mute)]">enter envia · shift+enter quebra</span>
         <button onclick="send()" class="btn">▶ enviar</button>
       </div>
     </div>
+    <script>/*R10-OPMODE01*/(function(){
+      var KEY='orq_op_mode', OK=['chat','mas','build'];
+      function cur(){ return window.__opMode||'chat'; }
+      function placeholderFor(m){
+        if(m==='build') return 'descreva a página que você quer criar…';
+        if(m==='mas')   return 'descreva o objetivo — os agentes decompõem e executam…';
+        return 'pergunte ou descreva…';
+      }
+      function paint(){
+        var m=cur();
+        var segs=document.querySelectorAll('#opModeSel .op-seg');
+        for(var i=0;i<segs.length;i++){ segs[i].setAttribute('aria-selected', segs[i].getAttribute('data-mode')===m?'true':'false'); }
+        var ta=document.getElementById('input'); if(ta) ta.setAttribute('placeholder', placeholderFor(m));
+        window.__masMode = (m==='mas'); // compat: send() legado ainda le __masMode
+      }
+      window.oqSetOpMode=function(m){
+        if(OK.indexOf(m)<0) m='chat';
+        window.__opMode=m;
+        try{ localStorage.setItem(KEY,m); localStorage.setItem('orq_mas_mode', m==='mas'?'1':'0'); }catch(e){}
+        paint();
+      };
+      // init + migracao do toggle binario antigo (orq_mas_mode)
+      var saved=null; try{ saved=localStorage.getItem(KEY); }catch(e){}
+      if(!saved){ var old=null; try{ old=localStorage.getItem('orq_mas_mode'); }catch(e){} saved=(old==='1')?'mas':'chat'; }
+      window.__opMode = (OK.indexOf(saved)>=0)?saved:'chat';
+      function boot(){ paint(); }
+      if(document.readyState!=='loading') boot(); else document.addEventListener('DOMContentLoaded', boot);
+      setTimeout(boot,400); setTimeout(boot,1500);
+    })();</script>
   </section>
 
   <!-- COL 2: BLOCOS + TERMINAL -->
@@ -1714,7 +1768,11 @@ function oqTermWrite(t){ /* OQ71Z: UI nao escreve no terminal PTY */ }
 
 function extractBloco(text){
   if(!text) return null;
-  var re = /```(?:\s*(?:bash|sh|shell|console|text|zsh))?\s*\n([\s\S]*?)```/gi;
+  // R10-BLOCOFENCE01 (bug BLOCO-215): exige LINGUAGEM SHELL explicita no fence.
+  // Antes aceitava ```text e fences SEM linguagem => a prosa PT-BR que o SMITH
+  // gerou (em vez de script) foi extraida como bash executavel. Contrato do
+  // SMITH e' ```bash. Fence generico/text nao vira mais payload executavel.
+  var re = /```[ \t]*(?:bash|sh|shell|zsh)[ \t]*\n([\s\S]*?)```/gi;
   var m, cands = [];
   while((m = re.exec(String(text))) !== null){
     var body = (m[1] || '').trim();
@@ -1743,8 +1801,11 @@ async function send(){
   // R9-CONSTRUIR01 (Fatia B opcao 1): /construir <pedido> gera UMA pagina
   // nomeada no projeto ATIVO (static-html) via buildProjectPage. Interceptado
   // ANTES do branch MAS/chat — nao passa pelo pipeline nem pelo classifier.
-  if(t.indexOf('/construir')===0){
-    var __ped = t.replace(/^\/construir\s*/i,'').trim();
+  // R10-OPMODE01: modo Construtor (seletor) OU prefixo /construir -> build de pagina.
+  // No modo Construtor o texto inteiro e' o pedido, sem exigir o comando com barra.
+  var __buildByMode = (window.__opMode==='build');
+  if(t.indexOf('/construir')===0 || __buildByMode){
+    var __ped = (t.indexOf('/construir')===0) ? t.replace(/^\/construir\s*/i,'').trim() : t;
     if(!__ped){ pushChat('erro','Uso: /construir <o que criar>. Ex: /construir uma página Sobre com a descrição completa do site'); input.focus(); return; }
     var __cslug=(function(){try{return localStorage.getItem('oq_proj_current')||'orquestrai'}catch(e){return 'orquestrai'}})();
     pushChat('mas','🔨 construindo página no projeto "'+__cslug+'"... (pode levar alguns segundos)');
@@ -1761,8 +1822,9 @@ async function send(){
     input.focus(); return;
   }
 
-  // B63: toggle window.__masMode (botao MODO MAS). Sem toggle = chat direto Claude.
-  var masMode = !!window.__masMode;
+  // B63/R10-OPMODE01: modo MAS agora vem do seletor (window.__opMode); fallback ao
+  // toggle binario antigo (__masMode) se o seletor ainda nao inicializou.
+  var masMode = (window.__opMode ? (window.__opMode==='mas') : !!window.__masMode);
 
   function pickModel(){
     var el = document.getElementById('orqModelSel');
@@ -1820,7 +1882,12 @@ async function send(){
     var __runSlug=(function(){try{return localStorage.getItem('oq_proj_current')||'orquestrai'}catch(e){return 'orquestrai'}})();
     var rr = await fetch('/api/mas/run',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(localStorage.getItem('oq_token')||'')},body:JSON.stringify({goal: t + __masCtx, mas_mode: (t.indexOf('/mas')===0), project_slug: __runSlug})}); // CTXROUTER01-fix (2026-07-08): mas_mode era TRUE hardcoded = gate B271 bypassado desde sempre (classifier nunca consultado, 'qual o nome do sistema' custava \$0.19). Agora explicito SO com prefixo /mas; demais msgs passam pelo classifyIntent do backend (verbos de acao = MAS, conversa = quickChat ~\$0.001).
     var jj = await rr.json().catch(function(){return{}});
-    if(!rr.ok){ pushChat('erro','MAS nao iniciou: '+(jj.error||rr.status)); input.focus(); return; } if(jj.mode==='chat' && jj.reply){ pushChat('ia',jj.reply); input.focus(); return; } pushChat('mas','iniciando agentes (pipeline completo)...'); // CTXROUTER01-fix3: anuncio so quando run REAL comeca if(!(jj.run_id||jj.id)){ pushChat('erro','MAS sem run_id: '+(jj.error||JSON.stringify(jj).slice(0,120))); input.focus(); return; } var __rid = jj.run_id||jj.id;
+    if(!rr.ok){ pushChat('erro','MAS nao iniciou: '+(jj.error||rr.status)); input.focus(); return; } if(jj.mode==='chat' && jj.reply){ pushChat('ia',jj.reply); input.focus(); return; } pushChat('mas','iniciando agentes (pipeline completo)...'); // CTXROUTER01-fix3: anuncio so quando run REAL comeca
+    // R10-RIDFIX (2026-07-13): esta linha juntava o guard de run_id + a declaracao de __rid ATRAS do comentario // acima
+    // (tudo virava comentario no mesmo renglon fisico), entao __rid NUNCA era declarado e o EventSource abaixo dava
+    // "ReferenceError: __rid is not defined" em TODA run MAS real. Bug pre-existente em producao (git HEAD). Separado em linhas.
+    if(!(jj.run_id||jj.id)){ pushChat('erro','MAS sem run_id: '+(jj.error||JSON.stringify(jj).slice(0,120))); input.focus(); return; }
+    var __rid = jj.run_id||jj.id;
     if(window.__oqMasES){ try{window.__oqMasES.close();}catch(_){} } // CTXSSE02: fecha SSE anterior
     var es = window.__oqMasES = new EventSource('/api/mas/events/'+encodeURIComponent(__rid)+'?_t='+encodeURIComponent(localStorage.getItem('oq_token')||'')); // CTXMASAUTH01: token na URL, EventSource nao manda headers
     var lastBash = ''; var __lastBashAgent=''; var __lastBashModel=''; // CTXPROV01
