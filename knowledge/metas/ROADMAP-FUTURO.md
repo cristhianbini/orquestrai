@@ -1,5 +1,34 @@
 # Roadmap Futuro — OrquestrAI
-Ultima atualizacao: 2026-07-14 (R11 Bloco 1: +item 5e contexto de projeto ativo). Ordem = alicerce antes do acabamento.
+Ultima atualizacao: 2026-07-14 (Decisao de escopo V1: ferramenta interna, nao SaaS). Ordem = alicerce antes do acabamento.
+
+## Decisao 2026-07-14: Escopo V1 redefinido -- ferramenta interna, nao SaaS
+
+CBini decidiu explicitamente: o objetivo imediato do OrquestrAI NAO e virar
+produto/concorrente de Cursor, Devin, Lovable, v0. E ser ferramenta interna
+funcional para auditar e evoluir os proprios sistemas (XMonex, XBarber,
+XCorretor, XLavacar, XBolao, XDesk e projetos futuros). Monetizacao como SaaS
+fica descartada como meta de curto prazo -- pode ser revisitada no futuro, mas
+nao orienta prioridade agora.
+
+Escopo V1 essencial (fechar isso = "pronto o suficiente"):
+- Fechar Rodada 11 (itens 3-6)
+- Import GitHub + Container Isolation ponta a ponta (repo/ -> site/, Dockerfile
+  node, auto-mapeamento de stack) -- e o que faz a ferramenta cumprir sua razao
+  de existir: auditar/evoluir sistema real, nao so criar projeto novo
+- 2 itens de risco de producao (nao esperar virar dor): backup Litestream do
+  orquestrai.db (segredos 2FA); auditoria do JWT admin compartilhado entre os 3
+  daemons root
+
+Descartado por ora (nao e erro, e escopo de SaaS fora do foco atual):
+multi-tenancy com quotas, multi-VPS/datacenter proprio, portal com captura de
+leads, JARVIS por voz, billing/DPA/LGPD/docs publicas.
+
+Fica para quando surgir necessidade real de uso (nao push antecipado):
+telemetria por projeto/expandida, PLANEJADOR/ORQUESTRADOR, agente DESIGNER,
+curadoria de elenco premium, demais polimento de UI.
+
+Proximo passo apos V1 essencial fechado: testar em sistema real da CBini
+(candidato inicial: cbinixbarber, ja mencionado como piloto de Import GitHub).
 
 ## RODADA 9 — ENTREGUE (2026-07-12, validada pela CBini)
 Foco: tela de Projetos utilizavel + OpenAI na mesa + fechar backlog visual.
