@@ -1,7 +1,7 @@
-// ATUALIZADO: 2026-07-11 01:35:42 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-14 04:37:16 -03:00 (auto, git pre-commit)
 // OQ-58a — Executor LAVE remoto
 const crypto = require('crypto');
-const { spawn } = require('child_process');
+const { spawn, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const Database = require('better-sqlite3');
@@ -73,6 +73,28 @@ function analisar(script){
   return { avisos, destrutivo };
 }
 
+// Q2b (R10): gate de sintaxe. Roda `bash -n` (noexec) no script ANTES de
+// deixar preparar. Bloco malformado (ex: truncado no teto de tokens, if/aspas
+// sem fechar) => reprovado aqui, nunca chega ao terminal. ALCANCE: so pega
+// erro ESTRUTURAL de sintaxe; prosa que casa como comando valido (o caso
+// BLOCO-215) PASSA no bash -n — contra prosa quem protege e' o Q2a
+// (extractBloco exige fence ```bash). Fail-open so se o proprio bash faltar
+// (ENOENT), p/ nao travar o fluxo em ambiente sem bash; o gate real de
+// seguranca continua sendo a autorizacao explicita no /executar.
+function checarSintaxe(script){
+  try {
+    const r = spawnSync('bash', ['-n'], { input: String(script||''), encoding: 'utf8', timeout: 5000 });
+    if (r.error) {
+      if (r.error.code === 'ENOENT') return { ok: true, skipped: true }; // bash ausente: nao bloqueia
+      return { ok: false, erro: String(r.error.message || 'falha ao checar sintaxe').slice(0, 400) };
+    }
+    if (r.status === 0) return { ok: true };
+    return { ok: false, erro: String(r.stderr || 'sintaxe invalida').trim().slice(0, 400) };
+  } catch(e){
+    return { ok: true, skipped: true }; // erro inesperado do checador: fail-open (nao e' o gate de seguranca)
+  }
+}
+
 // pequeno hub de SSE por exec_id
 const sseHub = new Map(); // id -> Set<res>
 function sseEmit(id, evt, data){
@@ -133,7 +155,9 @@ module.exports = function(app, requireAuth){
       if(script.length > 100000) return res.status(413).json({ error: 'script > 100KB' });
       const sha = crypto.createHash('sha256').update(script).digest('hex');
       const { avisos, destrutivo } = analisar(script);
-      const bloqueado = destrutivo && ambiente === 'prod';
+      const sintaxe = checarSintaxe(script); // Q2b: gate bash -n
+      if(!sintaxe.ok) avisos.push({ nivel:'SINTAXE', padrao: 'bash -n reprovou: ' + sintaxe.erro });
+      const bloqueado = (destrutivo && ambiente === 'prod') || !sintaxe.ok; // Q2b: sintaxe invalida sempre bloqueia
       const id = 'x_' + crypto.randomBytes(8).toString('hex');
       const sub = (req.user && req.user.sub) || '?';
       const ip = req.headers['x-forwarded-for'] || req.ip || '?';
@@ -153,7 +177,8 @@ module.exports = function(app, requireAuth){
         id, String(n), titulo, modo, ambiente, script, sha, JSON.stringify(avisos), status, sub, ip, criadoEm, origem, agente, mas_run_id, provider, modelo, prevHash, chainHash
       ); // CTXPROV01 + CTXAUDIT01
       const preview = script.split('\n').slice(0, 10);
-      res.json({ id, sha256: sha, preview_linhas: preview, total_linhas: script.split('\n').length, avisos, destrutivo, bloqueado, status: bloqueado ? 'bloqueado' : 'preparado' });
+      const motivo_bloqueio = bloqueado ? (!sintaxe.ok ? 'sintaxe' : 'destrutivo-prod') : null; // Q2b
+      res.json({ id, sha256: sha, preview_linhas: preview, total_linhas: script.split('\n').length, avisos, destrutivo, bloqueado, motivo_bloqueio, sintaxe_ok: sintaxe.ok, sintaxe_erro: sintaxe.ok ? null : sintaxe.erro, status: bloqueado ? 'bloqueado' : 'preparado' });
     } catch(e){ res.status(500).json({ error: e.message }); }
   });
 
@@ -163,7 +188,10 @@ module.exports = function(app, requireAuth){
       const { sha256, autorizo, motivo, confirmacao } = req.body || {};
       const row = db().prepare('SELECT * FROM execucoes WHERE id=?').get(req.params.id);
       if(!row) return res.status(404).json({ error: 'exec id nao encontrado' });
-      if(row.status === 'bloqueado') return res.status(423).json({ error: 'bloco bloqueado (destrutivo em prod)' });
+      if(row.status === 'bloqueado'){ // Q2b: sintaxe invalida OU destrutivo em prod — motivo real nos avisos
+        var _mot = 'destrutivo em prod'; try{ var _av = JSON.parse(row.avisos||'[]'); if(_av.some(function(a){return a && a.nivel==='SINTAXE';})) _mot = 'sintaxe invalida (bash -n)'; }catch(_e){}
+        return res.status(423).json({ error: 'bloco bloqueado ('+_mot+')' });
+      }
       if(row.status !== 'preparado') return res.status(409).json({ error: `status atual: ${row.status}` });
       if(row.modo === 'read-only') return res.status(423).json({ error: 'modo read-only nao pode executar' });
       if(sha256 !== row.script_sha256) return res.status(409).json({ error: 'sha256 nao bate (anti-tampering)' });
