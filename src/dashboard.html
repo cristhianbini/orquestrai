@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-14 04:28:00 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-14 10:36:50 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -5551,6 +5551,23 @@ window.oqNovag = {
   // captura o wizard ANTES de redefinir (B273 ja carregou)
   var wizardOpen = window.projOpen;
 
+  // CTXCARDREFRESH01 (R11 2026-07-14): polling leve enquanto o modal esta
+  // aberto. Sem isto, o card fica PRESO em "mesh trabalhando" porque projOpen
+  // so buscava dados UMA vez na abertura -- quando o run conclui e grava os
+  // docs, nada re-buscava e o badge (heuristica isBuilding, abaixo) congelava.
+  // Guardas: (a) so refaz na view de CARDS (proj2Docs/proj2Dna reusam
+  // #proj2-list -- refresh cego destruiria a sub-view aberta); (b) o timer so
+  // NASCE quando ha algo building e MORRE sozinho quando nada mais esta (nao
+  // martela a API a toa). Novos building so surgem via wizard, que reabre o
+  // modal e reinicia o ciclo.
+  var proj2View = 'cards';
+  var proj2Timer = null;
+  function proj2StopPoll(){ if(proj2Timer){ clearInterval(proj2Timer); proj2Timer=null; } }
+  function isBuilding(p){
+    var novo=(Date.now()-new Date(p.createdAt||0).getTime())<15*60*1000;
+    return (p._docsCount===0 && novo && p.status==='draft');
+  }
+
   // R9-PJ2: Import GitHub saiu daqui (virou card real — proj2Import) e
   // Container isolado tambem (Fase B entregue: deploy/stop/runtime por
   // projeto via supervisor; vira chip ATIVO abaixo). VPS dedicada com
@@ -5601,8 +5618,7 @@ window.oqNovag = {
       // CTXPROJCARDV2: rodape em grid FIXO 3 colunas (alinhamento identico
       // em todos os cards); badge mesh acima do grid quando ativo.
       +(function(){
-        var novo=(Date.now()-new Date(p.createdAt||0).getTime())<15*60*1000;
-        var building=(p._docsCount===0 && novo && p.status==='draft');
+        var building=isBuilding(p);
         var atual=(function(){try{return localStorage.getItem('oq_proj_current')||'orquestrai'}catch(e){return 'orquestrai'}})();
         var bt='font-size:10px;padding:4px 0;border-radius:8px;cursor:pointer;text-align:center;';
         var h='';
@@ -5637,6 +5653,7 @@ window.oqNovag = {
   function render(projects){
     var list=document.getElementById('proj2-list');
     if(!list) return;
+    proj2View='cards'; // render so produz a grade de cards
     list.innerHTML = newCard() + importCard() + projects.map(card).join('');
     var soon=document.getElementById('proj2-soon');
     if(soon && !soon.dataset.done){
@@ -5687,7 +5704,7 @@ window.oqNovag = {
     if(typeof wizardOpen==='function') wizardOpen();
     else alert('wizard indisponivel (projOpen original nao capturado)');
   };
-  window.proj2Close = function(){ var m=document.getElementById('proj2-modal'); if(m) m.style.display='none'; };
+  window.proj2Close = function(){ proj2StopPoll(); var m=document.getElementById('proj2-modal'); if(m) m.style.display='none'; };
   // CTXPROJCARD01: ativa o projeto no cockpit (o que o seletor faz, via card)
   // CTXPROJCARDV2: exclusao com confirmacao digitada (o backend confere
   // de novo via {confirm} -- CTXPROJDEL01). Quarentena, nunca rm real.
@@ -5718,6 +5735,7 @@ window.oqNovag = {
   // painel de docs inline: substitui o grid pela leitura do plano
   window.proj2Docs = function(slug){
     var list=document.getElementById('proj2-list'); if(!list) return;
+    proj2View='docs'; // trava o polling: nao clobra esta sub-view (volta via projOpen)
     list.innerHTML='<span style="color:#6b7280;font:11px ui-monospace,monospace">carregando docs de '+slug+'...</span>';
     projFetch('/api/projects/'+encodeURIComponent(slug),{credentials:'include'}).then(function(r){return r.json();}).then(function(d){
       var docs=d.docs||[];
@@ -5735,6 +5753,7 @@ window.oqNovag = {
   // proj2Docs: substitui a lista, "voltar" recarrega via projOpen().
   window.proj2Dna = function(slug){
     var list=document.getElementById('proj2-list'); if(!list) return;
+    proj2View='dna'; // trava o polling: nao clobra esta sub-view (volta via projOpen)
     list.innerHTML='<span style="color:#6b7280;font:11px ui-monospace,monospace">carregando DNA de '+slug+'...</span>';
     projFetch('/api/projects/'+encodeURIComponent(slug)+'/dna',{credentials:'include'}).then(function(r){return r.json();}).then(function(j){
       var d=(j&&j.dna)||{};
@@ -5776,13 +5795,14 @@ window.oqNovag = {
     }});
   };
 
-  // dono do botao PROJETOS agora e a LISTA (wizard vira 2a camada)
-  window.projOpen = function(){
+  // CTXCARDREFRESH01: busca /api/projects + docs/runtime por card e re-renderiza.
+  // Reusada pelo projOpen (abertura) e pelo polling. Guardada contra sub-view:
+  // se docs/dna estiver aberto (proj2View!=='cards') nao toca no #proj2-list.
+  function proj2Refresh(){
     var m=document.getElementById('proj2-modal');
-    if(!m){ if(typeof wizardOpen==='function') wizardOpen(); return; }
-    m.style.display='flex';
+    if(!m || m.style.display==='none'){ proj2StopPoll(); return; } // modal fechou
+    if(proj2View!=='cards') return; // sub-view aberta: nao clobra
     var list=document.getElementById('proj2-list');
-    if(list) list.innerHTML='<span style="color:#6b7280;font:11px ui-monospace,monospace">carregando...</span>';
     projFetch('/api/projects',{credentials:'include'}).then(function(r){return r.json();}).then(function(j){
       var ps=j.projects||[];
       // CTXPROJCARD01: docsCount por card (fetch paralelo; falha vira '?')
@@ -5795,8 +5815,30 @@ window.oqNovag = {
           .then(function(r){return r.json();}).then(function(rt){ p._live=(rt&&rt.live)||'unknown'; p._rt=(rt&&rt.runtime)||null; })
           .catch(function(){ p._live='unknown'; p._rt=null; });
         return Promise.all([q1,q2]).then(function(){ return p; });
-      })).then(render);
-    }).catch(function(e){ if(list) list.innerHTML='<span style="color:#f87171">erro: '+esc(e)+'</span>'; });
+      })).then(function(ps2){
+        // o usuario pode ter aberto docs/dna durante o fetch: nao clobra
+        if(proj2View!=='cards') return;
+        render(ps2);
+        // liga/desliga o polling conforme ainda ha algo "building"
+        if(ps2.some(isBuilding)){
+          if(!proj2Timer) proj2Timer=setInterval(proj2Refresh,3000);
+        } else {
+          proj2StopPoll();
+        }
+      });
+    }).catch(function(e){ if(list && proj2View==='cards') list.innerHTML='<span style="color:#f87171">erro: '+esc(e)+'</span>'; });
+  }
+
+  // dono do botao PROJETOS agora e a LISTA (wizard vira 2a camada)
+  window.projOpen = function(){
+    var m=document.getElementById('proj2-modal');
+    if(!m){ if(typeof wizardOpen==='function') wizardOpen(); return; }
+    m.style.display='flex';
+    proj2View='cards';
+    proj2StopPoll(); // reabertura limpa: proj2Refresh reinicia se preciso
+    var list=document.getElementById('proj2-list');
+    if(list) list.innerHTML='<span style="color:#6b7280;font:11px ui-monospace,monospace">carregando...</span>';
+    proj2Refresh();
   };
 })();
 </script>
