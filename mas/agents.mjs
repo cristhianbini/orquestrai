@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-14 04:53:06 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-14 14:47:41 -03:00 (auto, git pre-commit)
 
 // [B220-LOG]
 import { appendFileSync as _appB220 } from "node:fs";
@@ -352,7 +352,7 @@ function buildMemorialistaContext(runResults){
     // (risco != qualidade). Skip e' AUDITAVEL: evento 'skipped' no blackboard
     // (score sabe que foi pulado, nao falhou) + msg no chat via bus.
     if(ag.id==='revisor'){
-      const __temBloco = /```bash[\s\S]*?```/.test(__smithOut) || (/(^|\n)\s*set\s+\+[eH]/.test(__smithOut) && /(^|\n)\s*echo\s+/.test(__smithOut));
+      const __temBloco = /```(?:bash|sh|shell|zsh|lave)[\s\S]*?```/.test(__smithOut) || (/(^|\n)\s*set\s+\+[eH]/.test(__smithOut) && /(^|\n)\s*echo\s+/.test(__smithOut)); // CTXBLOCOFMT01: fence 'lave' e' o contrato do SMITH (antes so ```bash)
       if(!__temBloco){
         console.log('[Q10] revisor SKIPPED: run sem bloco executavel');
         const dQ=db();

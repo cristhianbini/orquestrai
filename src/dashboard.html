@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-14 10:36:50 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-14 14:47:41 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1770,9 +1770,15 @@ function extractBloco(text){
   if(!text) return null;
   // R10-BLOCOFENCE01 (bug BLOCO-215): exige LINGUAGEM SHELL explicita no fence.
   // Antes aceitava ```text e fences SEM linguagem => a prosa PT-BR que o SMITH
-  // gerou (em vez de script) foi extraida como bash executavel. Contrato do
-  // SMITH e' ```bash. Fence generico/text nao vira mais payload executavel.
-  var re = /```[ \t]*(?:bash|sh|shell|zsh)[ \t]*\n([\s\S]*?)```/gi;
+  // gerou (em vez de script) foi extraida como bash executavel. Fence
+  // generico/text nao vira mais payload executavel.
+  // CTXBLOCOFMT01 (R11 2026-07-14, bug BLOCO-217): 'lave' faltava no whitelist,
+  // mas o AGENT_CARD-smith manda entregar o bloco entre tres-crases LAVE (nao
+  // bash/sh). Sem 'lave' aqui, TODO bloco do SMITH furava o regex e caia no
+  // fallback abaixo, que despia o '#' dos comentarios e vazava prosa como bash
+  // cru ('syntax error near unexpected token ('). A prosa fica FORA do fence,
+  // entao aceitar 'lave' nao reintroduz o BLOCO-215.
+  var re = /```[ \t]*(?:bash|sh|shell|zsh|lave)[ \t]*\n([\s\S]*?)```/gi;
   var m, cands = [];
   while((m = re.exec(String(text))) !== null){
     var body = (m[1] || '').trim();
@@ -1784,7 +1790,13 @@ function extractBloco(text){
     return t.indexOf('$ ') === 0 || t.indexOf('# ') === 0;
   });
   if(lines.length >= 2){
-    return lines.map(function(l){ return l.replace(/^[\s]*[\$#]\s?/, ''); }).join('\n').trim();
+    // CTXBLOCOFMT01 (R11): endurecimento. Antes despia '$' E '#' -> uma linha de
+    // comentario '# Patch (...parenteses)' virava '(...)' e quebrava o shell. So
+    // o prompt de shell '$ ' e' despido; linha '# ...' fica INTACTA como
+    // comentario (inerte, nunca vira syntax error). Se um agente futuro usar
+    // outra fence nao prevista, o pior caso e' um bloco de comentarios inofensivo
+    // em vez de prosa corrompida executavel.
+    return lines.map(function(l){ return l.replace(/^\s*\$\s?/, ''); }).join('\n').trim();
   }
   return null;
 }
@@ -1893,7 +1905,7 @@ async function send(){
     var lastBash = ''; var __lastBashAgent=''; var __lastBashModel=''; // CTXPROV01
     var B124G5_BUF = {};   /* buffer por agente p/ remontar blocos fragmentados */
     function tryExtract(src){
-      var m = String(src||'').match(/\x60\x60\x60bash\s*([\s\S]*?)\x60\x60\x60/);
+      var m = String(src||'').match(/\x60\x60\x60(?:bash|sh|shell|zsh|lave)\s*([\s\S]*?)\x60\x60\x60/); // CTXBLOCOFMT01: aceita fence 'lave' (contrato do SMITH)
       if(m) return m[1].trim();
       if(/(^|\n)\s*set\s+\+[eH]/.test(src) && /(^|\n)\s*echo\s+'?=====/.test(src)) return String(src).trim();
       return '';
