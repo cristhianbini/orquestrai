@@ -54,6 +54,11 @@ Foco: tela de Projetos utilizavel + OpenAI na mesa + fechar backlog visual.
 - **Cards padrao unico** (Licoes grid/acento por status/ordinal pill fixa),
   **nav largura unica** (D), **E1c** (botoes terminal .hdr-ico), **piloto
   Manual -> aba do oqShell** (modal aposentado). [26b0a7f, 742edbb]
+- **E1d** (ordem final da nav): Projetos, Manual, Licoes, Elenco,
+  Configuracoes | Perfil, Sair — Perfil ANTES de Sair, ambos no FIM
+  (decisao 14/07 SUPERA a nota de 12/07 que pedia Avatar/Sair no inicio);
+  icone Elenco layers->Users (layers lia como "compartilhar"). Gate 1
+  aprovado via preview em Artifact. So src/dashboard.html, atomico. [034f62f]
 - Licoes: L-CARDPROMPT01, L-COSTZERO01, L-DISABLEDRESET01, L-MOUNTPARSE01,
   L-CHATSLUG01, L-ISLANDAGENTS01.
 - **Limitacao conhecida (candidata R10)**: buildStaticSite tem max_tokens=4000
@@ -204,7 +209,8 @@ Foco: tela de Projetos utilizavel + OpenAI na mesa + fechar backlog visual.
    por vez, aprovacao da CBini a cada uma); PROJETOS NAO MIGRA —
    segue modal dedicado (categoria "gestao de entidades com acoes",
    wizard + cards + 5 itens EM BREVE, diferente de configuracao/
-   leitura de estado). Pendentes E1c/E1d (ordem final da nav).
+   leitura de estado). E1c/E1d ENTREGUES (ordem final da nav — ver
+   bullets da secao de entregas acima; E1d em 034f62f).
    8a. [ ] **Captacao de leads no portal** (registrado 2026-07-11, decisao
       CBini — sub-item do portal, NAO entra na Rodada 8 / T1-T5 atual).
       Formulario simples: nome/email/interesse + botao discreto no portal.
