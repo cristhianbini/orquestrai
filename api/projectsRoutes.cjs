@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-12 10:53:44 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-15 13:29:00 -03:00 (auto, git pre-commit)
 // [B315] /api/projects — Projetos, Modos e Scorecard dos Agentes
 // [CTXPROJPERSIST01 2026-07-09] Persistencia em DISCO substitui o Map
 // em memoria do B315 original.
@@ -128,6 +128,18 @@ function runtimeStack(projectStack){
   if (s === 'static-html' || s === 'static') return 'static';
   if (s === 'node-express' || s === 'node') return 'node';
   return null;
+}
+
+// Detecta a stack de um repo importado olhando SO a raiz de repo/ (v1, sem
+// varrer subpastas): package.json -> 'node'; senao index.html -> 'static';
+// senao 'unrecognized' (runtimeStack() devolve null -> /deploy responde 422
+// claro). NAO adivinha alem disso — Gap 2/3 tratam repo/->site/ e afins.
+function detectStack(repoDir){
+  try {
+    if (fs.existsSync(path.join(repoDir, 'package.json'))) return 'node';
+    if (fs.existsSync(path.join(repoDir, 'index.html')))   return 'static';
+  } catch(_) {}
+  return 'unrecognized';
 }
 
 // Le todos os project.json do disco. Arquivo corrompido nao derruba a
@@ -342,7 +354,7 @@ router.post('/:slug/import', express.json({ limit: '10kb' }), (req, res) => {
       try { project = JSON.parse(fs.readFileSync(pjPath, 'utf8')); } catch(_) {}
       if (!project) {
         created = true;
-        project = { slug, name: slug, stack: 'imported', db: 'none', description: '',
+        project = { slug, name: slug, stack: detectStack(repoDir), db: 'none', description: '',
                     features: [], mode: 'build', status: 'imported', public: false,
                     createdAt: new Date().toISOString() };
       }
