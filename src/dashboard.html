@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-14 15:08:59 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-14 21:56:30 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1611,14 +1611,15 @@ button[onclick="send()"]:hover{
   <span class="text-[var(--green)] glow font-bold">◆ OrquestrAI</span>
   <span class="text-[var(--mute)]" id="oqVersion">v1.0 · cockpit</span>
   <script>(function(){fetch("/api/version").then(function(r){return r.json()}).then(function(d){var el=document.getElementById("oqVersion");if(el&&d&&d.version)el.textContent="v"+d.version+" \u00b7 cockpit"}).catch(function(){})})();</script> <!-- CTXVER01 -->
-  <!-- R8-E1b2: nav de icones alinhada a direita (decisao CBini 12/07),
-       ordem esq->dir: Projetos, Manual, Licoes, Elenco | Sair, Avatar
-       (Avatar/Sair sempre nas 2 pontas da direita; o grupo cresce
-       previsivelmente pra esquerda ao ganhar atalhos). Badges mantem ids
-       com escritores vivos (proj-count CTXPROJCOUNT01, lic-count).
+  <!-- R8-E1b2 + E1d (decisao final 2026-07-14): nav de icones. Ordem esq->dir:
+       Projetos, Manual, Licoes, Elenco, Configuracoes | Perfil, Sair
+       (decisao final 2026-07-14, supera nota E1d de 12/07 que pedia o inverso:
+       Perfil antes de Sair, ambos no FIM da nav; os 5 primeiros seguem na
+       ordem/posicao original). Badges mantem ids com escritores vivos
+       (proj-count CTXPROJCOUNT01, lic-count).
        user-chip fica OCULTO mas no DOM (escritores JS ainda gravam nele).
        Avatar e placeholder: clique reservado p/ editar perfil/senha/foto.
-       oq10ProvBtn segue aqui rebatizado Elenco (icone camadas). -->
+       oq10ProvBtn segue aqui rebatizado Elenco (icone Users/grupo, E1d). -->
   <span class="ml-auto flex items-center gap-2">
     <span class="chip"><span class="text-[var(--green)]">●</span></span>
     <span class="chip" id="user-chip" style="display:none">—</span>
@@ -1628,15 +1629,15 @@ button[onclick="send()"]:hover{
 <button id="b83Btn" type="button" class="hdr-ico" onclick="b83Open()" data-tip="Manual" aria-label="Manual do OrquestrAI"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg></button>
 <button id="lic-card" class="hdr-btn hdr-ico" onclick="licOpen()" data-tip="Lições" aria-label="Lições aprendidas"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg><span id="lic-count">0</span></button>
 <!-- B265_END -->
-<button id="oq10ProvBtn" type="button" class="hdr-ico" onclick="window.oq10Prov.open()" data-tip="Elenco" aria-label="Elenco — modelos e agentes"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg></button>
+<button id="oq10ProvBtn" type="button" class="hdr-ico" onclick="window.oq10Prov.open()" data-tip="Elenco" aria-label="Elenco — modelos e agentes"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></button>
 <!-- R8-E6a (2026-07-12): engrenagem LIGADA — abre o painel Configuracoes
-     (E2-E5). Posicao: apos Elenco, antes do separador Sair/Avatar (agrupa
-     os atalhos "de configuracao"; ordem completa e' E1d, nao executado).
+     (E2-E5). Posicao: apos Elenco, antes do separador Perfil/Sair (agrupa
+     os atalhos "de configuracao"; ordem final E1d 2026-07-14).
      open() sem argumento cai na aba Provedores (contrato do E2). -->
 <button id="hdr-set-btn" type="button" class="hdr-ico" onclick="window.oqSettings.open()" data-tip="Configurações" aria-label="Configurações"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
       <span class="hdr-sep"></span>
-      <button onclick="logout()" class="hdr-ico" data-tip="Sair" aria-label="Sair"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg></button>
       <button id="hdr-avatar" type="button" class="hdr-ico" data-tip="Perfil (em breve)" aria-label="Perfil do usuário"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg></button>
+      <button onclick="logout()" class="hdr-ico" data-tip="Sair" aria-label="Sair"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg></button>
     </nav>
   </span>
 </header>
