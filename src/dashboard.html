@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-15 06:39:42 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-15 06:44:22 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -623,10 +623,10 @@ label[for="orqModelSel"]{
    geometricamente 8px mais estreito que os vizinhos retangulares e lia como
    "menor". Agora TODOS os 7 botoes sao identicos. O contador de Licoes vira
    badge sobreposto (#lic-count) preservando a largura unica. */
-.hdr-ico{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:4px;width:38px;height:30px;padding:2px;background:transparent;border:1px solid #242f40;border-radius:6px;color:var(--mute);cursor:pointer;box-sizing:border-box} /* R10 bug#3: borda levemente visivel em repouso (antes transparent, so acendia no hover) — consistencia c/ cards de agentes que tem borda sempre visivel; hover clareia p/ ciano */
+.hdr-ico{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:4px;width:38px;height:30px;padding:2px;background:transparent;border:1px solid #384a63;border-radius:6px;color:var(--mute);cursor:pointer;box-sizing:border-box;transition:border-color .15s,color .15s,background .15s,box-shadow .15s} /* R10 bug#3 + R10-NAVBORDER: borda de repouso legivel (#384a63, era #242f40 quase invisivel); consistencia c/ cards de agentes; hover clareia p/ ciano + glow */
 .hdr-ico>svg{width:20px;height:20px}
 #lic-count,#proj-count{position:absolute;top:-4px;right:-4px;background:var(--cyan);color:#001018;border-radius:999px;padding:2px 4px;min-width:8px;text-align:center;font:700 8px/1 ui-monospace,monospace!important;opacity:1!important} /* R9: proj-count no mesmo padrao badge do lic-count (pedido CBini) */
-.hdr-ico:hover{color:var(--cyan);border-color:var(--cyan);background:#0e1622} /* R10 bug#3: hover clareia a borda p/ ciano (destaque acima da borda de repouso #242f40) */
+.hdr-ico:hover{color:var(--cyan);border-color:var(--cyan);background:#0e1622;box-shadow:0 0 12px rgba(124,231,255,.38)} /* R10 bug#3 + R10-NAVBORDER: hover clareia a borda p/ ciano + glow ciano sutil (espirito dos cards de agente) p/ o salto ficar perceptivel acima do repouso #384a63 */
 .hdr-ico::after{content:attr(data-tip);position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);padding:3px 8px;background:#0e1622;border:1px solid var(--line);border-radius:5px;color:var(--text);font:600 10px 'JetBrains Mono',ui-monospace,monospace;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s;z-index:60}
 .hdr-ico:hover::after{opacity:1}
 /* R8-E1b2: grupo de nav alinhado a direita (decisao CBini 12/07: cresce
