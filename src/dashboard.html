@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-15 06:44:22 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-15 07:05:39 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -5622,7 +5622,7 @@ window.oqNovag = {
             ?'<span style="color:#fbbf24" title="já foi ativado; o container não está rodando agora — reative pelo deploy">○ parado (já rodou)</span>'
             :'<span style="color:#6b7280" title="nunca foi ativado — sem deploy até agora">· nunca ativado</span>')
           :'<span style="color:#6b7280">—</span>')+'<br>'
-      +'custo&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#6b7280">— (S21)</span><br>'
+      +'custo&nbsp;&nbsp;&nbsp;&nbsp;'+(p._cost!=null?'<span style="color:#fbbf24;font-weight:600" title="custo das runs vinculadas a este projeto (pos-TELEM01); historico sem slug fica em (sem-projeto)">$'+Number(p._cost).toFixed(4)+'</span>':'<span style="color:#6b7280">— (sem runs)</span>')+'<br>'
       +'deploy&nbsp;&nbsp;&nbsp;<span style="color:#6b7280">manual</span><br>'
       +'criado&nbsp;&nbsp;&nbsp;'+fmtDate(p.createdAt)
       +'</div>'
@@ -5817,8 +5817,16 @@ window.oqNovag = {
     var list=document.getElementById('proj2-list');
     projFetch('/api/projects',{credentials:'include'}).then(function(r){return r.json();}).then(function(j){
       var ps=j.projects||[];
-      // CTXPROJCARD01: docsCount por card (fetch paralelo; falha vira '?')
-      return Promise.all(ps.map(function(p){
+      // R10-PROJCARDCOST: custo real por projeto — MESMA agregacao da Telemetria
+      // (/api/mas/telemetry/projects, keyed por slug). So runs COM slug (pos-TELEM01);
+      // historico sem slug fica em (sem-projeto), sem backfill -> projeto sem run = undefined.
+      return fetch('/api/mas/telemetry/projects',{headers:{Authorization:'Bearer '+(localStorage.getItem('oq_token')||'')}})
+        .then(function(r){return r.json();})
+        .then(function(t){ var cm={}; if(t&&t.ok&&t.projects) t.projects.forEach(function(x){ cm[x.projeto]=x.custo_usd; }); return cm; })
+        .catch(function(){ return {}; })
+        .then(function(costMap){ return Promise.all(ps.map(function(p){
+        p._cost=costMap[p.slug];
+        // CTXPROJCARD01: docsCount por card (fetch paralelo; falha vira '?')
         var q1 = projFetch('/api/projects/'+encodeURIComponent(p.slug),{credentials:'include'})
           .then(function(r){return r.json();}).then(function(d){ p._docsCount=(d.docs||[]).length; p._hasSite=!!d.hasSite; })
           .catch(function(){ p._docsCount=null; });
@@ -5827,7 +5835,7 @@ window.oqNovag = {
           .then(function(r){return r.json();}).then(function(rt){ p._live=(rt&&rt.live)||'unknown'; p._rt=(rt&&rt.runtime)||null; })
           .catch(function(){ p._live='unknown'; p._rt=null; });
         return Promise.all([q1,q2]).then(function(){ return p; });
-      })).then(function(ps2){
+      })); }).then(function(ps2){
         // o usuario pode ter aberto docs/dna durante o fetch: nao clobra
         if(proj2View!=='cards') return;
         render(ps2);
