@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-15 06:25:49 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-15 06:39:42 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1282,10 +1282,10 @@ button[onclick="send()"]:hover{
         var cor=TELCOR[a.agent]||'#94a3b8'; var nm=TELNM[a.agent]||a.agent.toUpperCase();
         var pct=Math.max(2,Math.round(100*(a.custo_total||0)/maxC));
         var free=(a.custo_total===0);
-        h+='<div style="background:#0a1119;border:1px solid '+cor+'33;border-radius:8px;padding:10px 14px;display:grid;grid-template-columns:150px 1fr 240px;gap:12px;align-items:center">';
+        h+='<div style="background:#0a1119;border:1px solid '+cor+'33;border-radius:8px;padding:10px 14px;display:grid;grid-template-columns:150px 1fr 270px;gap:12px;align-items:center">'; /* R10-REVISORLINE: col custo 240->270px (linha do REVISOR tinha ↓$eco extra e quebrava); barra 1fr encolhe, modal intacto */
         h+='<div><span style="color:'+cor+';font:12px ui-monospace,monospace;font-weight:bold">'+nm+'</span><div style="color:#4b5563;font:9px ui-monospace,monospace">'+a.runs+' runs · '+((a.lat_media||0)/1000).toFixed(1)+'s med</div></div>';
         h+='<div style="background:#111827;border-radius:4px;height:14px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+cor+'88"></div></div>';
-        h+='<div style="text-align:right;font:11px ui-monospace,monospace">'+(free?'<span style="color:#22c55e;font-weight:bold">FREE</span>':'<span style="color:#fbbf24;font-weight:bold">$'+a.custo_total.toFixed(2)+'</span> <span style="color:#6b7280">· $'+(a.custo_medio||0).toFixed(3)+'/run</span>')+(a.skips>0?' <span style="color:#22c55e" title="Q10: dispensado '+a.skips+'x">↓$'+a.economia_q10.toFixed(2)+'</span>':'')+(function(){ /* R9-SCORE01 + sugestao(d) CBini: score real do /telemetry (done/(done+error)).
+        h+='<div style="text-align:right;font:11px ui-monospace,monospace;white-space:nowrap">'+(free?'<span style="color:#22c55e;font-weight:bold">FREE</span>':'<span style="color:#fbbf24;font-weight:bold">$'+a.custo_total.toFixed(2)+'</span> <span style="color:#6b7280">· $'+(a.custo_medio||0).toFixed(3)+'/run</span>')+(a.skips>0?' <span style="color:#22c55e" title="Q10: dispensado '+a.skips+'x">↓$'+a.economia_q10.toFixed(2)+'</span>':'')+(function(){ /* R9-SCORE01 + sugestao(d) CBini: score real do /telemetry (done/(done+error)).
              "--" = sem runs julgadas; n<5 = amostra baixa, mostra apagado com aviso
              (100% com 2 runs engana; so ganha cor com dado suficiente). */
           var s=a.score;
