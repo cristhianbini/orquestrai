@@ -1,4 +1,4 @@
-<!-- ATUALIZADO: 2026-07-15 05:03:18 -03:00 (auto, git pre-commit) -->
+<!-- ATUALIZADO: 2026-07-15 05:58:03 -03:00 (auto, git pre-commit) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1552,14 +1552,14 @@ button[onclick="send()"]:hover{
        Ordem importa: React/ReactDOM precisam existir globalmente ANTES do
        island.js rodar -- por isso os 3 scripts usam defer, que preserva
        ordem de execucao mesmo carregando em paralelo. -->
-  <link rel="stylesheet" href="/island/agent-panel-style.css">
+  <link rel="stylesheet" href="/island/agent-panel-style.22527f8a.css">
   <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" defer></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" defer></script>
   <!-- R10-CACHE01 (bug #2): ?v= faz cache-bust do bundle. O nginx-web serve JS
        com `expires 7d` SEM revalidacao, entao o browser segurava o bundle antigo
        (sem ESTRATEGISTA/TESTADOR) por 7 dias. BUMPAR este ?v= a CADA mudanca em
        agent-panel-island.js, senao volta a ficar stale. -->
-  <script src="/island/agent-panel-island.js?v=20260713a" defer></script>
+  <script src="/island/agent-panel-island.8cc0a1df.js" defer></script>
   <script defer>
     document.addEventListener('DOMContentLoaded', function() {
       if (window.OrquestrAIAgentPanel) window.OrquestrAIAgentPanel.mount('oq-agent-panel-island');
