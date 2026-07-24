@@ -1,5 +1,5 @@
 # Roadmap Futuro — OrquestrAI
-Ultima atualizacao: 2026-07-14 (Decisao de escopo V1: ferramenta interna, nao SaaS). Ordem = alicerce antes do acabamento.
+Ultima atualizacao: 2026-07-24 (reconciliacao com a lista de acompanhamento de 17 itens da CBini; ALICERCE #3 + Litestream 2FA fechados). Ordem = alicerce antes do acabamento.
 
 ## Decisao 2026-07-14: Escopo V1 redefinido -- ferramenta interna, nao SaaS
 
@@ -29,6 +29,11 @@ curadoria de elenco premium, demais polimento de UI.
 
 Proximo passo apos V1 essencial fechado: testar em sistema real da CBini
 (candidato inicial: cbinixbarber, ja mencionado como piloto de Import GitHub).
+NUANCE (lista de acompanhamento item 8, 2026-07-24): o clone do cbinixbarber ja
+funciona (deploy key SSH, ver Sprint 2), mas o E2E de BUILD/DEPLOY dele e BAIXA
+prioridade agora — foi so treino, e o stack real (TanStack Start / Vite+Bun+
+Supabase, SSR) pode NAO caber no modelo atual "builda->estatico" do ALICERCE #3
+(que espera dist/ estatico sem backend). Reavaliar o modelo antes de tentar.
 
 ## RODADA 9 — ENTREGUE (2026-07-12, validada pela CBini)
 Foco: tela de Projetos utilizavel + OpenAI na mesa + fechar backlog visual.
@@ -71,10 +76,13 @@ Foco: tela de Projetos utilizavel + OpenAI na mesa + fechar backlog visual.
    bancos; contagem+timestamp restaurado == vivo ao milissegundo; RPO efetivo ~0).
    FALTA ainda: formalizar o checklist operacional (semanal/mensal/trimestral) em
    knowledge/decisoes/ e reteste trimestral. Migrado do roadmap.md antigo.
-0b. [ ] **orquestrai.db (2FA/TOTP) NAO tem backup Litestream** — achado no teste de
-   restore 2026-07-11: /etc/litestream.yml replica so cluster.db e blackboard.db.
-   Se a VPS morrer, os segredos TOTP se perdem (usuarios teriam de refazer 2FA).
-   Avaliar adicionar orquestrai.db ao litestream.yml. Decisao do Bini, sem urgencia.
+0b. [x] **orquestrai.db (2FA/TOTP) agora TEM backup Litestream** — FECHADO 2026-07-24
+   (lista de acompanhamento item 3). Adicionado como 3o banco ao /etc/litestream.yml
+   (replica file local, retention 48h, sync 10s; unit systemd inalterada). Backup
+   manual por arquivo feito ANTES de ativar; restore provado em scratch (integrity_check
+   ok, tabela totp reconstruida, RPO ~1s). Lição [[L-LITESTREAM02]] (commit ac1243a).
+   LIMITACAO MVP registrada: replica no MESMO disco fisico (sda1 unico) — backup
+   off-VPS = upgrade futuro (protege contra corrupcao/delete logico, nao perda do disco).
 1. [x] Token efemero de preview — feito 2026-07-10 (CTXPREVIEWTOKEN02/03)
 2. [~] Import GitHub + container isolado — **Import GitHub ENTREGUE (UI + POST
    /:slug/import) na R9; container isolado = Fase B entregue.** Falta polir o
@@ -118,7 +126,9 @@ Foco: tela de Projetos utilizavel + OpenAI na mesa + fechar backlog visual.
    - **CTXOQTERM01** — oqterm roda root sem senha, fora do Docker; unico controle e
      a assinatura do JWT (se vazar = root total no host). Escopo de usuario limitado
      (nao root direto) + 2FA de terminal ja desenhado. Mesma familia de risco.
-   - **[2026-07-11] AUDITORIA CONJUNTA DOS TRES PORTOES ROOT** — a Fase B (Rodada
+   - **[2026-07-11] AUDITORIA CONJUNTA DOS TRES PORTOES ROOT** (= lista de
+     acompanhamento CBini item 4 "Auditoria JWT admin compartilhado entre os 3
+     daemons root"; MESMO escopo, ver NOTA B2) — a Fase B (Rodada
      7) adiciona um TERCEIRO ponto com privilegio: o daemon `project-supervisor`
      (acesso controlado ao socket docker). Ficam entao TRES superficies com algum
      nivel de root/privilegio no host: (1) execBloco (auditado, hash-chain),
@@ -188,6 +198,14 @@ Foco: tela de Projetos utilizavel + OpenAI na mesa + fechar backlog visual.
    roteamento das acoes quanto o bucket de telemetria). Ambos arquiteturais/
    multi-modulo (Gate 2): exigem sessao de design dedicada, NAO entram em
    bloco de correcoes. Ver [[L-CHATSLUG01]] e item 5d (consciencia do mesh).
+5f. [ ] **Secrets em .env plano, sem vault (lista de acompanhamento item 5)** —
+   registrado 2026-07-24. Hoje /var/www/orquestrai/.env guarda JWT_SECRET,
+   ANTHROPIC/GLM/GROQ/CEREBRAS_API_KEY, ADMIN_PASSWORD, CLOUDFLARE_TURNSTILE_SECRET
+   em TEXTO PLANO (so os secrets de PROVEDOR ja tem camada de cifra via
+   PROVIDERS_ENC_KEY/CTXSECRETS01). Sem vault/rotacao. Mesma familia de risco da
+   auditoria dos 3 portoes root (5b): o JWT_SECRET vazado do .env = os 3 daemons
+   root comprometidos. Avaliar JUNTO da auditoria 5b (mesma superficie de segredo).
+   Nao e' erro pendente com fix decidido — e' item a triar (vault? sops? rotacao?).
 6. [ ] Agente DESIGNER dedicado no pipeline — especializado em UI e consistencia
    visual. Encaixa mais naturalmente DEPOIS que a migracao Tailwind/React
    (strangler fig do dashboard) estiver madura, para o agente ter um sistema de
@@ -231,6 +249,38 @@ Foco: tela de Projetos utilizavel + OpenAI na mesa + fechar backlog visual.
       $uri/ =404), servindo o .html internamente sem expor na barra.
       ATENCAO na hora: proxy.conf e bind-mount de ARQUIVO UNICO :ro —
       editar in-place com cat>, nunca rename (L-BINDMOUNT-inode-proxyconf).
+   8c. [ ] **Backlog de UI/acabamento (reconciliado da lista de acompanhamento
+      da CBini, 2026-07-24).** Itens de polimento sem prioridade de rodada
+      atribuida — posicionados aqui (categoria UI/telas do #8), ordem a decidir
+      quando promovidos:
+      - **Badge DNA "EM BREVE" -> "ATIVO" no card da Fabrica (lista item 9)** —
+        MVP do DNA ja entregue (R9 0fe65c6, ver OUTROS abaixo); so falta virar o
+        badge. Visual simples.
+      - **Botao "Melhorar escopo" no editor de DNA (lista item 10)** — ao lado de
+        "Salvar DNA"; padrao do /api/agents/train (modelo forte sugere melhorias,
+        usuario APROVA antes de gravar — NAO auto-save).
+      - **Construtor Automatico re-entrante + modo "Acompanhado" (lista item 11)** —
+        hoje o Construtor Automatico fica preso no wizard passo 5 (1x) e o modo
+        "Acompanhado" e placeholder EM BREVE. Tornar reentrante/persistente +
+        implementar o Acompanhado de fato. Provavel Gate 2 (arquitetura multi-modo).
+      - **Chat bar "+" como hub menu (lista item 12)** — o "+" da barra de chat vira
+        menu-hub de acoes.
+      - **Indicador visual Mesh vs Pipeline (lista item 13)** — hoje placeholder;
+        deixar claro na UI qual modo esta ativo.
+      - **Dropdown de modelos OpenAI ligado a API real (lista item 14)** — GET
+        /api/providers/:id/models (backend existe), falta o front chamar. Refina a
+        entrada generica "seletor de modelo dinamico" do BACKLOG TECNICO.
+      - **Delay no botao de status ao criar projeto (lista item 16)** —
+        bug/diagnostico NAO investigado ainda: o indicador de status demora a
+        atualizar apos criar projeto. Investigar causa antes de fix.
+      - **UI p/ preencher env vars de build (lista item 17)** — contraparte visual
+        do Gap 4 (env VITE_* de build-time): hoje so via PUT /:slug/build-env direto
+        na API. Falta campo no formulario de projeto/deploy. Achado ao fechar o Gap 4.
+   8d. [ ] **Licoes -> aba do oqShell/Configuracoes (lista de acompanhamento
+      item 15)** — JA representado no #8 (migracao Manual/Licoes/Elenco p/ o shell
+      de Configuracoes, uma por vez). Registrado aqui so p/ rastreabilidade da
+      lista: e a MESMA frente do #8, nao um item novo. Decisao de migrar Licoes ja
+      tomada (padrao do Manual, risco baixo); rodada propria, Gate 2.
 
 ## EXPANSAO (bem pro final)
 9. [ ] Cotas/multi-tenancy ("VPS dentro da VPS") — depende de container isolado maduro
@@ -300,10 +350,23 @@ Status 2026-07-11 (3a sessao): **Fases A0, A2 e B (nucleo B0-B5) concluidas.**
   rotas deploy/stop/runtime, B5 1925921 preview vivo /app/ no proxy).
   Detalhe em knowledge/metas/RODADA-7-PLANO-CONTAINER-ISOLADO.md.
 
+**ALICERCE #3 (Import GitHub + Container Isolation) — COMPLETO 2026-07-24:**
+- Gap 1 (detectStack node/static/unrecognized) [9325304]; Gap 2 (ponte repo/->site/,
+  stack static) [5c07b55]; **Gap 3 (stack node -> BUILDA pra estatico e reaproveita
+  o caminho static — NAO virou Dockerfile/servidor persistente; node sem script de
+  build -> 501 congelado)** [8c59940], fix Gate 4 leitura de repo/ (repoGroupAdd).
+  E2E 4/4 verde. SUPERA o "B2b via Dockerfile build-time" abaixo (decisao mudou:
+  build->estatico em vez de container node persistente).
+- **Deploy key SSH p/ repos privados (lista de acompanhamento item 1)** — FECHADO
+  [f9acaa2]: doClone() troca p/ SSH nos repos de private-repos.json, known_hosts
+  fixo, parseGithubUrl intocada. E2E: cbinixbarber privado clonou via SSH.
+- **Gap 4: env vars VITE_* de build-time (lista item 2)** — FECHADO [08321c3]:
+  PUT /:slug/build-env grava .build.env 0600, supervisor injeta -e (so ^VITE_) na
+  fase build. E2E 4/4. FALTA a UI p/ preencher (ver item de acabamento reconciliado).
+
 **Pendente:**
-- Fase B — restos: B2b (stack `node` via Dockerfile build-time; supervisor
-  responde 501 ate la; proxy precisa mapear internalPort) e B6 (docs/licoes,
-  em andamento 2026-07-11).
+- Fase B — restos: B6 (docs/licoes, em andamento 2026-07-11). (B2b superado pelo
+  ALICERCE #3 acima — build node->estatico entregue, nao mais 501.)
 - Fase C (preview conteinerizado): REAVALIAR se ainda faz sentido como fase
   separada — o B5 ja entregou preview do container vivo atras de auth;
   o que sobraria para C precisa ser redefinido antes de virar rodada.
