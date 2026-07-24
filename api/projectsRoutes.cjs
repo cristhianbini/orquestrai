@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-24 00:34:01 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-24 00:48:34 -03:00 (auto, git pre-commit)
 // [B315] /api/projects — Projetos, Modos e Scorecard dos Agentes
 // [CTXPROJPERSIST01 2026-07-09] Persistencia em DISCO substitui o Map
 // em memoria do B315 original.
@@ -18,6 +18,10 @@ const fs = require('fs');
 const path = require('path');
 const jwt = require('jsonwebtoken');
 const http = require('http');
+// [CTXCHMODSHARE01] extraido p/ modulo compartilhado (tambem usado pelo
+// project-supervisor no Gap 3). No container o arquivo e' montado em
+// /app/lib/chmodReadable.cjs (ver docker-compose, volume da api).
+const { chmodReadable } = require('./lib/chmodReadable.cjs');
 // [A2 2026-07-11] daemon project-runner (fora do Docker, systemd). 172.18.0.1
 // e o IP do HOST na bridge app-net — mesmo padrao do oqterm (proxy.conf).
 const PR_URL = process.env.PROJECT_RUNNER_URL || 'http://172.18.0.1:7655';
@@ -140,26 +144,6 @@ function detectStack(repoDir){
     if (fs.existsSync(path.join(repoDir, 'index.html')))   return 'static';
   } catch(_) {}
   return 'unrecognized';
-}
-
-// Torna uma arvore legivel pelo nginx do container static (uid 101): OR-in dos
-// bits de leitura/travessia (dirs |= r-x a todos; files |= r a todos), sem
-// tocar nos bits de escrita nem tornar arquivos executaveis. .git e' pulado de
-// proposito (fica sem os bits de "outros" -> nginx 403 em /.git/). Best-effort:
-// erro num item nao aborta a arvore. So chamado para stack static no import.
-function chmodReadable(root){
-  const walk = (p) => {
-    let st; try { st = fs.lstatSync(p); } catch(_) { return; }
-    if (st.isSymbolicLink()) return;                 // nao segue symlink
-    if (st.isDirectory()) {
-      try { fs.chmodSync(p, st.mode | 0o555); } catch(_) {}
-      let ents = []; try { ents = fs.readdirSync(p); } catch(_) {}
-      for (const e of ents) { if (e === '.git') continue; walk(path.join(p, e)); }
-    } else if (st.isFile()) {
-      try { fs.chmodSync(p, st.mode | 0o444); } catch(_) {}
-    }
-  };
-  walk(root);
 }
 
 // Le todos os project.json do disco. Arquivo corrompido nao derruba a

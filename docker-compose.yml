@@ -31,6 +31,7 @@ services:
       - ./api/blocoMemoryRoutes.cjs:/app/blocoMemoryRoutes.cjs:ro
       - ./licoesRoutes.cjs:/app/licoesRoutes.cjs:ro
       - ./api/projectsRoutes.cjs:/app/projectsRoutes.cjs:ro
+      - ./lib/chmodReadable.cjs:/app/lib/chmodReadable.cjs:ro
       - ./knowledge:/app/knowledge
       - ./projects:/app/projects
       - ./server.js:/app/server.js:ro

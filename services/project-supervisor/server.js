@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-11 12:06:48 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-24 00:48:34 -03:00 (auto, git pre-commit)
 // (sem shebang de proposito: o hook de pre-commit prependeria o header
 // ACIMA dele e quebraria o parse; a unit chama /usr/bin/node explicito)
 // project-supervisor — daemon que sobe/derruba UM container por projeto.
@@ -25,6 +25,9 @@ const crypto = require('crypto');
 const { spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+// [CTXCHMODSHARE01] modulo compartilhado com a api (fatorado do Gap 2). Usado
+// no Gap 3 (build->estatico) para normalizar perms do dist/ antes de servir.
+const { chmodReadable } = require(path.join(__dirname, '..', '..', 'lib', 'chmodReadable.cjs'));
 
 const HOST         = process.env.PS_HOST || '127.0.0.1';   // B2: localhost only
 const PORT         = parseInt(process.env.PS_PORT || '7656', 10);
