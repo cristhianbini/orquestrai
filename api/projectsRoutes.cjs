@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-15 13:29:00 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-24 00:34:01 -03:00 (auto, git pre-commit)
 // [B315] /api/projects — Projetos, Modos e Scorecard dos Agentes
 // [CTXPROJPERSIST01 2026-07-09] Persistencia em DISCO substitui o Map
 // em memoria do B315 original.
@@ -140,6 +140,26 @@ function detectStack(repoDir){
     if (fs.existsSync(path.join(repoDir, 'index.html')))   return 'static';
   } catch(_) {}
   return 'unrecognized';
+}
+
+// Torna uma arvore legivel pelo nginx do container static (uid 101): OR-in dos
+// bits de leitura/travessia (dirs |= r-x a todos; files |= r a todos), sem
+// tocar nos bits de escrita nem tornar arquivos executaveis. .git e' pulado de
+// proposito (fica sem os bits de "outros" -> nginx 403 em /.git/). Best-effort:
+// erro num item nao aborta a arvore. So chamado para stack static no import.
+function chmodReadable(root){
+  const walk = (p) => {
+    let st; try { st = fs.lstatSync(p); } catch(_) { return; }
+    if (st.isSymbolicLink()) return;                 // nao segue symlink
+    if (st.isDirectory()) {
+      try { fs.chmodSync(p, st.mode | 0o555); } catch(_) {}
+      let ents = []; try { ents = fs.readdirSync(p); } catch(_) {}
+      for (const e of ents) { if (e === '.git') continue; walk(path.join(p, e)); }
+    } else if (st.isFile()) {
+      try { fs.chmodSync(p, st.mode | 0o444); } catch(_) {}
+    }
+  };
+  walk(root);
 }
 
 // Le todos os project.json do disco. Arquivo corrompido nao derruba a
@@ -369,6 +389,29 @@ router.post('/:slug/import', express.json({ limit: '10kb' }), (req, res) => {
         // repo/ ja esta no lugar; o json pode ser regravado numa retentativa
         return res.status(500).json({ ok:false, error:'repo importado mas project.json falhou: ' + e.message });
       }
+      // [CTXREPOSITEBRIDGE01 — Gap 2] ponte repo/ -> site/. O container static
+      // (project-supervisor) monta projects/{slug}/site :ro, mas o clone caiu
+      // em repo/. Symlink RELATIVO site -> repo mantem uma unica fonte de
+      // verdade (sem copia, sem drift) e resolve tanto no namespace do api
+      // (/app/projects) quanto no host do supervisor (/var/www/.../projects) —
+      // symlink absoluto quebraria entre os dois mounts. So para stack static
+      // (index.html na raiz); node cai no Gap 3 (Dockerfile). Idempotente: nao
+      // sobrescreve site/ real de projeto build-mode. Best-effort: se falhar, o
+      // deploy re-checa site/ e devolve 422 claro.
+      //
+      // 2a dimensao do Gap 2 — LEGIBILIDADE: o project-runner clona com umask
+      // 027 (dirs 750, files 640, dono projrunner). O nginx do container static
+      // roda como uid 101 -> sem os bits de "outros", da 403. Normalizamos a
+      // arvore para a+rX (dirs r-x, files +r) = paridade com o site/ 644 do
+      // build-mode. O .git e' PULADO de proposito: fica 750 e o nginx devolve
+      // 403 em /.git/ (evita servir .git/config etc).
+      try {
+        if (detectStack(repoDir) === 'static') {
+          chmodReadable(repoDir);
+          const siteLink = path.join(projDir, 'site');
+          if (!fs.existsSync(siteLink)) fs.symlinkSync('repo', siteLink);
+        }
+      } catch(_) {}
       res.json({ ok: true, slug, created, sizeBytes: out.sizeBytes || 0, project });
     });
   });
