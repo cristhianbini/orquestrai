@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-24 07:02:31 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-24 07:38:06 -03:00 (auto, git pre-commit)
 // (sem shebang de proposito: o hook de pre-commit prependeria o header
 // ACIMA dele e quebraria o parse; a unit chama /usr/bin/node explicito)
 // project-supervisor — daemon que sobe/derruba UM container por projeto.
@@ -135,6 +135,31 @@ const BUILD_TOOLCHAINS = {
 const BUILD_COMMON = ['--rm', '--memory', '1g', '--cpus', '1', '--pids-limit', '512',
                       '--security-opt', 'no-new-privileges', '--cap-drop', 'ALL'];
 
+// [Gap 4] env vars de build-time (embutidas no bundle pelo Vite). SO nomes
+// VITE_* sao aceitos: o caller NUNCA injeta PATH/NODE_OPTIONS/LD_PRELOAD etc que
+// mudariam o comportamento do build (mesmo ethos allowlist do resto do daemon).
+// Este daemon e' o trust boundary: revalida mesmo que a api ja tenha validado.
+const BUILD_ENV_KEY_RE = /^VITE_[A-Z0-9_]+$/;
+const BUILD_ENV_MAX_KEYS = 50;
+const BUILD_ENV_MAX_VAL  = 4096;
+// filtra buildEnv -> array ['-e','K=V',...] so com pares validos. Valor com
+// \n/\r e' rejeitado (quebraria o formato e nao faz sentido em env de build).
+// NUNCA loga valores.
+function buildEnvArgs(buildEnv){
+  const args = [];
+  if (!buildEnv || typeof buildEnv !== 'object') return { args, keys: [] };
+  const keys = [];
+  for (const k of Object.keys(buildEnv)) {
+    if (keys.length >= BUILD_ENV_MAX_KEYS) break;
+    const v = buildEnv[k];
+    if (!BUILD_ENV_KEY_RE.test(k)) continue;
+    if (typeof v !== 'string' || v.length > BUILD_ENV_MAX_VAL || /[\r\n]/.test(v)) continue;
+    args.push('-e', `${k}=${v}`);
+    keys.push(k);
+  }
+  return { args, keys };
+}
+
 function pmFromLock(lock){
   if (lock === 'bun.lock' || lock === 'bun.lockb') return 'bun';
   if (lock === 'pnpm-lock.yaml') return 'pnpm';
@@ -191,7 +216,7 @@ function detectToolchain(slug){
 
 // Builda repo/ (node) e publica o dist/build em site/. Idempotente: limpa site/
 // antes de copiar. Retorna {ok:true, pm} ou {ok:false, code, error, detail}.
-function buildNodeToStatic(slug){
+function buildNodeToStatic(slug, buildEnv){
   const det = detectToolchain(slug);
   if (det.error)  return { ok: false, code: 422, error: det.error, detail: det.detail };
   if (!det.pkg)   return { ok: false, code: 422, error: 'repo/ sem package.json (stack node nao reconhecida)' };
@@ -215,8 +240,11 @@ function buildNodeToStatic(slug){
       tc.image, 'sh', '-c', `cp -a /src/. /app/ && rm -rf /app/.git && ${tc.install}`], BUILD_TIMEOUT_MS);
     if (inst.code !== 0) return { ok: false, code: 422, error: `install falhou (${pm})`, detail: (inst.err || inst.out || '').slice(-500) };
 
-    // 2) build SEM rede
-    const bld = docker(['run', ...BUILD_COMMON, '--network', 'none', '-v', `${stageHost}:/app`, '-w', '/app',
+    // 2) build SEM rede. env VITE_* injetada AQUI (Vite embute no bundle no
+    // `build`; install nao precisa). -e por par (nunca --env-file), so nomes logados.
+    const { args: envArgs, keys: envKeys } = buildEnvArgs(buildEnv);
+    if (envKeys.length) console.log(`[project-supervisor] build env slug=${slug} keys=[${envKeys.join(',')}]`);
+    const bld = docker(['run', ...BUILD_COMMON, ...envArgs, '--network', 'none', '-v', `${stageHost}:/app`, '-w', '/app',
       tc.image, 'sh', '-c', tc.build], BUILD_TIMEOUT_MS);
     if (bld.code !== 0) return { ok: false, code: 422, error: `build falhou (${pm})`, detail: (bld.err || bld.out || '').slice(-500) };
 
@@ -240,13 +268,13 @@ function buildNodeToStatic(slug){
 }
 
 // ---- acoes ----
-function doUp(slug, stackName, cb){
+function doUp(slug, stackName, buildEnv, cb){
   // [Gap 3 CTXNODEBUILDSTATIC01] node que builda pra estatico: builda repo/ ->
   // publica em site/ e SEGUE pelo caminho static (reaproveita o stack static do
   // Gap 2 inteiro). node SEM script de build (servidor persistente puro) ->
   // 501 explicito, decisao congelada (nenhum candidato real hoje).
   if (stackName === 'node') {
-    const b = buildNodeToStatic(slug);
+    const b = buildNodeToStatic(slug, buildEnv);
     if (!b.ok) return cb(b.code, { ok:false, error:b.error, detail:b.detail });
     console.log(`[project-supervisor] build node->static slug=${slug} pm=${b.pm}`);
     stackName = 'static';   // site/ ja populado; cai no serve static abaixo
@@ -361,7 +389,9 @@ const server = http.createServer((req, res) => {
       if (!j) return send(400, { ok:false, error:'json invalido' });
       if (!validSlug(j.slug)) return send(400, { ok:false, error:'slug invalido' });
       if (typeof j.stack !== 'string') return send(400, { ok:false, error:'stack obrigatoria' });
-      doUp(j.slug, j.stack, send);
+      // buildEnv opcional (Gap 4): filtrado/revalidado dentro de buildNodeToStatic
+      // (buildEnvArgs so deixa passar VITE_* validos). Aceita objeto ou ausente.
+      doUp(j.slug, j.stack, (j.buildEnv && typeof j.buildEnv === 'object') ? j.buildEnv : null, send);
     });
   }
 

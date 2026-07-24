@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-24 07:02:31 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-24 07:38:06 -03:00 (auto, git pre-commit)
 // [B315] /api/projects — Projetos, Modos e Scorecard dos Agentes
 // [CTXPROJPERSIST01 2026-07-09] Persistencia em DISCO substitui o Map
 // em memoria do B315 original.
@@ -50,6 +50,33 @@ router.use(function(req, res, next){
 });
 // __dirname no container = /app (arquivo montado em /app/projectsRoutes.cjs)
 const PROJ_DIR = process.env.PROJECTS_DIR || path.join(__dirname, 'projects');
+
+// [Gap 4] env vars de build-time (VITE_*, embutidas no bundle pelo Vite) por
+// projeto. Guardadas em projects/{slug}/.build.env com mode 0600 (fora de site/,
+// NUNCA em project.json, nunca em resposta de API ou log — so nomes). Lidas no
+// /deploy e passadas ao supervisor no corpo /up; o supervisor revalida e injeta
+// -e SO na fase build. Menor privilegio: o segredo fica no artefato mais restrito
+// (0600 root), nunca world/group-readable (padrao do repoGroupAdd de hoje).
+const BUILD_ENV_FILE     = '.build.env';
+const BUILD_ENV_KEY_RE   = /^VITE_[A-Z0-9_]+$/;
+const BUILD_ENV_MAX_KEYS = 50;
+const BUILD_ENV_MAX_VAL  = 4096;
+// le projects/{slug}/.build.env -> {K:V}. Ausente/ilegivel -> {}. Ignora vazias/
+// comentario e chaves fora do padrao VITE_ (cinto e suspensorio).
+function readBuildEnv(slug){
+  try {
+    const raw = fs.readFileSync(path.join(PROJ_DIR, slug, BUILD_ENV_FILE), 'utf8');
+    const out = {};
+    for (const line of raw.split('\n')) {
+      if (!line || line[0] === '#') continue;
+      const i = line.indexOf('=');
+      if (i < 1) continue;
+      const k = line.slice(0, i);
+      if (BUILD_ENV_KEY_RE.test(k)) out[k] = line.slice(i + 1);
+    }
+    return out;
+  } catch(_) { return {}; }
+}
 
 const MODES = [
   {
@@ -437,6 +464,38 @@ function callSupervisor(method, psPath, slug, body, cb, timeoutMs){
 // repassa o codigo do supervisor se for HTTP valido; senao 502
 function passCode(code){ return (code >= 400 && code < 600) ? code : 502; }
 
+// [Gap 4] PUT /:slug/build-env — define o conjunto de env vars VITE_* de
+// build-time do projeto (substitui inteiro; PUT idempotente). Grava
+// projects/{slug}/.build.env (0600). Responde SO com os NOMES das chaves — o
+// valor nunca volta pela API nem vai pra log.
+router.put('/:slug/build-env', express.json({ limit: '64kb' }), (req, res) => {
+  const slug = String(req.params.slug || '');
+  if (!/^[a-z0-9-]{1,60}$/.test(slug)) return res.status(400).json({ ok:false, error:'slug invalido' });
+  const dir = path.join(PROJ_DIR, slug);
+  if (!dir.startsWith(PROJ_DIR + path.sep)) return res.status(400).json({ ok:false, error:'slug invalido' });
+  if (!fs.existsSync(path.join(dir, 'project.json'))) return res.status(404).json({ ok:false, error:'projeto nao encontrado' });
+  const env = req.body && req.body.env;
+  if (!env || typeof env !== 'object' || Array.isArray(env))
+    return res.status(400).json({ ok:false, error:'campo "env" (objeto {VITE_X:"..."}) obrigatorio' });
+  const keys = Object.keys(env);
+  if (keys.length > BUILD_ENV_MAX_KEYS) return res.status(400).json({ ok:false, error:`maximo ${BUILD_ENV_MAX_KEYS} variaveis` });
+  const lines = [];
+  for (const k of keys) {
+    if (!BUILD_ENV_KEY_RE.test(k)) return res.status(400).json({ ok:false, error:`nome invalido "${k}" (so ^VITE_[A-Z0-9_]+$)` });
+    const v = env[k];
+    if (typeof v !== 'string' || v.length > BUILD_ENV_MAX_VAL || /[\r\n]/.test(v))
+      return res.status(400).json({ ok:false, error:`valor invalido para "${k}" (string sem quebra de linha, <=${BUILD_ENV_MAX_VAL} chars)` });
+    lines.push(`${k}=${v}`);
+  }
+  try {
+    const tmp = path.join(dir, BUILD_ENV_FILE + '.tmp');
+    fs.writeFileSync(tmp, lines.length ? lines.join('\n') + '\n' : '', { mode: 0o600 });
+    fs.chmodSync(tmp, 0o600);   // garante 0600 mesmo com umask do processo
+    fs.renameSync(tmp, path.join(dir, BUILD_ENV_FILE));
+  } catch(e) { return res.status(500).json({ ok:false, error:'falha ao gravar build-env: ' + e.message }); }
+  res.json({ ok:true, slug, keys });   // SO nomes, nunca valores
+});
+
 // [B4 2026-07-11] POST /:slug/deploy — sobe o container do projeto via
 // daemon project-supervisor (services/project-supervisor/, CONTRATO-B1).
 // Gate de promocao MANUAL (§2): so status==='producao'. Fail-fasts locais
@@ -460,7 +519,10 @@ router.post('/:slug/deploy', express.json({ limit: '10kb' }), (req, res) => {
   if (stack === 'static' && !fs.existsSync(path.join(PROJ_DIR, slug, 'site')))
     return res.status(422).json({ ok:false, error:'site/ nao existe para '+slug });
   // /up de node dispara build efemero no supervisor -> timeout longo (~290s).
-  callSupervisor('POST', '/up', slug, { slug, stack }, (err, code, out) => {
+  // Gap 4: le .build.env (0600) e passa VITE_* no corpo (so usado no stack node;
+  // static ignora). O supervisor revalida os nomes e injeta -e na fase build.
+  const buildEnv = readBuildEnv(slug);
+  callSupervisor('POST', '/up', slug, { slug, stack, buildEnv }, (err, code, out) => {
     if (err) return res.status(502).json({ ok:false, error:'project-supervisor indisponivel: ' + err.message });
     if (code !== 200 || !out || !out.ok)
       // passthrough: 409 ja existe, 429 teto, 422 run falhou, 501 node (B2b), 502 docker
