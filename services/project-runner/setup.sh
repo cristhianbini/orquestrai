@@ -33,11 +33,28 @@ chown root:projrunner /etc/project-runner.env
 chmod 640 /etc/project-runner.env
 echo "  criado (chaves: $(grep -oE '^[A-Z_]+' /etc/project-runner.env | tr '\n' ' '))"
 
-echo "[5/6] unit systemd"
+echo "[5/7] SSH p/ repos privados: deploy-keys/ + known_hosts fixo + mapping"
+# dir das deploy keys (700, projrunner). As CHAVES PRIVADAS em si sao provisionadas
+# MANUALMENTE (fora deste script, nunca no git) — aqui so garantimos o diretorio.
+install -d -o projrunner -g projrunner -m 700 /etc/project-runner/deploy-keys
+# known_hosts FIXO com as chaves OFICIAIS do GitHub (api.github.com/meta; versionado
+# em github-known-hosts). NUNCA ssh-keyscan dinamico. Chaves publicas -> reinstalar
+# a cada setup e' seguro/idempotente.
+install -o root -g root -m 644 "$SRC/github-known-hosts" /etc/project-runner/known_hosts
+# mapeamento owner/repo -> caminho da deploy key. Semeado VAZIO se ausente; NAO
+# sobrescreve o existente (as entradas reais sao adicionadas fora do git).
+if [ ! -f /etc/project-runner/private-repos.json ]; then
+  echo '{}' > /etc/project-runner/private-repos.json
+  chown root:root /etc/project-runner/private-repos.json
+  chmod 644 /etc/project-runner/private-repos.json
+  echo "  private-repos.json semeado vazio"
+else echo "  private-repos.json ja existe (preservado)"; fi
+
+echo "[6/7] unit systemd"
 install -o root -g root -m 644 "$SRC/project-runner.service" /etc/systemd/system/project-runner.service
 systemctl daemon-reload
 
-echo "[6/6] enable + start"
+echo "[7/7] enable + start"
 systemctl enable --now project-runner
 sleep 1
 systemctl is-active project-runner && echo "  ATIVO" || { echo "  FALHOU"; journalctl -u project-runner -n 20 --no-pager; exit 1; }

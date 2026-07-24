@@ -1,5 +1,7 @@
-// ATUALIZADO: 2026-07-11 06:03:23 -03:00 (auto, git pre-commit)
-#!/usr/bin/env node
+// ATUALIZADO: 2026-07-24 07:21:58 -03:00 (auto, git pre-commit)
+// (sem shebang de proposito: o hook de pre-commit prependeria o header ACIMA
+// dele e quebraria o parse — mesmo motivo do project-supervisor. A unit chama
+// /usr/bin/node explicito, o shebang nunca foi usado.)
 // project-runner — daemon MINIMO de clone para o import de projetos (Fase A).
 //
 // Modelo de seguranca (ver knowledge/decisoes + Sprint 2 plano):
@@ -21,6 +23,12 @@ const STAGING  = process.env.PR_STAGING || '/var/www/orquestrai/projects/.stagin
 const MAX_MB   = parseInt(process.env.PR_MAX_MB || '100', 10);
 const TIMEOUT  = parseInt(process.env.PR_CLONE_TIMEOUT_MS || '120000', 10);
 const JWT_SECRET = process.env.JWT_SECRET;
+// mapeamento owner/repo -> deploy key privada (repos GitHub privados) + known_hosts
+// FIXO com a chave oficial do GitHub (NUNCA ssh-keyscan). Ambos em /etc (read-only
+// sob ProtectSystem=strict, mas legiveis pelo processo). Repos fora do mapa clonam
+// por HTTPS como sempre — zero regressao.
+const PRIVATE_REPOS = process.env.PR_PRIVATE_REPOS || '/etc/project-runner/private-repos.json';
+const KNOWN_HOSTS   = process.env.PR_KNOWN_HOSTS   || '/etc/project-runner/known_hosts';
 
 if (!JWT_SECRET) { console.error('[project-runner] FATAL: JWT_SECRET ausente'); process.exit(1); }
 try { fs.mkdirSync(STAGING, { recursive: true, mode: 0o700 }); } catch (_) {}
@@ -62,15 +70,44 @@ function dirSizeBytes(dir){
 }
 function rmrf(p){ try { fs.rmSync(p, { recursive: true, force: true }); } catch(_){} }
 
+// deploy key p/ um repo privado mapeado, ou null (=> clone HTTPS normal). Le o
+// mapa fresco a cada clone (arquivo minusculo). NAO passa por parseGithubUrl: a
+// URL do usuario continua sendo a HTTPS validada; a SSH e' montada internamente a
+// partir do owner/repo JA parseado (respeita a protecao de '@' da regex). Se a
+// chave nao existir/ler, retorna null (cai pro HTTPS em vez de quebrar).
+function privateKeyFor(owner, repo){
+  try {
+    const map = JSON.parse(fs.readFileSync(PRIVATE_REPOS, 'utf8'));
+    const key = map[`${owner}/${repo}`];
+    if (typeof key !== 'string' || !key) return null;
+    fs.accessSync(key, fs.constants.R_OK);
+    return key;
+  } catch(_) { return null; }
+}
+
 // ---- clone ----
 function doClone(slug, gh, cb){
   const rand = crypto.randomBytes(6).toString('hex');
   const tmp  = path.join(STAGING, `${slug}-${rand}.tmp`);
-  const args = ['clone', '--depth', '1', '--single-branch', '--no-tags', gh.url, tmp];
-  const git = spawn('git', args, {
-    env: { PATH: process.env.PATH, GIT_TERMINAL_PROMPT: '0', HOME: STAGING },
-    timeout: TIMEOUT,
-  });
+  const env  = { PATH: process.env.PATH, GIT_TERMINAL_PROMPT: '0', HOME: STAGING };
+  let cloneUrl = gh.url;                                  // HTTPS por padrao (inalterado)
+  const keyPath = privateKeyFor(gh.owner, gh.repo);
+  if (keyPath) {
+    // repo privado mapeado -> SSH com deploy key read-only. -F /dev/null ignora
+    // config do usuario; IdentitiesOnly+IdentityAgent=none oferecem SO esta chave
+    // (sem agente, coerente com RestrictAddressFamilies sem AF_UNIX); known_hosts
+    // FIXO + StrictHostKeyChecking=yes exige match (falha em vez de confiar cego);
+    // BatchMode=yes nunca prompta. owner/repo ja validados pela regex (sem meta).
+    cloneUrl = `git@github.com:${gh.owner}/${gh.repo}.git`;
+    env.GIT_SSH_COMMAND = `ssh -i ${keyPath} -F /dev/null`
+      + ` -o IdentitiesOnly=yes -o IdentityAgent=none`
+      + ` -o PreferredAuthentications=publickey -o BatchMode=yes`
+      + ` -o StrictHostKeyChecking=yes`
+      + ` -o UserKnownHostsFile=${KNOWN_HOSTS} -o GlobalKnownHostsFile=/dev/null`;
+    console.log(`[project-runner] repo privado ${gh.owner}/${gh.repo} -> clone SSH (deploy key)`);
+  }
+  const args = ['clone', '--depth', '1', '--single-branch', '--no-tags', cloneUrl, tmp];
+  const git = spawn('git', args, { env, timeout: TIMEOUT });
   let stderr = '';
   git.stderr.on('data', d => { stderr += d.toString().slice(0, 2000); });
   git.on('error', e => { rmrf(tmp); cb({ ok:false, error:'git spawn falhou: '+e.message }); });
