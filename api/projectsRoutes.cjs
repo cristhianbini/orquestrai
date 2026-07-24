@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-24 00:48:34 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-24 07:02:31 -03:00 (auto, git pre-commit)
 // [B315] /api/projects — Projetos, Modos e Scorecard dos Agentes
 // [CTXPROJPERSIST01 2026-07-09] Persistencia em DISCO substitui o Map
 // em memoria do B315 original.
@@ -11,8 +11,9 @@
 // montado no compose: ./projects -> /app/projects). GET / varre o
 // diretorio a cada chamada (dezenas de projetos, nao milhares --
 // leitura direta e mais simples e sempre fresca; otimizar so se doer).
-// PROXIMO DEV: container/custo/deploy por projeto chegam em S20/S21;
-// o front mostra "-" ate la (nao inventar dado).
+// DEPLOY por projeto JA EXISTE (B4/Gap 2-3): /import clona, /deploy sobe
+// container isolado (static direto; node builda pra estatico e reaproveita
+// o caminho static). Custo por projeto ainda mostra "-" ate S21.
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -407,18 +408,20 @@ router.post('/:slug/import', express.json({ limit: '10kb' }), (req, res) => {
 });
 
 // [B4-E2] chamada interna ao supervisor (espelha o /import + project-runner):
-// token efemero 120s. Timeout 90s DE PROPOSITO > 60s do `docker run` do
-// daemon — o daemon desiste primeiro e devolve JSON de erro estruturado,
-// em vez de a api abortar a conexao no meio (mesmo desenho do /import,
-// 150s > 120s do clone).
-function callSupervisor(method, psPath, slug, body, cb){
+// token efemero 120s (validado na CHEGADA do request; build longo depois nao o
+// invalida). Timeout parametrizavel: /down e /up static sao rapidos (90s
+// default > 60s do docker run), mas /up de stack NODE dispara build efemero
+// (npm/vite) — o /deploy passa ~290s (abaixo do requestTimeout padrao 300s do
+// server http). Se estourar, a api devolve 502 timeout claro; o supervisor
+// mata a fase travada pelo seu proprio BUILD_TIMEOUT_MS.
+function callSupervisor(method, psPath, slug, body, cb, timeoutMs){
   const itk = jwt.sign({ sub:'api-deploy', role:'admin', slug }, JWT_SECRET, { expiresIn:'120s' });
   const payload = body ? JSON.stringify(body) : '';
   const headers = { authorization: 'Bearer ' + itk };
   if (body) { headers['content-type'] = 'application/json'; headers['content-length'] = Buffer.byteLength(payload); }
   let done = false;
   const fin = (...a) => { if (!done) { done = true; cb(...a); } };
-  const q = http.request(PS_URL + psPath, { method, timeout: 90000, headers }, s => {
+  const q = http.request(PS_URL + psPath, { method, timeout: timeoutMs || 90000, headers }, s => {
     let b = '';
     s.on('data', d => { b += d; if (b.length > 65536) q.destroy(new Error('resposta grande demais')); });
     s.on('end', () => {
@@ -456,6 +459,7 @@ router.post('/:slug/deploy', express.json({ limit: '10kb' }), (req, res) => {
     return res.status(422).json({ ok:false, error:'stack "'+String(project.stack||'')+'" nao suportada no runtime v1 (so static|node)' });
   if (stack === 'static' && !fs.existsSync(path.join(PROJ_DIR, slug, 'site')))
     return res.status(422).json({ ok:false, error:'site/ nao existe para '+slug });
+  // /up de node dispara build efemero no supervisor -> timeout longo (~290s).
   callSupervisor('POST', '/up', slug, { slug, stack }, (err, code, out) => {
     if (err) return res.status(502).json({ ok:false, error:'project-supervisor indisponivel: ' + err.message });
     if (code !== 200 || !out || !out.ok)
@@ -487,7 +491,7 @@ router.post('/:slug/deploy', express.json({ limit: '10kb' }), (req, res) => {
       return res.status(500).json({ ok:false, error:'container subiu mas project.json falhou: ' + e.message, runtime: project.runtime });
     }
     res.json({ ok:true, slug, runtime: project.runtime });
-  });
+  }, 290000);
 });
 
 // [B4] POST /:slug/stop — derruba o container via supervisor. Container ja

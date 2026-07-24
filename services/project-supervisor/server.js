@@ -1,4 +1,4 @@
-// ATUALIZADO: 2026-07-24 00:48:34 -03:00 (auto, git pre-commit)
+// ATUALIZADO: 2026-07-24 07:02:31 -03:00 (auto, git pre-commit)
 // (sem shebang de proposito: o hook de pre-commit prependeria o header
 // ACIMA dele e quebraria o parse; a unit chama /usr/bin/node explicito)
 // project-supervisor — daemon que sobe/derruba UM container por projeto.
@@ -25,9 +25,6 @@ const crypto = require('crypto');
 const { spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-// [CTXCHMODSHARE01] modulo compartilhado com a api (fatorado do Gap 2). Usado
-// no Gap 3 (build->estatico) para normalizar perms do dist/ antes de servir.
-const { chmodReadable } = require(path.join(__dirname, '..', '..', 'lib', 'chmodReadable.cjs'));
 
 const HOST         = process.env.PS_HOST || '127.0.0.1';   // B2: localhost only
 const PORT         = parseInt(process.env.PS_PORT || '7656', 10);
@@ -113,12 +110,150 @@ function containerState(slug){
   return { state: r.out === 'true' ? 'running' : 'stopped' };
 }
 
+// ---- build efemero (Gap 3): node que builda pra estatico ----
+// TODO trabalho de FS e' feito por CONTAINERS (o daemon escreve no host como
+// root via bind-mount) porque este daemon roda sob ProtectSystem=strict/projsup
+// e NAO pode escrever no host nem ler repo/ (750 projrunner). Fluxo, tudo
+// serializado pelo spawnSync do processo:
+//   deteccao (le lockfile + scripts.build DENTRO de container) ->
+//   install (COM rede) -> build (SEM rede) -> publish (copia dist|build p/
+//   site/ e torna world-readable) -> cleanup (rm do staging via container).
+// Erro em qualquer fase -> {ok:false, code, error, detail}. Nunca silencioso.
+// So build->estatico: node SEM script de build (servidor persistente) -> 501.
+const BUILD_TIMEOUT_MS = parseInt(process.env.PS_BUILD_TIMEOUT_MS || '300000', 10);
+const BUILD_IMG_ALPINE = 'alpine:3.20';
+// tabela dona do supervisor: caller nunca escolhe imagem/comando (so o pm, um
+// enum, sai da deteccao). npm sem lockfile cai no fallback abaixo.
+const BUILD_TOOLCHAINS = {
+  bun:  { image: 'oven/bun:1-alpine', install: 'bun install',                                        build: 'bun run build'  },
+  pnpm: { image: 'node:20-alpine',    install: 'corepack enable && pnpm install --frozen-lockfile',  build: 'pnpm run build' },
+  yarn: { image: 'node:20-alpine',    install: 'corepack enable && yarn install --frozen-lockfile',  build: 'yarn build'     },
+  npm:  { image: 'node:20-alpine',    install: 'npm ci',                                              build: 'npm run build'  },
+};
+// hardening comum dos containers efemeros de build (nunca --user root no
+// SERVIDO; estes sao descartados e --network none no build/publish).
+const BUILD_COMMON = ['--rm', '--memory', '1g', '--cpus', '1', '--pids-limit', '512',
+                      '--security-opt', 'no-new-privileges', '--cap-drop', 'ALL'];
+
+function pmFromLock(lock){
+  if (lock === 'bun.lock' || lock === 'bun.lockb') return 'bun';
+  if (lock === 'pnpm-lock.yaml') return 'pnpm';
+  if (lock === 'yarn.lock')      return 'yarn';
+  if (lock === 'package-lock.json') return 'npm';
+  return null;
+}
+
+// remove containers de build que sobraram (ex: timeout matou o CLI mas o
+// container orfanou no daemon). Best-effort.
+function killBuildLeftovers(slug){
+  const r = docker(['ps', '-aq', '--filter', `label=orquestrai.build=${slug}`]);
+  if (r.code === 0 && r.out) for (const id of r.out.split('\n').filter(Boolean)) docker(['rm', '-f', id]);
+}
+
+// remove o staging (criado pelo daemon como root) via container -- o supervisor
+// nao pode rm no host.
+function rmStaging(slug, stageName){
+  if (!/^\.build-[0-9a-f]{12}$/.test(stageName)) return;   // cinto e suspensorio
+  docker(['run', ...BUILD_COMMON, '--network', 'none', '--label', `orquestrai.build=${slug}`,
+    '-v', `${path.join(PROJECTS_DIR, slug)}:/p`, BUILD_IMG_ALPINE,
+    'sh', '-c', `rm -rf /p/${stageName}`], 60000);
+}
+
+// [Gate 4 R10] o cap-drop ALL dos containers de build tira o DAC_OVERRIDE do
+// root-do-container; repo/ e' clonado pelo project-runner como 0640/0750 dono
+// projrunner, entao root ("outros") NAO le -> /src vazio -> pkg=false silencioso.
+// Fix de menor privilegio: dar ao container o GRUPO dono do repo/ via --group-add
+// (le pelos bits de grupo: dir 0750=r-x, files 0640=r), SEM capability de bypass,
+// SEM userns, SEM --user (que quebraria a escrita do staging root:root no install).
+// projsup consegue statSync o repoHost (parents 0755 ate gap3; repo so precisa de
+// stat, nao read). Falha de stat -> [] (erro claro cai depois na deteccao).
+function repoGroupAdd(repoHost){
+  try { return ['--group-add', String(fs.statSync(repoHost).gid)]; }
+  catch(_) { return []; }
+}
+
+// deteccao dentro de container (supervisor nao le repo/). Devolve {lock,build,pkg}
+// ou {error}.
+function detectToolchain(slug){
+  const repoHost = path.join(PROJECTS_DIR, slug, 'repo');
+  const script =
+    'const fs=require("fs");const has=f=>{try{return fs.existsSync("/src/"+f)}catch(_){return false}};' +
+    'const lock=["bun.lock","bun.lockb","pnpm-lock.yaml","yarn.lock","package-lock.json"].find(has)||"";' +
+    'let build=false,pkg=false;try{const p=JSON.parse(fs.readFileSync("/src/package.json","utf8"));pkg=true;' +
+    'build=!!(p.scripts&&p.scripts.build)}catch(_){}' +
+    'console.log(JSON.stringify({lock,build,pkg}))';
+  const r = docker(['run', ...BUILD_COMMON, ...repoGroupAdd(repoHost), '--network', 'none', '--label', `orquestrai.build=${slug}`,
+    '-v', `${repoHost}:/src:ro`, 'node:20-alpine', 'node', '-e', script], 60000);
+  if (r.code !== 0) return { error: 'deteccao de toolchain falhou', detail: (r.err || '').slice(-300) };
+  try { return JSON.parse(r.out.trim().split('\n').pop()); }
+  catch(_) { return { error: 'deteccao: saida invalida', detail: (r.out || '').slice(-300) }; }
+}
+
+// Builda repo/ (node) e publica o dist/build em site/. Idempotente: limpa site/
+// antes de copiar. Retorna {ok:true, pm} ou {ok:false, code, error, detail}.
+function buildNodeToStatic(slug){
+  const det = detectToolchain(slug);
+  if (det.error)  return { ok: false, code: 422, error: det.error, detail: det.detail };
+  if (!det.pkg)   return { ok: false, code: 422, error: 'repo/ sem package.json (stack node nao reconhecida)' };
+  if (!det.build) return { ok: false, code: 501,
+    error: 'projeto node sem script de build (servidor persistente nao suportado nesta versao)' };
+
+  let pm = pmFromLock(det.lock), tc;
+  if (pm) tc = BUILD_TOOLCHAINS[pm];
+  else { pm = 'npm'; tc = { image: 'node:20-alpine', install: 'npm install', build: 'npm run build' }; }
+
+  const stageName = '.build-' + crypto.randomBytes(6).toString('hex');
+  const projHost  = path.join(PROJECTS_DIR, slug);
+  const stageHost = path.join(projHost, stageName);
+  const repoHost  = path.join(projHost, 'repo');
+  const siteHost  = path.join(projHost, 'site');
+
+  try {
+    // 1) install COM rede (bridge default). Copia repo->/app (repo e' :ro),
+    // descarta .git, instala deps.
+    const inst = docker(['run', ...BUILD_COMMON, ...repoGroupAdd(repoHost), '-v', `${repoHost}:/src:ro`, '-v', `${stageHost}:/app`, '-w', '/app',
+      tc.image, 'sh', '-c', `cp -a /src/. /app/ && rm -rf /app/.git && ${tc.install}`], BUILD_TIMEOUT_MS);
+    if (inst.code !== 0) return { ok: false, code: 422, error: `install falhou (${pm})`, detail: (inst.err || inst.out || '').slice(-500) };
+
+    // 2) build SEM rede
+    const bld = docker(['run', ...BUILD_COMMON, '--network', 'none', '-v', `${stageHost}:/app`, '-w', '/app',
+      tc.image, 'sh', '-c', tc.build], BUILD_TIMEOUT_MS);
+    if (bld.code !== 0) return { ok: false, code: 422, error: `build falhou (${pm})`, detail: (bld.err || bld.out || '').slice(-500) };
+
+    // 3) publish SEM rede: detecta dist/ ou build/, limpa site/, copia e torna
+    // world-readable (dirs 755 / files 644 -> nginx uid 101 le). busybox chmod
+    // nao tem 'X', entao usamos find -type (deterministico).
+    const pub = docker(['run', ...BUILD_COMMON, '--network', 'none', '-v', `${stageHost}:/app:ro`, '-v', `${siteHost}:/out`,
+      BUILD_IMG_ALPINE, 'sh', '-c',
+      'set -e; src=""; for d in dist build; do [ -d "/app/$d" ] && src="/app/$d" && break; done; ' +
+      '[ -n "$src" ] || { echo "sem dist/ nem build/" >&2; exit 3; }; ' +
+      'rm -rf /out/* /out/.[!.]* 2>/dev/null || true; cp -a "$src"/. /out/; ' +
+      'find /out -type d -exec chmod 755 {} + ; find /out -type f -exec chmod 644 {} +'], 60000);
+    if (pub.code !== 0) return { ok: false, code: 422,
+      error: 'build nao gerou dist/ nem build/ (ou falha ao publicar em site/)', detail: (pub.err || pub.out || '').slice(-400) };
+
+    return { ok: true, pm };
+  } finally {
+    rmStaging(slug, stageName);
+    killBuildLeftovers(slug);
+  }
+}
+
 // ---- acoes ----
 function doUp(slug, stackName, cb){
+  // [Gap 3 CTXNODEBUILDSTATIC01] node que builda pra estatico: builda repo/ ->
+  // publica em site/ e SEGUE pelo caminho static (reaproveita o stack static do
+  // Gap 2 inteiro). node SEM script de build (servidor persistente puro) ->
+  // 501 explicito, decisao congelada (nenhum candidato real hoje).
+  if (stackName === 'node') {
+    const b = buildNodeToStatic(slug);
+    if (!b.ok) return cb(b.code, { ok:false, error:b.error, detail:b.detail });
+    console.log(`[project-supervisor] build node->static slug=${slug} pm=${b.pm}`);
+    stackName = 'static';   // site/ ja populado; cai no serve static abaixo
+  }
   const stack = STACKS[stackName];
   if (!stack) {
-    if (stackName === 'node') return cb(501, { ok:false, error:'stack node chega no B2b (build-time Dockerfile)' });
-    return cb(400, { ok:false, error:'stack nao suportada na v1 (so static; node no B2b)' });
+    return cb(400, { ok:false, error:'stack nao suportada na v1 (so static|node)' });
   }
   const name = containerName(slug);
   // ja existe? nao recria por cima silenciosamente
