@@ -53,3 +53,15 @@ Cockpit multi-IA self-hosted da CBini. Ver `README.md` e
 ## Estrutura de diretórios (cada um tem seu CLAUDE.md)
 `api/` `mas/` `src/` `frontend-vite/` `nginx/` `knowledge/` — leia o CLAUDE.md do diretório
 antes de editar dentro dele.
+
+## GATES — mesmo com allow-list de edição liberada, PARE e peça confirmação explícita antes de:
+1. Qualquer mudança visual/CSS/UX perceptível — screenshot antes do commit.
+2. Decisão que afeta múltiplos módulos/arquitetura.
+3. Qualquer coisa tocando produção real ou dados reais (DB, .env, container em uso real).
+4. Falha que você não entende de primeira — pare e explique, não tente 3 abordagens diferentes sozinho.
+5. Qualquer edição em unit do systemd (`*.service`, `*.socket`, `*.timer` em `/etc/systemd/system/` ou equivalente)
+   SEMPRE pausa pra confirmação explícita — mesmo que a causa raiz de um bug esteja lá, e independente da
+   allow-list de Edit/Write já liberada em `api/`, `services/project-supervisor/`, `lib/`. Essas pastas cobrem
+   código da aplicação; a unit systemd é infraestrutura de produção e fica de fora dessa autonomia.
+
+Fora desses casos, prossiga sem pausar pra aprovação mecânica.

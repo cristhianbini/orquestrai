@@ -24,12 +24,26 @@
       "Bash(docker ps:*)",
       "Bash(docker inspect:*)",
       "Bash(docker logs:*)",
-      "Bash(rm -rf /tmp/claude-0/*)"
+      "Bash(rm -rf /tmp/claude-0/*)",
+      "Edit(api/*)",
+      "Write(api/*)",
+      "Edit(services/project-supervisor/*)",
+      "Write(services/project-supervisor/*)",
+      "Edit(lib/*)",
+      "Write(lib/*)",
+      "Bash(docker compose restart api:*)",
+      "Bash(systemctl restart project-supervisor:*)"
     ],
     "ask": [
       "Bash(git push:*)",
       "Bash(git reset:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Edit(.env)",
+      "Write(.env)",
+      "Edit(.env.*)",
+      "Write(.env.*)",
+      "Edit(.claude/settings.json)",
+      "Write(.claude/settings.json)"
     ]
   }
 }
