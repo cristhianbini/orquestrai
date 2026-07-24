@@ -22,3 +22,10 @@ node_modules/
 
 # Litestream backups (local)
 _backups/
+
+# projetos de runtime (dados gerados pela plataforma) -- nao e codigo-fonte
+projects/*
+!projects/.gitkeep
+
+# espelho de skills gerado pelo harness (canonico fica em .claude/skills/)
+.agents/
