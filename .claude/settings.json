@@ -8,7 +8,28 @@
       "Bash(docker compose ps *)",
       "Bash(docker compose logs *)",
       "Bash(docker compose -f /var/www/orquestrai/docker-compose.yml ps *)",
-      "Bash(docker compose -f /var/www/orquestrai/docker-compose.yml logs *)"
+      "Bash(docker compose -f /var/www/orquestrai/docker-compose.yml logs *)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(stat:*)",
+      "Bash(readlink:*)",
+      "Bash(node --check:*)",
+      "Bash(sh -n:*)",
+      "Bash(curl:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker inspect:*)",
+      "Bash(docker logs:*)",
+      "Bash(rm -rf /tmp/claude-0/*)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(git reset:*)",
+      "Bash(git checkout:*)"
     ]
   }
 }
